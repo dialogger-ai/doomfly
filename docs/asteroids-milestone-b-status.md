@@ -45,7 +45,7 @@ the compiled full-graph runtime. Passing them verifies the software boundary,
 not visual causality or useful neural activity.
 
 The focused game, adapter, matched-assay and unchanged controller-boundary suite
-passes 32 tests. Ruff lint/format and `git diff --check` also pass. The broader
+passes 36 tests. Ruff lint/format and `git diff --check` also pass. The broader
 legacy Doom suite cannot collect here because this workspace lacks its pinned
 `numba` dependency; no full-brain claim is inferred from the focused tests.
 
@@ -122,3 +122,20 @@ samples membrane voltage and synaptic conductance four times per game tick at
 If Mi1/Tm3 or T4/T5 state changes without spikes, the next model test can target
 graded transmission. If their state is unchanged, pathway signs, included cell
 types and input projection must be audited before changing excitability.
+
+The subthreshold assay found a scene-dependent signal at all tested exposures.
+At the safe 2x setting, every Mi1 and Tm3 cell changed state versus black, with
+roughly 0.7–1.3 mV RMS voltage differences. Only 8–9 T4 cells and 814–870 T5
+cells changed under each scene, and none spiked. KCs remained nonspiking, though
+43–44 showed subthreshold changes. At 4x, nearly all T4/T5 cells changed and the
+mirrored scene again triggered the unsafe KC burst. This locates a real modeled
+signal below the all-spiking relay boundary; it does not validate motion vision.
+
+`python -m asteroids.graded_relay_assay` is the next staged dynamics test. At
+fixed 2x exposure it applies bounded rectified fractional release to Mi1/Tm3
+only, through every existing signed outgoing edge, while preserving the graph,
+weights, other cell dynamics and decoder. Common gains of 0, 0.01, 0.03 and 0.1
+are compared under black, original, mirrored and two-second dark-recovery arms.
+A candidate must produce scene-distinct T4/T5 spikes from a quiet black baseline,
+recover in darkness and avoid broad or persistent KC recruitment. Even a passing
+gain is only an engineering candidate; held-out visual tests remain required.

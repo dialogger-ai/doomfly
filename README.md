@@ -173,6 +173,21 @@ and black inputs without modifying dynamics. A state difference can identify
 where the current spiking proxy blocks propagation; it is not proof of motion
 vision, biological validity or learning.
 
+If that assay finds scene-dependent subthreshold Mi1/Tm3 and T4/T5 state, run
+the staged Mi1/Tm3 graded-release sensitivity test:
+
+```sh
+OPENBLAS_NUM_THREADS=1 python -m asteroids.graded_relay_assay \
+  --seed 41027 --out outputs/asteroids/graded-relay-v1
+```
+
+At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
+through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
+through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
+and dark-recovery gates reject tonic motion, non-distinct scenes, runaway KCs or
+persistent activity. This chosen hybrid is a sensitivity study, not a transfer
+of FlyVis's fitted parameters or a validated biological model.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
