@@ -129,6 +129,20 @@ distribution and `brain_to_wall_speed` before attempting training. In particular
 zero KC or descending-neuron activity is a failed diagnostic, not a learning
 baseline. See [Milestone B status](docs/asteroids-milestone-b-status.md).
 
+If the baseline has silent KCs or a degenerate action distribution, run the
+matched visual-pathway assay before changing the decoder or enabling learning:
+
+```sh
+OPENBLAS_NUM_THREADS=1 python -m asteroids.visual_assay \
+  --seconds 3 --seed 41027 --out outputs/asteroids/visual-assay-v1
+```
+
+It replays one deterministic sequence into identically reset frozen brains,
+using real game pixels in one condition and black frames in the other. Exact
+differences are reported for mapped retina, lamina, aMe12, Mi1/Tm3, T4/T5, KCs,
+MBON11/PPL101 and DNp20/DNpe017. This isolates modeled visual causality from
+tonic or recurrent activity; it still does not validate biological vision.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

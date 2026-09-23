@@ -44,10 +44,10 @@ They use a fake brain because the managed development environment does not have
 the compiled full-graph runtime. Passing them verifies the software boundary,
 not visual causality or useful neural activity.
 
-The focused game, adapter and unchanged controller-boundary suite passes 19
-tests. Ruff lint/format and `git diff --check` also pass. The broader legacy Doom
-suite cannot collect here because this workspace lacks its pinned `numba`
-dependency; no full-brain claim is inferred from the focused tests.
+The focused game, adapter, matched-assay and unchanged controller-boundary suite
+passes 23 tests. Ruff lint/format and `git diff --check` also pass. The broader
+legacy Doom suite cannot collect here because this workspace lacks its pinned
+`numba` dependency; no full-brain claim is inferred from the focused tests.
 
 ## Required Mac diagnostic
 
@@ -72,7 +72,23 @@ readouts, and practical throughput. The current v6 Doom candidate previously
 showed zero T4/T5/KC spikes in its visual validation; Asteroids must be treated
 as another measurement of that unresolved risk, not assumed to repair it.
 
-After a successful smoke run, record multiple fixed-weight episodes on declared
-calibration seeds. Only then freeze the decoder version and implement persistent
-training with outcome-following PPL101 pulses plus frozen and timing-shuffled
-controls.
+Only after the visual assay and a corrected frozen baseline pass should we record
+multiple fixed-weight episodes on declared calibration seeds. Then freeze the
+decoder version and implement persistent training with outcome-following PPL101
+pulses plus frozen and timing-shuffled controls.
+
+## First Mac result and required follow-up
+
+The first three-second run on seed 41027 completed at 0.93 simulated-brain
+seconds per wall second. All 90 controller frames were unique, the whole graph
+produced 826,631 spikes, and DNp20/DNpe017 were active. The controller nevertheless
+selected thrust for all 90 ticks because the minimum normalized thrust command
+exceeded the maximum normalized turn command. It sustained one collision and
+produced zero KC spikes. This is a useful failed diagnostic, not a viable frozen
+baseline.
+
+Before decoder recalibration or training, run `python -m asteroids.visual_assay`.
+It compares a deterministic thrust replay against black frames using two
+identically reset, frozen brain conditions and exact neural timing. The assay
+reports each declared visual, KC and motor group separately and marks training
+ready only if game pixels cause a nonzero KC response and alter motor readouts.
