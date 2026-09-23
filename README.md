@@ -92,6 +92,8 @@ avoidance.
 ```sh
 python -m pip install -r requirements-asteroids.txt
 python -m asteroids.play --seed 41027
+# Optional later-curriculum shooting mode:
+python -m asteroids.play --seed 41027 --shooting
 python -m pytest tests/test_asteroids_environment.py -q
 ```
 
