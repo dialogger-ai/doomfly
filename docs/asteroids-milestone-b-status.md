@@ -45,7 +45,7 @@ the compiled full-graph runtime. Passing them verifies the software boundary,
 not visual causality or useful neural activity.
 
 The focused game, adapter, matched-assay and unchanged controller-boundary suite
-passes 28 tests. Ruff lint/format and `git diff --check` also pass. The broader
+passes 32 tests. Ruff lint/format and `git diff --check` also pass. The broader
 legacy Doom suite cannot collect here because this workspace lacks its pinned
 `numba` dependency; no full-brain claim is inferred from the focused tests.
 
@@ -107,3 +107,18 @@ rejects silent relays, silent motion cells, inactive or identical KCs, more than
 five-percent active KCs, persistent KC activity after darkness, and absent motor
 responses. If every exposure fails, the declared next step is graded or
 cell-type-specific visual dynamics—not game training or decoder threshold tuning.
+
+The completed exposure sweep found no candidate. At 2x, aMe12 responded while
+all Mi1/Tm3/T4/T5 cells and all KCs remained silent. At 4x, all six aMe12 cells
+responded, but the mirrored scene recruited 1,499 of 4,064 KCs and the original
+scene developed a delayed KC burst only after the stimulus ended. At 8x–32x,
+roughly 35–38 percent of KCs were active and KC firing persisted at about 9,000
+spikes in the final recovery second. T4/T5 remained completely silent at every
+exposure. This rules out global exposure as a safe repair.
+
+The next frozen diagnostic is `python -m asteroids.subthreshold_assay`. It
+samples membrane voltage and synaptic conductance four times per game tick at
+1x, 2x and 4x exposure under matched black, original and mirrored conditions.
+If Mi1/Tm3 or T4/T5 state changes without spikes, the next model test can target
+graded transmission. If their state is unchanged, pathway signs, included cell
+types and input projection must be audited before changing excitability.

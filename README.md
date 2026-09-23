@@ -159,6 +159,20 @@ KCs and motor readouts; distinguish original from mirrored scenes; and return
 KCs exactly to the matched dark baseline. The five-percent active-KC ceiling is
 a declared conservative engineering gate, not measured MaleCNS physiology.
 
+If no exposure passes, locate whether the silent motion pathway still carries
+subthreshold state before changing the neuron model:
+
+```sh
+OPENBLAS_NUM_THREADS=1 python -m asteroids.subthreshold_assay \
+  --seed 41027 --out outputs/asteroids/subthreshold-assay-v1
+```
+
+This matched frozen assay samples voltage and synaptic conductance after every
+internal neural chunk at 1x, 2x and 4x exposure. It compares original, mirrored
+and black inputs without modifying dynamics. A state difference can identify
+where the current spiking proxy blocks propagation; it is not proof of motion
+vision, biological validity or learning.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
