@@ -1,8 +1,8 @@
 # Asteroids Milestone A status
 
-Status on 23 September 2026: **game environment complete locally; remote fork
-creation blocked by the available GitHub interface.** This is not a neural
-learning result.
+Status on 23 September 2026: **game environment complete and published to the
+`dialogger-ai/doomfly` fork on branch `codex/asteroids-integration`.** This is
+not a neural learning result.
 
 ## Completed
 
@@ -53,23 +53,14 @@ workspace lacks the pinned `numba` neural dependency. It failed during test
 collection before executing project code. The Asteroids changes do not modify
 the neural simulator or checkpoint implementation.
 
-## Remote blocker
+## Publication
 
-The connected GitHub account has admin/write access to the existing
-`dialogger-ai` repositories. `dialogger-ai/doomfly` does not exist, and the
-available GitHub interface can only modify existing repositories; it cannot
-create or fork one. The local branch is complete and retains upstream history.
-
-Required one-time action: on <https://github.com/nftechie/doomfly>, choose
-**Fork**, select owner **dialogger-ai**, keep repository name **doomfly**, and
-create the fork. After the fork exists, this branch can be published without
-rewriting history. In GitHub Desktop, Fetch and Pull only after the branch has
-been pushed to the new fork.
+Rob created `dialogger-ai/doomfly`, and Milestone A was published to
+`codex/asteroids-integration`. GitHub Desktop can fetch and pull that branch.
 
 ## Exact next development step
 
-After publishing the branch, begin Milestone B with a short fixed-decoder
-calibration run:
+Milestone B begins with a short fixed-decoder diagnostic run:
 
 1. Load the existing `VisualMemoryBrain` and verified MaleCNS graph.
 2. Feed only `AsteroidsEnv.rgb()` into `rgb_step`.
@@ -84,4 +75,3 @@ calibration run:
 
 Do not tune decoder thresholds on held-out evaluation seeds, and do not enable
 training until the fixed neural baseline and matched controls are recorded.
-

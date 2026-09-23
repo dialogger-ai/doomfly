@@ -81,20 +81,19 @@ Use Node.js 22.13 or later. In `doom-ui/`, run `npm ci`, create a local `.dev.va
 
 Hosting the viewer alone does not host the simulation. It needs an independently running Python worker and a configured read-only HTTPS origin. A laptop must stay awake and connected. The prepared container has not been certified for cloud operation or audience load. Register your own hosting project before publishing a fork.
 
-## Asteroids integration (Milestone A)
+## Asteroids integration (Milestones A-B)
 
 The `codex/asteroids-integration` branch adds a deterministic, human-playable
-Asteroids survival environment before connecting it to the retained neural
-simulation. It uses no Atari ROM or commercial artwork. Shooting exists in the
-action interface but is disabled by default so the first curriculum measures
-avoidance.
+Asteroids survival environment and a frozen whole-brain diagnostic adapter. It
+uses no Atari ROM or commercial artwork. Shooting exists in the action interface
+but is disabled by default so the first curriculum measures avoidance.
 
 ```sh
 python -m pip install -r requirements-asteroids.txt
 python -m asteroids.play --seed 41027
 # Optional later-curriculum shooting mode:
 python -m asteroids.play --seed 41027 --shooting
-python -m pytest tests/test_asteroids_environment.py -q
+python -m pytest tests/test_asteroids_environment.py tests/test_asteroids_neural.py -q
 ```
 
 Use arrows or WASD to steer/thrust, `R` to reset and Escape to quit. See the
@@ -104,6 +103,31 @@ Use arrows or WASD to steer/thrust, `R` to reset and Escape to quit. See the
 the exact handoff are in the [Milestone A status](docs/asteroids-milestone-a-status.md).
 The present Asteroids work is a game-environment milestone, not evidence of
 neural learning.
+
+The first full-brain run must use the Python 3.11 neural environment and prepared
+MaleCNS data described above. Install the Asteroids runtime into that same neural
+environment, then run a short fixed-weight smoke test:
+
+```sh
+python -m pip install -r requirements-asteroids.txt
+OPENBLAS_NUM_THREADS=1 python -m asteroids.neural_baseline \
+  --seconds 3 --seed 41027 --out outputs/asteroids/frozen-smoke
+```
+
+This advances 333 or 334 neural steps per 30 Hz game frame, feeds only the
+pre-action RGB image into `VisualMemoryBrain`, and maps smoothed DNp20 R-L
+activity to rotation and DNpe017 activity to thrust. The published Doom BCI
+gains are retained; fixed 0.5-unit thresholds discretize the commands. The
+stronger threshold-normalized command wins, rotation wins exact ties, and no
+neural or scripted path can fire. Plasticity and reinforcement are off and
+weights are frozen. Privileged coordinates, health, damage and score are written
+only after action selection for evaluation.
+
+The command writes `protocol.json`, one `summary.json` per episode, raw JSONL
+traces and `results.json`. Inspect `neural_totals`, `readout_spikes`, the action
+distribution and `brain_to_wall_speed` before attempting training. In particular,
+zero KC or descending-neuron activity is a failed diagnostic, not a learning
+baseline. See [Milestone B status](docs/asteroids-milestone-b-status.md).
 
 ## Evidence and publication hygiene
 
