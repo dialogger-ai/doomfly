@@ -81,6 +81,28 @@ Use Node.js 22.13 or later. In `doom-ui/`, run `npm ci`, create a local `.dev.va
 
 Hosting the viewer alone does not host the simulation. It needs an independently running Python worker and a configured read-only HTTPS origin. A laptop must stay awake and connected. The prepared container has not been certified for cloud operation or audience load. Register your own hosting project before publishing a fork.
 
+## Asteroids integration (Milestone A)
+
+The `codex/asteroids-integration` branch adds a deterministic, human-playable
+Asteroids survival environment before connecting it to the retained neural
+simulation. It uses no Atari ROM or commercial artwork. Shooting exists in the
+action interface but is disabled by default so the first curriculum measures
+avoidance.
+
+```sh
+python -m pip install -r requirements-asteroids.txt
+python -m asteroids.play --seed 41027
+python -m pytest tests/test_asteroids_environment.py -q
+```
+
+Use arrows or WASD to steer/thrust, `R` to reset and Escape to quit. See the
+[candidate review](docs/asteroids-candidate-review.md),
+[upstream verification](docs/asteroids-upstream-verification.md) and
+[integration plan](docs/asteroids-integration-plan.md). Current completion and
+the exact handoff are in the [Milestone A status](docs/asteroids-milestone-a-status.md).
+The present Asteroids work is a game-environment milestone, not evidence of
+neural learning.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

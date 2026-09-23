@@ -72,6 +72,26 @@ follow its build instructions, and run `python -m doom.combat_arena --acc PATH_T
 Preserve the compiler's source notices if redistributing it. It is not required
 at simulation runtime.
 
+## Asteroids survival environment
+
+The Asteroids integration adapts the vector rendering, player-control,
+edge-spawn, health and collision/survival concepts from
+[`sirtaylor88/asteroids-game-using-pygame`](https://github.com/sirtaylor88/asteroids-game-using-pygame)
+at commit `0a007de83603a57a01684b961daad3fc2576b270`.
+
+- Copyright: 2024 Nhat Tai NGUYEN.
+- License: MIT; the complete notice is retained in
+  [`licenses/Asteroids-Pygame-MIT.txt`](licenses/Asteroids-Pygame-MIT.txt).
+- Changes: DOOMFLY replaces the original wall-clock/keyboard loop with a
+  fixed-step, seedable environment; separates observation pixels from evaluator
+  telemetry; adds programmatic actions, off-screen rendering, reset/checkpoint
+  boundaries and deterministic tests; and initially disables shooting.
+- Assets: no Atari ROM, commercial artwork, upstream sprites, fonts or sounds are
+  copied. Game visuals use Pygame drawing primitives.
+
+The Asteroids name identifies the familiar game style and does not imply
+affiliation with or endorsement by Atari. No trademark rights are granted.
+
 ## UI and scientific model references
 
 Adapted shadcn/ui components and the viewer's direct package dependencies retain

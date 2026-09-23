@@ -1,0 +1,3 @@
+# Milestone A game runtime. The neural requirements remain separately pinned.
+pygame==2.6.1
+

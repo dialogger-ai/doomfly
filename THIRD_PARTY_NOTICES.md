@@ -6,6 +6,13 @@ relicense datasets, rendered game artwork, research source data or trademarks.
 
 ## Game engine, artwork and model references
 
+- **Asteroids Pygame foundation:** copyright 2024 Nhat Tai NGUYEN, MIT.
+  [Original notice](licenses/Asteroids-Pygame-MIT.txt).
+  Source: https://github.com/sirtaylor88/asteroids-game-using-pygame/tree/0a007de83603a57a01684b961daad3fc2576b270
+  The integration copies no Atari ROM or commercial artwork and adds substantial
+  deterministic environment and experiment-boundary changes documented in
+  `THIRD_PARTY.md`.
+
 - **Freedoom 0.13.0:** copyright 2001–2024 Contributors to the Freedoom project.
   The simulator explicitly selects the installed `freedoom2.wad`. Retained game
   screenshots contain Freedoom artwork. Preserve the complete
