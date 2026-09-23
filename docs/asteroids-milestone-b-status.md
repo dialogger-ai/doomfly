@@ -45,7 +45,7 @@ the compiled full-graph runtime. Passing them verifies the software boundary,
 not visual causality or useful neural activity.
 
 The focused game, adapter, matched-assay and unchanged controller-boundary suite
-passes 23 tests. Ruff lint/format and `git diff --check` also pass. The broader
+passes 28 tests. Ruff lint/format and `git diff --check` also pass. The broader
 legacy Doom suite cannot collect here because this workspace lacks its pinned
 `numba` dependency; no full-brain claim is inferred from the focused tests.
 
@@ -92,3 +92,18 @@ It compares a deterministic thrust replay against black frames using two
 identically reset, frozen brain conditions and exact neural timing. The assay
 reports each declared visual, KC and motor group separately and marks training
 ready only if game pixels cause a nonzero KC response and alter motor readouts.
+
+The first matched Mac assay found 23,039 game-versus-zero black R1-R6 spikes and
+5,908 game-versus-zero black R8 spikes. Lamina activity also differed, but aMe12,
+Mi1, Tm3, every T4/T5 cell and every KC remained silent. MBON11 and PPL101 were
+identical under game and black input. DNp20/DNpe017 differed slightly through
+other retained pathways, so their activity is not evidence of asteroid or motion
+perception. The visual gate and training-readiness gate failed.
+
+The next diagnostic is `python -m asteroids.exposure_sweep`. It tests 1x–32x
+global linear-light exposure on original and mirrored calibration frames, with a
+matched black arm and three seconds of dark recovery after every condition. It
+rejects silent relays, silent motion cells, inactive or identical KCs, more than
+five-percent active KCs, persistent KC activity after darkness, and absent motor
+responses. If every exposure fails, the declared next step is graded or
+cell-type-specific visual dynamics—not game training or decoder threshold tuning.

@@ -143,6 +143,22 @@ differences are reported for mapped retina, lamina, aMe12, Mi1/Tm3, T4/T5, KCs,
 MBON11/PPL101 and DNp20/DNpe017. This isolates modeled visual causality from
 tonic or recurrent activity; it still does not validate biological vision.
 
+If that assay confirms silent KCs, do not tune the decoder or enable learning.
+Run the declared calibration-seed exposure and recovery sweep:
+
+```sh
+OPENBLAS_NUM_THREADS=1 python -m asteroids.exposure_sweep \
+  --seed 41027 --out outputs/asteroids/exposure-sweep-v1
+```
+
+The sweep applies 1x–32x global linear-light exposure to the same original and
+horizontally mirrored one-second frame sequence. Each independently reset,
+frozen condition is followed by three seconds of black input and compared with
+a black-only arm. A candidate must activate the aMe12 relay, motion cells, sparse
+KCs and motor readouts; distinguish original from mirrored scenes; and return
+KCs exactly to the matched dark baseline. The five-percent active-KC ceiling is
+a declared conservative engineering gate, not measured MaleCNS physiology.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
