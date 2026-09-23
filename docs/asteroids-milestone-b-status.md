@@ -139,3 +139,13 @@ are compared under black, original, mirrored and two-second dark-recovery arms.
 A candidate must produce scene-distinct T4/T5 spikes from a quiet black baseline,
 recover in darkness and avoid broad or persistent KC recruitment. Even a passing
 gain is only an engineering candidate; held-out visual tests remain required.
+
+The first sweep (0 through 0.1) and the follow-up sweep (0.3 and 1.0) produced
+no T4/T5 spikes or scene distinction. Black motion activity remained quiet,
+KCs remained silent and recovered, and the motor readouts still varied through
+background pathways. The gain-1 failure rules out simply extending the same
+global gain search. `python -m asteroids.pathway_audit` is now the read-only
+next step: it reports direct Mi1/Tm3-to-T4/T5 edges, ranked first-hop target
+types and two-edge bridge types, then routes the next controlled dynamics test.
+It does not modify the graph, weights or neural state, and training remains
+blocked.

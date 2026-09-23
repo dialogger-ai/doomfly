@@ -181,6 +181,20 @@ OPENBLAS_NUM_THREADS=1 python -m asteroids.graded_relay_assay \
   --seed 41027 --out outputs/asteroids/graded-relay-v1
 ```
 
+If the bounded Mi1/Tm3 sweep remains motion-spike silent through gain 1, stop
+increasing the global gain and audit the retained pathway before changing the
+model:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.pathway_audit \
+  --graded-results outputs/asteroids/graded-relay-v1b/results.json \
+  --out outputs/asteroids/pathway-audit-v1
+```
+
+This read-only audit reports direct Mi1/Tm3-to-T4/T5 edges, first-hop target
+cell types and two-edge bridge types. It does not run learning or modify the
+graph, weights or neural state.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
