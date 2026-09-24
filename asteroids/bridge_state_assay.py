@@ -25,7 +25,7 @@ import numpy as np
 from .cascaded_relay_assay import (
     DEFAULT_UPSTREAM_GAIN,
     DOWNSTREAM_GROUPS,
-    FIXED_READOUT_GROUPS,
+    MOTOR_GROUPS,
     UPSTREAM_GROUPS,
     _advance_cascade,
 )
@@ -63,7 +63,8 @@ ASSAY_VERSION = "asteroids-fixed-bridge-state-v1"
 DEFAULT_DOWNSTREAM_GAIN = 0.1
 STATE_TOLERANCE = 1e-5
 STATE_WINDOWS = ("stimulus", "recovery_tail_1s")
-MONITOR_GROUPS = ("DNp20", "DNpe017", "all_KCs")
+FIXED_READOUT_GROUPS = MOTOR_GROUPS
+MONITOR_GROUPS = (*MOTOR_GROUPS, "all_KCs")
 
 
 @dataclass
