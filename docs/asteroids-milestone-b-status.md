@@ -170,7 +170,7 @@ No T4 cell came within 2 mV, and only one came within 3 mV. T5 remained roughly
 5.70 mV below threshold. This rejects a small global threshold adjustment as an
 adequate controlled repair.
 
-\`python -m asteroids.cascaded_relay_assay\` is the next frozen diagnostic. It
+`python -m asteroids.cascaded_relay_assay` is the next frozen diagnostic. It
 keeps the measured Mi1/Tm3 gain at 1, sweeps a second bounded T4/T5 graded-output
 gain through existing signed edges, and includes a mandatory zero-stage control.
 Success requires an incremental scene-dependent effect at the fixed motor
@@ -186,7 +186,7 @@ original scene with failed KC recovery. This rules out simple downstream-gain
 tuning.
 
 The next step is the read-only
-\`python -m asteroids.descending_pathway_audit\`. It measures direct and two-edge
+`python -m asteroids.descending_pathway_audit`. It measures direct and two-edge
 paths from T4/T5 to the fixed DNp20/DNpe017 readouts and to all neurons declared
 descending in the prepared graph. Its routing decision separates a tonic
 baseline/recovery problem from a mismatched fixed-readout problem. It does not
@@ -200,7 +200,7 @@ LC4 and related types. This means the cascade's black shift and persistence
 arise inside an intermediate motion network, not at a direct T4/T5-to-decoder
 synapse.
 
-\`python -m asteroids.bridge_state_assay\` is the next frozen diagnostic. It
+`python -m asteroids.bridge_state_assay` is the next frozen diagnostic. It
 derives every exact T4/T5-to-DNp20/DNpe017 bridge neuron from the graph and
 samples its voltage and conductance under the 0.1 stage and a mandatory
 zero-stage control. Matched black, original, mirrored and final dark-recovery
@@ -208,3 +208,21 @@ comparisons determine whether baseline-referenced T4/T5 output is justified or
 whether the fixed readouts should be replaced by anatomically connected
 descending candidates.
 
+The bridge-state assay found that 44 of the 47 exact bridge neurons changed for
+both visual scenes and distinguished original from mirrored input. The same 44
+also changed when the 0.1 T4/T5 stage was added to black input and remained
+different from the matched black arm in the final recovery second. Only the two
+LC23 bridges and one LPT110 bridge stayed unchanged and recovered. The largest
+aggregate shift included the single MeVPMe2 bridge. This confirms useful visual
+state reaches the fixed-readout path, but the rest-referenced stage confounds it
+with tonic black-state depolarization and persistent network state.
+
+`python -m asteroids.baseline_relay_assay` is the next frozen diagnostic. It
+first measures a per-neuron median T4/T5 voltage in an independent black-only
+calibration with T4/T5 output disabled. It then freezes that reference and
+compares zero-stage, original rest-referenced and black-baseline-referenced
+output at gains 0.1 and 0.3. Success requires reduced black release, an unchanged
+black motor baseline, a scene-distinct incremental motor effect, sparse KCs and
+exact dark recovery. This reference is an explicit engineering hypothesis based
+only on modeled neural state; it does not use telemetry, alter weights or
+validate T4/T5 physiology. Training remains blocked.

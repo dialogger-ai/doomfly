@@ -216,10 +216,10 @@ declared -45 mV boundary and the strongest mirrored-scene T4 stayed 2.93 mV
 below it. Rather than lowering a global threshold, test a second bounded graded
 stage through the existing T4/T5 outgoing edges:
 
-\`\`\`bash
+```bash
 OPENBLAS_NUM_THREADS=1 python -m asteroids.cascaded_relay_assay \
   --seed 41027 --out outputs/asteroids/cascaded-relay-v1
-\`\`\`
+```
 
 The zero-gain arm is mandatory. A candidate must add a motor effect beyond that
 control for both visual scenes, distinguish original from mirrored input, leave
@@ -234,11 +234,11 @@ baseline and failed dark recovery. Gain 1 additionally recruited 37.4 percent
 of KCs in the original scene and failed KC recovery. Audit the downstream
 anatomy before changing either dynamics or readouts:
 
-\`\`\`bash
+```bash
 OPENBLAS_NUM_THREADS=1 python -m asteroids.descending_pathway_audit \
   --cascade-results outputs/asteroids/cascaded-relay-v1/results.json \
   --out outputs/asteroids/descending-audit-v1
-\`\`\`
+```
 
 This read-only audit reports direct and two-edge T4/T5 paths to the fixed
 DNp20/DNpe017 readouts and to every neuron declared descending in the prepared
@@ -251,15 +251,34 @@ T4/T5 also reach other descending neurons through strong LPLC/LLPC routes.
 Before changing the fixed decoder, measure the exact fixed-readout bridge state
 at the lowest motor-effective cascade gain:
 
-\`\`\`bash
+```bash
 OPENBLAS_NUM_THREADS=1 python -m asteroids.bridge_state_assay \
   --seed 41027 --downstream-gain 0.1 \
   --out outputs/asteroids/bridge-state-v1
-\`\`\`
+```
 
 This matched frozen assay derives every bridge neuron from the retained graph,
 compares the 0.1 stage with a zero-stage control, and samples black, original,
 mirrored and final dark-recovery state at each cascade boundary.
+
+The bridge assay found scene-dependent state in 44 of the 47 exact bridge
+neurons, but the same 44 also shifted under black input and failed exact dark
+recovery. LC23's two bridge neurons and the single LPT110 bridge stayed quiet
+and recovered. This supports testing a tonic-reference correction before
+changing the fixed decoder:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.baseline_relay_assay \
+  --seed 41027 --out outputs/asteroids/baseline-relay-v1
+```
+
+An independent black-only run measures each T4/T5 neuron's median modeled
+voltage while T4/T5 output is disabled. That reference is then frozen before
+matched zero-stage, original rest-referenced and black-baseline-referenced
+conditions at gains 0.1 and 0.3. A candidate must reduce black release, leave
+the black motor baseline unchanged, preserve a scene-distinct incremental motor
+effect, keep KCs within the declared engineering gate and recover exactly in
+darkness. The reference uses no game telemetry and cannot select actions.
 
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
