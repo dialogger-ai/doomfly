@@ -202,6 +202,7 @@ def run_bridge_condition(
     warmup_ms: float,
     recovery_seconds: float,
     deliverer: Deliverer = _deliver_graded_python,
+    downstream_deliverer: Deliverer | None = None,
     reference_voltage: np.ndarray | None = None,
     downstream_factory: Callable[..., GradedRelay] | None = None,
 ) -> BridgeRun:
@@ -257,6 +258,7 @@ def run_bridge_condition(
         raise ValueError("A reference requires a downstream relay factory")
     brain.reset()
     brain.weights_frozen = True
+    stage_two_deliverer = downstream_deliverer or deliverer
     upstream = GradedRelay(
         brain,
         upstream_sources,
@@ -268,12 +270,12 @@ def run_bridge_condition(
             brain,
             downstream_sources,
             downstream_gain,
-            deliverer=deliverer,
+            deliverer=stage_two_deliverer,
         )
         warmup_downstream = downstream
     else:
         warmup_downstream = GradedRelay(
-            brain, downstream_sources, 0.0, deliverer=deliverer
+            brain, downstream_sources, 0.0, deliverer=stage_two_deliverer
         )
     black = np.zeros_like(frames[0])
     warmup_steps = round(warmup_ms / NEURAL_DT_MS)
@@ -293,7 +295,7 @@ def run_bridge_condition(
             downstream_sources,
             downstream_gain,
             reference,
-            deliverer=deliverer,
+            deliverer=stage_two_deliverer,
         )
 
     origin = brain.cursor

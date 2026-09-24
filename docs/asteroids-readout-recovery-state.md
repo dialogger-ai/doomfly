@@ -64,3 +64,26 @@ The predeclared shortlist contains bridge types that persist in both relay
 modes, ranked by the number of fixed readout cells contacted, absolute retained
 bridge-to-readout weight, retained edge count and label. Selection is not based
 on gameplay performance or telemetry.
+
+The observed shortlist was `VS`, `VST2`, `HST`, `MeVPLp2` and `LPT50`. VS and
+VST2 dominate positive retained coupling into the readouts; MeVPLp2 and LPT50
+are the strongest shortlisted negative paths. Refractory state recovered in all
+five types, localizing their mismatch to voltage and conductance.
+
+The first causal screen tests the full transient-p100 relay and each shortlisted
+type one at a time. It withholds only added engineering T4/T5 graded-release
+delivery when the delivery target is in that type. Native graph edges, weights
+and spike transmission stay intact. Black and original scenes are tested first;
+the mirrored scene is deferred until a causal combination is selected:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.targeted_relay_withdrawal_assay \
+  --source-audit outputs/asteroids/persistent-bridge-source-audit-v1/results.json \
+  --seed 41027 \
+  --out outputs/asteroids/targeted-relay-withdrawal-v1
+```
+
+A type passes this engineering screen only when withdrawal leaves black readout
+state unchanged, retains a visual readout response, and reduces both RMS voltage
+and RMS conductance recovery mismatch by at least ten percent. The threshold is
+a declared routing rule, not a biological measurement.
