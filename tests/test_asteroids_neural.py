@@ -110,6 +110,36 @@ def test_fixed_decoder_maps_declared_neurons_and_never_fires():
     assert len(decoder.configuration()["configuration_sha256"]) == 64
 
 
+def test_black_centered_decoder_removes_fixed_tonic_readout_rates():
+    baselines = {readout["id"]: 10.0 for readout in READOUTS}
+    decoder = AsteroidsNeuralDecoder(
+        READOUTS,
+        DecoderConfig(smoothing_seconds=0.001),
+        baseline_rates_hz=baselines,
+    )
+    tonic = np.ones(4, dtype=np.int32)
+    decision = decoder.decode(tonic, 0.1)
+    assert decision["action"] == Action.NOOP
+    assert all(row["centered_rate_hz"] == 0 for row in decision["readouts"])
+    assert decoder.configuration()["baseline_source"] == (
+        "fixed pre-game black-screen neural calibration"
+    )
+
+    decoder.reset()
+    visual_turn = np.asarray([2, 1, 1, 1], dtype=np.int32)
+    assert decoder.decode(visual_turn, 0.1)["action"] == Action.RIGHT
+
+
+def test_black_centered_decoder_rejects_unknown_or_invalid_baselines():
+    with pytest.raises(ValueError, match="unknown readout"):
+        AsteroidsNeuralDecoder(READOUTS, baseline_rates_hz={"missing": 1.0})
+    with pytest.raises(ValueError, match="finite and nonnegative"):
+        AsteroidsNeuralDecoder(
+            READOUTS,
+            baseline_rates_hz={READOUTS[0]["id"]: -1.0},
+        )
+
+
 def test_decoder_requires_bilateral_turn_readouts():
     with pytest.raises(ValueError, match="Left and right"):
         AsteroidsNeuralDecoder([READOUTS[0], *READOUTS[2:]])

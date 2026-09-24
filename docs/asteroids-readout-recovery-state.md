@@ -87,3 +87,32 @@ A type passes this engineering screen only when withdrawal leaves black readout
 state unchanged, retains a visual readout response, and reduces both RMS voltage
 and RMS conductance recovery mismatch by at least ten percent. The threshold is
 a declared routing rule, not a biological measurement.
+
+All five one-at-a-time withdrawals produced readout recovery ratios of exactly
+1.0. The shortlisted two-edge bridge states are therefore correlated with, but
+do not individually cause, the readout persistence through the added relay.
+Persistence is distributed through deeper or recurrent modeled paths. This
+negative result ends the exact-recovery localization ladder: exact black-state
+identity is stricter than the functional survival task requires.
+
+## Frozen live-gameplay trial
+
+The next experiment returns to the live environment. It uses the complete
+transient-p100 relay and compares the published raw-rate decoder against the
+same decoder centered on fixed pre-game black-screen readout rates. The
+calibration uses only black pixels and neural activity. No game coordinates,
+health, collision state or other telemetry enters the controller.
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.relay_gameplay_trial \
+  --seed 41027 \
+  --seconds 10 \
+  --episodes 3 \
+  --out outputs/asteroids/transient-relay-gameplay-v1
+```
+
+Raw and centered modes receive the same three seeds. The declared functional
+gate requires the centered decoder to change the raw action sequence, avoid
+spending 95 percent of any episode on one action, produce both turn and thrust
+actions, and preserve median survival. Shooting remains disabled in this first
+survival curriculum. Weights are frozen and `training_ready` remains false.

@@ -13,6 +13,7 @@ import json
 import math
 from pathlib import Path
 import time
+from collections.abc import Mapping
 from typing import Any, Protocol, Sequence
 
 import numpy as np
@@ -69,6 +70,7 @@ class AsteroidsNeuralDecoder:
         self,
         readouts: Sequence[dict[str, Any]],
         config: DecoderConfig | None = None,
+        baseline_rates_hz: Mapping[str, float] | None = None,
     ) -> None:
         self.readouts = tuple(
             dict(readout)
@@ -89,16 +91,46 @@ class AsteroidsNeuralDecoder:
         for readout in self.readouts:
             if not isinstance(readout.get("index"), int) or readout["index"] < 0:
                 raise ValueError("Readout indices must be nonnegative integers")
-        self.rates = np.zeros(len(self.readouts), dtype=np.float64)
+        declared_baselines = baseline_rates_hz or {}
+        unknown = set(declared_baselines) - {
+            str(readout["id"]) for readout in self.readouts
+        }
+        if unknown:
+            raise ValueError("Baseline rates include an unknown readout ID")
+        self.baseline_rates = np.asarray(
+            [
+                float(declared_baselines.get(str(readout["id"]), 0.0))
+                for readout in self.readouts
+            ],
+            dtype=np.float64,
+        )
+        if not np.isfinite(self.baseline_rates).all() or np.any(
+            self.baseline_rates < 0
+        ):
+            raise ValueError("Baseline rates must be finite and nonnegative")
+        self.rates = self.baseline_rates.copy()
 
     def reset(self) -> None:
-        self.rates.fill(0)
+        self.rates[:] = self.baseline_rates
 
     def configuration(self) -> dict[str, Any]:
         configuration = {
-            "version": "asteroids-dnp20-dnpe017-discrete-v1",
+            "version": (
+                "asteroids-dnp20-dnpe017-black-centered-v1"
+                if np.any(self.baseline_rates)
+                else "asteroids-dnp20-dnpe017-discrete-v1"
+            ),
             "readouts": [dict(readout) for readout in self.readouts],
             "constants": asdict(self.config),
+            "baseline_rates_hz": {
+                str(readout["id"]): float(value)
+                for readout, value in zip(self.readouts, self.baseline_rates)
+            },
+            "baseline_source": (
+                "fixed pre-game black-screen neural calibration"
+                if np.any(self.baseline_rates)
+                else "zero"
+            ),
             "arbitration": (
                 "Largest threshold-normalized command wins; rotation wins exact "
                 "ties; otherwise NOOP. FIRE is never emitted."
@@ -129,11 +161,12 @@ class AsteroidsNeuralDecoder:
         )
         alpha = 1 - math.exp(-seconds / self.config.smoothing_seconds)
         self.rates += alpha * (raw - self.rates)
+        centered_rates = self.rates - self.baseline_rates
 
         def rate(neuron_type: str, side: str | None = None) -> float:
             return sum(
                 float(value)
-                for value, readout in zip(self.rates, self.readouts)
+                for value, readout in zip(centered_rates, self.readouts)
                 if readout["type"] == neuron_type
                 and (side is None or readout.get("side") == side)
             )
@@ -163,8 +196,15 @@ class AsteroidsNeuralDecoder:
                     **readout,
                     "spikes": int(counts[readout["index"]]),
                     "rate_hz": round(float(value), 6),
+                    "baseline_rate_hz": round(float(baseline), 6),
+                    "centered_rate_hz": round(float(centered), 6),
                 }
-                for readout, value in zip(self.readouts, self.rates)
+                for readout, value, baseline, centered in zip(
+                    self.readouts,
+                    self.rates,
+                    self.baseline_rates,
+                    centered_rates,
+                )
             ],
         }
 
