@@ -274,6 +274,7 @@ def run_audit(
             fixed_bridges,
             cascade,
         ),
+        "training_ready": False,
         "claim_limit": (
             "An anatomical edge audit and modeled signed weights do not validate "
             "functional transmission, motor roles, fly vision or learning."
