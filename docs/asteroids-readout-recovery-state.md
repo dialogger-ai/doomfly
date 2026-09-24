@@ -120,3 +120,40 @@ survival curriculum. Weights are frozen and `training_ready` remains false.
 `--watch` renders each post-action frame in a display-only Pygame window. It
 does not cap wall-clock speed or feed window state back into the experiment;
 omit it for the lowest possible rendering overhead.
+
+The three-seed trial passed every functional gate. The raw controller selected
+thrust on all 423 ticks and had median survival of 4.0 seconds. Black centering
+used all four survival actions, reduced the maximum per-episode action fraction
+to 0.5, increased median survival to 6.93 seconds, reduced contacts from seven
+to four and passed four asteroids rather than zero. One centered episode reached
+the full ten-second horizon without damage. This is a promising calibration-set
+result, not yet held-out evidence or learning.
+
+## Held-out frozen gameplay and movement-efficiency baseline
+
+The next evaluation loads the exact candidate protocol, decoder constants,
+black-screen baseline rates, graph and neural configuration. It rejects changed
+controller hashes and seed overlap, then compares the frozen raw and centered
+decoders on twelve new matched seeds:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.heldout_gameplay_evaluation \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --seed-start 51001 \
+  --episodes 12 \
+  --out outputs/asteroids/heldout-frozen-gameplay-v1
+```
+
+The held-out safety gate requires at least twelve episodes, non-worse median and
+restricted-mean survival, at least as many paired survival wins as losses, a
+non-worse contact rate and no reduction in total asteroids passed. These seeds
+become evaluation-only as soon as their results are inspected and must not be
+used to tune the next controller.
+
+Fuel efficiency is not optimized in this run, but its proxies are predeclared:
+thrust time, turn time, active-control time, action switching, left/right
+reversals and wrap-aware ship path length. Translation and attitude commands are
+reported separately because the game does not provide a calibrated spacecraft
+fuel model. Safety remains lexicographically first. If the held-out safety gate
+passes, the next experiment may reduce movement on a separate development-seed
+set before a second untouched evaluation.

@@ -360,12 +360,44 @@ exactly. Candidate selection uses connectivity and matched neural responses—no
 game score, survival, target coordinates or action telemetry. No decoder is
 changed by the screen.
 
+The screen covered 931 descending neurons across 389 annotated cell types. No
+type passed every gate under either the static-p100 or 250 ms transient-p100
+model, so no alternative readout is selected. Before introducing cell-type-
+specific dynamics, summarize which gates rejected the strongest near misses:
+
+```bash
+python -m asteroids.descending_readout_audit \
+  --screen-results outputs/asteroids/descending-readout-screen-v1/results.json \
+  --out outputs/asteroids/descending-readout-audit-v1
+```
+
+This read-only audit counts every gate and blocker combination and ranks near
+misses using only matched neural activity and the predeclared gates. If a type
+passes all visual and black-baseline gates but fails only recovery, the next
+experiment can isolate recovery dynamics for that predeclared set. Otherwise,
+the audit routes to baseline, propagation or deeper-path testing as indicated.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
 and dark-recovery gates reject tonic motion, non-distinct scenes, runaway KCs or
 persistent activity. This chosen hybrid is a sensitivity study, not a transfer
 of FlyVis's fitted parameters or a validated biological model.
+
+The black-centered transient-relay controller subsequently passed its first
+three-seed live-gameplay gate. Evaluate that exact frozen candidate on twelve
+new seeds and record its initial movement-efficiency baseline with:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.heldout_gameplay_evaluation \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --seed-start 51001 --episodes 12 \
+  --out outputs/asteroids/heldout-frozen-gameplay-v1
+```
+
+This evaluation does not tune the controller or learn. It scores safety first
+and separately records thrust, rotation, switching and ship-travel proxies for
+later fuel-conscious calibration on different development seeds.
 
 ## Evidence and publication hygiene
 
