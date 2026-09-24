@@ -311,3 +311,19 @@ baseline and recover exactly in darkness. The screen uses anatomy and neural
 responses only; it does not use game performance, select actions, change the
 decoder or enable learning. If no type passes, the next branch is explicitly
 cell-type-specific visual dynamics rather than further global filtering.
+
+The descending screen found 931 declared descending neurons reachable within
+two edges of T4/T5, grouped into 389 annotated cell types. Eight neurons were
+direct T4/T5 targets; the broader set was reached within two edges. No cell type
+passed all visual, incremental, scene-distinction, black-baseline and exact
+recovery gates under either static-p100 or 250 ms transient-p100 dynamics. No
+alternative readout has therefore been selected, and the decoder remains fixed.
+
+`python -m asteroids.descending_readout_audit` is the next read-only diagnostic.
+It consumes the saved screen result, counts pass/fail totals for every gate,
+summarizes blocker combinations and ranks cell-type near misses without game
+performance. Types that passed the complete visual and black-baseline gates but
+failed only recovery route to a predeclared cell-type recovery-state assay.
+Other patterns route separately to baseline, propagation or deeper anatomical
+testing. This step prevents choosing a new readout or dynamics rule from an
+unreported near miss.
