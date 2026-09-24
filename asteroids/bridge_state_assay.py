@@ -15,7 +15,7 @@ import json
 import math
 import os
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -72,6 +72,7 @@ class BridgeRun:
     record: dict[str, Any]
     voltage: dict[str, dict[str, np.ndarray]]
     conductance: dict[str, dict[str, np.ndarray]]
+    refractory: dict[str, dict[str, np.ndarray]]
 
 
 def fixed_bridge_groups(
@@ -155,6 +156,7 @@ def _stack_rows(
 def _state_summary(
     voltage: np.ndarray,
     conductance: np.ndarray,
+    refractory: np.ndarray,
 ) -> dict[str, Any]:
     return {
         "samples": voltage.shape[0],
@@ -169,6 +171,8 @@ def _state_summary(
         ),
         "voltage_sequence_sha256": array_sha256(voltage),
         "conductance_sequence_sha256": array_sha256(conductance),
+        "refractory_sequence_sha256": array_sha256(refractory),
+        "refractory_samples": int(np.count_nonzero(refractory)),
     }
 
 
@@ -198,6 +202,8 @@ def run_bridge_condition(
     warmup_ms: float,
     recovery_seconds: float,
     deliverer: Deliverer = _deliver_graded_python,
+    reference_voltage: np.ndarray | None = None,
+    downstream_factory: Callable[..., GradedRelay] | None = None,
 ) -> BridgeRun:
     if not frames:
         raise ValueError("At least one stimulus frame is required")
@@ -241,6 +247,14 @@ def run_bridge_condition(
     downstream_sources = np.unique(
         np.concatenate([pathway[name] for name in DOWNSTREAM_GROUPS])
     ).astype(np.int32)
+    if downstream_factory is not None:
+        reference = np.asarray(reference_voltage, dtype=np.float32)
+        if reference.shape != downstream_sources.shape or not np.isfinite(
+            reference
+        ).all():
+            raise ValueError("Reference voltage must match T4/T5 sources")
+    elif reference_voltage is not None:
+        raise ValueError("A reference requires a downstream relay factory")
     brain.reset()
     brain.weights_frozen = True
     upstream = GradedRelay(
@@ -249,12 +263,18 @@ def run_bridge_condition(
         upstream_gain,
         deliverer=deliverer,
     )
-    downstream = GradedRelay(
-        brain,
-        downstream_sources,
-        downstream_gain,
-        deliverer=deliverer,
-    )
+    if downstream_factory is None:
+        downstream: GradedRelay = GradedRelay(
+            brain,
+            downstream_sources,
+            downstream_gain,
+            deliverer=deliverer,
+        )
+        warmup_downstream = downstream
+    else:
+        warmup_downstream = GradedRelay(
+            brain, downstream_sources, 0.0, deliverer=deliverer
+        )
     black = np.zeros_like(frames[0])
     warmup_steps = round(warmup_ms / NEURAL_DT_MS)
     warmup_kernel_seconds = 0.0
@@ -263,9 +283,17 @@ def run_bridge_condition(
         _, warmup_kernel_seconds, warmup_release = _advance_cascade(
             brain,
             upstream,
-            downstream,
+            warmup_downstream,
             black,
             warmup_steps,
+        )
+    if downstream_factory is not None:
+        downstream = downstream_factory(
+            brain,
+            downstream_sources,
+            downstream_gain,
+            reference,
+            deliverer=deliverer,
         )
 
     origin = brain.cursor
@@ -282,6 +310,10 @@ def run_bridge_condition(
         for window in STATE_WINDOWS
     }
     conductance_rows = {
+        window: {name: [] for name in normalized_bridges}
+        for window in STATE_WINDOWS
+    }
+    refractory_rows = {
         window: {name: [] for name in normalized_bridges}
         for window in STATE_WINDOWS
     }
@@ -328,12 +360,14 @@ def run_bridge_condition(
                 for name, indices in normalized_bridges.items():
                     voltage = np.asarray(brain.v[indices], dtype=np.float32)
                     conductance = np.asarray(brain.g[indices], dtype=np.float32)
+                    refractory = np.asarray(brain.refractory[indices]).copy()
                     if not np.isfinite(voltage).all() or not np.isfinite(
                         conductance
                     ).all():
                         raise ValueError("Brain produced a nonfinite state sample")
                     voltage_rows[window][name].append(voltage.copy())
                     conductance_rows[window][name].append(conductance.copy())
+                    refractory_rows[window][name].append(refractory)
             remaining -= chunk
 
         expected = round((tick + 1) * NEURAL_STEPS_PER_SECOND / GAME_HZ)
@@ -342,6 +376,7 @@ def run_bridge_condition(
 
     voltage = _stack_rows(voltage_rows)
     conductance = _stack_rows(conductance_rows)
+    refractory = _stack_rows(refractory_rows)
     monitored_groups = {
         **normalized_bridges,
         **{
@@ -354,6 +389,12 @@ def run_bridge_condition(
             "label": label,
             "upstream_gain": upstream_gain,
             "downstream_gain": downstream_gain,
+            "downstream_reference_mode": (
+                "rest" if downstream_factory is None else "external"
+            ),
+            "downstream_reference_sha256": (
+                None if downstream_factory is None else array_sha256(reference)
+            ),
             "learning_enabled": False,
             "reinforcement_enabled": False,
             "weights_frozen": bool(brain.weights_frozen),
@@ -368,6 +409,7 @@ def run_bridge_condition(
                     name: _state_summary(
                         voltage[window][name],
                         conductance[window][name],
+                        refractory[window][name],
                     )
                     for name in normalized_bridges
                 }
@@ -396,6 +438,7 @@ def run_bridge_condition(
         },
         voltage=voltage,
         conductance=conductance,
+        refractory=refractory,
     )
 
 
@@ -409,15 +452,19 @@ def _state_delta(
     reference_v = reference.voltage[window][name].astype(np.float64)
     condition_g = condition.conductance[window][name].astype(np.float64)
     reference_g = reference.conductance[window][name].astype(np.float64)
+    condition_r = condition.refractory[window][name]
+    reference_r = reference.refractory[window][name]
     if (
         condition_v.shape != reference_v.shape
         or condition_g.shape != reference_g.shape
+        or condition_r.shape != reference_r.shape
     ):
         raise ValueError("Matched bridge state shapes differ")
     voltage_delta = condition_v - reference_v
     conductance_delta = condition_g - reference_g
     voltage_max = np.abs(voltage_delta).max(axis=0)
     conductance_max = np.abs(conductance_delta).max(axis=0)
+    refractory_changed = np.any(condition_r != reference_r, axis=0)
     return {
         "neurons": condition_v.shape[1],
         "changed_voltage_neurons": int(
@@ -436,6 +483,12 @@ def _state_delta(
         "rms_conductance_delta": float(
             np.sqrt(np.mean(np.square(conductance_delta)))
         ),
+        "changed_refractory_neurons": int(np.count_nonzero(refractory_changed)),
+        "maximum_absolute_refractory_delta_steps": int(
+            np.abs(
+                condition_r.astype(np.int64) - reference_r.astype(np.int64)
+            ).max(initial=0)
+        ),
         "tolerance": STATE_TOLERANCE,
     }
 
@@ -444,6 +497,7 @@ def _responds(comparison: Mapping[str, Any]) -> bool:
     return (
         comparison["changed_voltage_neurons"] > 0
         or comparison["changed_conductance_neurons"] > 0
+        or comparison["changed_refractory_neurons"] > 0
     )
 
 
