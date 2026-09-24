@@ -10,7 +10,11 @@ import numpy as np
 from asteroids.environment import AsteroidsConfig, AsteroidsEnv
 from asteroids.graded_relay_assay import _deliver_graded_python
 from asteroids.neural import AsteroidsNeuralDecoder, DecoderConfig
-from asteroids.relay_gameplay_trial import classify_trial, run_relay_episode
+from asteroids.relay_gameplay_trial import (
+    calibrate_black_readout_rates,
+    classify_trial,
+    run_relay_episode,
+)
 
 
 READOUTS = [
@@ -102,6 +106,26 @@ def test_live_runner_keeps_weights_frozen_and_telemetry_post_action():
     assert observed[0][0].shape == (180, 240, 3)
     assert all(call["learning"] is False for call in brain.calls)
     assert brain.weights_frozen is True
+
+
+def test_black_calibration_excludes_noncontroller_manifest_readouts():
+    brain = GameplayBrain()
+    extra = {"index": 0, "id": "extra", "type": "MN9", "side": "R"}
+    rates, record = calibrate_black_readout_rates(
+        brain,
+        np.zeros((180, 240, 3), dtype=np.uint8),
+        _pathway(),
+        [extra, *READOUTS],
+        np.asarray([-52.0, -52.0], dtype=np.float32),
+        upstream_gain=1.0,
+        downstream_gain=0.1,
+        transient_tau_ms=250.0,
+        warmup_ms=0,
+        calibration_ms=10.0,
+        deliverer=_deliver_graded_python,
+    )
+    assert set(rates) == {"10", "20", "30"}
+    assert "extra" not in record["readout_spikes"]
 
 
 def _episode(action_counts, sequence_hash, *, game_seconds=10.0):

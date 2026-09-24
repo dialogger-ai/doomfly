@@ -171,9 +171,16 @@ def calibrate_black_readout_rates(
         brain, upstream, downstream, black, calibration_steps
     )
     seconds = calibration_steps / NEURAL_STEPS_PER_SECOND
+    controller_readouts = [
+        readout
+        for readout in readouts
+        if readout.get("type") in AsteroidsNeuralDecoder.REQUIRED_TYPES
+    ]
+    if not controller_readouts:
+        raise ValueError("No DNp20/DNpe017 controller readouts to calibrate")
     rates = {}
     spike_counts = {}
-    for readout in readouts:
+    for readout in controller_readouts:
         index = int(readout["index"])
         identifier = str(readout["id"])
         spikes = int(totals[index])
@@ -186,6 +193,7 @@ def calibrate_black_readout_rates(
         "calibration_ms": calibration_ms,
         "calibration_seconds": seconds,
         "readout_spikes": spike_counts,
+        "calibrated_readouts": [dict(readout) for readout in controller_readouts],
         "baseline_rates_hz": rates,
         "baseline_rates_sha256": hashlib.sha256(
             json.dumps(rates, sort_keys=True, separators=(",", ":")).encode()
