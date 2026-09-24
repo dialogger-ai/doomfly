@@ -157,3 +157,35 @@ reported separately because the game does not provide a calibrated spacecraft
 fuel model. Safety remains lexicographically first. If the held-out safety gate
 passes, the next experiment may reduce movement on a separate development-seed
 set before a second untouched evaluation.
+
+The twelve-seed held-out run passed every safety gate. The centered controller
+won nine paired survival comparisons and lost three, raised median survival from
+4.85 to 7.73 seconds, cut contacts per game-minute from 24.68 to 11.58 and
+passed 16 asteroids rather than six. Five centered episodes reached the full
+ten-second horizon; no raw episode did. Thrust occupied 53.7 percent of centered
+survival time rather than 100 percent, and ship travel fell from 166.7 to 119.9
+pixels per game-second.
+
+The held-out run also exposed controller chatter: 16.79 action changes per
+second, 32.1 percent of survival time spent turning and 77 left/right reversals.
+Those evaluation seeds are now sealed. The next development-only sweep uses
+seeds 62001–62008 and compares the exact baseline decoder with five predeclared
+smoothing/threshold variants:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.efficiency_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --heldout outputs/asteroids/heldout-frozen-gameplay-v1 \
+  --seed-start 62001 \
+  --episodes 8 \
+  --out outputs/asteroids/efficiency-calibration-v1
+```
+
+A variant is eligible only if median and restricted-mean survival remain within
+five percent of the matched baseline, paired survival wins are not fewer than
+losses, contact rate remains within five percent and asteroids passed do not
+fall. It must then reduce active-control fraction by at least five percent and
+action-switch rate by at least ten percent. Among eligible variants, selection
+is lexicographic: active-control fraction, switch rate, then ship-path rate.
+These margins are engineering gates, not a spacecraft fuel model or evidence of
+learning.

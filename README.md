@@ -399,6 +399,21 @@ This evaluation does not tune the controller or learn. It scores safety first
 and separately records thrust, rotation, switching and ship-travel proxies for
 later fuel-conscious calibration on different development seeds.
 
+After the held-out controller passed all safety gates, the next development-only
+decoder sweep was fixed as:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.efficiency_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --heldout outputs/asteroids/heldout-frozen-gameplay-v1 \
+  --seed-start 62001 --episodes 8 \
+  --out outputs/asteroids/efficiency-calibration-v1
+```
+
+It keeps the held-out seeds sealed, rejects safety regressions first and tests
+whether fixed smoothing/threshold changes reduce active-control time and command
+switching. It remains a frozen, non-learning calibration.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
