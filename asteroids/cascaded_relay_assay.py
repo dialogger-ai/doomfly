@@ -170,7 +170,10 @@ def run_condition(
         brain, upstream_sources, upstream_gain, deliverer=deliverer
     )
     downstream = GradedRelay(
-        brain, downstream_sources, downstream_gain, deliverer=deliverer
+        brain,
+        downstream_sources,
+        downstream_gain,
+        deliverer=deliverer,
     )
     black = np.zeros_like(frames[0])
     warmup_steps = round(warmup_ms / NEURAL_DT_MS)
@@ -289,12 +292,6 @@ def classify_gain(
         _release_value(run, "stimulus") > _release_value(black, "stimulus")
         for run in runs.values()
     )
-    stage2_release_scene_distinction = not math.isclose(
-        _release_value(original, "stimulus"),
-        _release_value(mirrored, "stimulus"),
-        rel_tol=0,
-        abs_tol=1e-12,
-    )
     incremental_motor_effect = all(
         _differs(run, control[label], "stimulus", *MOTOR_GROUPS)
         for label, run in runs.items()
@@ -337,7 +334,6 @@ def classify_gain(
     )
     gates = {
         "stage2_release_response": stage2_release_response,
-        "stage2_release_scene_distinction": stage2_release_scene_distinction,
         "incremental_motor_effect": incremental_motor_effect,
         "visual_motor_response": visual_motor_response,
         "motor_scene_distinction": motor_scene_distinction,

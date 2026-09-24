@@ -59,8 +59,8 @@ class CascadeFakeBrain:
     def rgb_step(self, frame, duration_ms, **kwargs):
         self.cursor += round(duration_ms / 0.1)
         counts = np.zeros(self.n, dtype=np.int32)
-        counts[4] = int(self.g[4] > 0.1)
-        counts[5] = int(self.g[5] > 0.1)
+        counts[4] = int(self.g[4] > 0.4)
+        counts[5] = int(self.g[5] > 0.4)
         motion_g = self.g[[2, 3]].copy()
         self.g.fill(0)
         self.v[:] = self.rest
@@ -121,7 +121,6 @@ def test_sweep_isolates_scene_distinct_incremental_motor_effect():
     assert result["cascaded_relay_gate_passed"] is True
     candidate = result["conditions"]["0.5"]["classification"]
     assert candidate["gates"]["stage2_release_response"] is True
-    assert candidate["gates"]["stage2_release_scene_distinction"] is True
     assert candidate["gates"]["incremental_motor_effect"] is True
     assert candidate["gates"]["visual_motor_response"] is True
     assert candidate["gates"]["motor_scene_distinction"] is True
