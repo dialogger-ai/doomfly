@@ -244,6 +244,23 @@ This read-only audit reports direct and two-edge T4/T5 paths to the fixed
 DNp20/DNpe017 readouts and to every neuron declared descending in the prepared
 graph. It does not run the neural model or modify weights.
 
+
+The descending audit found no direct T4/T5 edges to DNp20/DNpe017. Exact
+two-edge paths instead run through motion bridge types led by VS, VST2 and HST;
+T4/T5 also reach other descending neurons through strong LPLC/LLPC routes.
+Before changing the fixed decoder, measure the exact fixed-readout bridge state
+at the lowest motor-effective cascade gain:
+
+\`\`\`bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.bridge_state_assay \
+  --seed 41027 --downstream-gain 0.1 \
+  --out outputs/asteroids/bridge-state-v1
+\`\`\`
+
+This matched frozen assay derives every bridge neuron from the retained graph,
+compares the 0.1 stage with a zero-stage control, and samples black, original,
+mirrored and final dark-recovery state at each cascade boundary.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored

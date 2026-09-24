@@ -192,3 +192,19 @@ descending in the prepared graph. Its routing decision separates a tonic
 baseline/recovery problem from a mismatched fixed-readout problem. It does not
 run neural dynamics, change weights or enable training.
 
+The descending audit found zero direct T4/T5 edges to DNp20 or DNpe017. The
+fixed readouts are reached through exact two-edge motion bridges led by VS,
+VST2 and HST. T4/T5 also have 243 weak direct edges to other descending neurons
+and much stronger two-edge descending routes through LPLC2, LPLC1, LLPC1/2,
+LC4 and related types. This means the cascade's black shift and persistence
+arise inside an intermediate motion network, not at a direct T4/T5-to-decoder
+synapse.
+
+\`python -m asteroids.bridge_state_assay\` is the next frozen diagnostic. It
+derives every exact T4/T5-to-DNp20/DNpe017 bridge neuron from the graph and
+samples its voltage and conductance under the 0.1 stage and a mandatory
+zero-stage control. Matched black, original, mirrored and final dark-recovery
+comparisons determine whether baseline-referenced T4/T5 output is justified or
+whether the fixed readouts should be replaced by anatomically connected
+descending candidates.
+
