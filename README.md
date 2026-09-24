@@ -429,6 +429,21 @@ OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.efficient_decoder_evalu
 This is still frozen evaluation. A pass routes to implementation of persistent
 reinforcement/plasticity with matched frozen controls; it is not itself learning.
 
+Before enabling learning, audit the observed persistent right-turn bias and
+no-threat behavior:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_causality_assay \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --seed 84001 --seconds 3 \
+  --out outputs/asteroids/directional-causality-v1
+```
+
+This frozen assay tests whether horizontally reflected pixels reverse the neural
+turn response and whether an asteroid-free field remains quiet. Failure blocks
+learning and routes to pixel-only side-specific decoder calibration.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

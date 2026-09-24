@@ -218,3 +218,33 @@ switch rate and no more than a five-percent thrust-fraction increase. If all
 gates pass, the controller is ready to be frozen for persistent reinforcement
 and plasticity implementation. `training_ready` remains false until that
 separate learning system and its controls exist.
+
+## Directional-causality gate before learning
+
+The gameplay records show a persistent right-turn bias that is not accepted as
+a learned or biological strategy. The first safe controller produced 678 right
+turn ticks and 28 left; the selected lower-effort candidate produced 468 right
+and zero left on its development seeds. Because always turning right can still
+eventually reach any heading, survival alone could reward a wasteful one-way
+circling heuristic.
+
+After the untouched efficient-decoder evaluation finishes, run a frozen
+directional diagnostic:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_causality_assay \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --seed 84001 \
+  --seconds 3 \
+  --out outputs/asteroids/directional-causality-v1
+```
+
+The selected decoder receives a deterministic RGB replay, its exact horizontal
+reflection and a closed-loop field with no asteroids. The gate requires the
+mean turn command to reverse sign under reflection, both left and right actions
+to appear, at least half of mirrored actions to match the reflected original
+action and no more than twenty-percent active control in the no-threat field.
+These are declared engineering symmetry/quietness checks. A likely failure
+routes to side-specific gain calibration using only mirrored pixels and neural
+activity—not asteroid coordinates or evaluator steering.
