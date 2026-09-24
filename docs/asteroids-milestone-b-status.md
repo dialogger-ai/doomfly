@@ -248,3 +248,23 @@ output while leaving black motor activity unchanged, recovering exactly and
 keeping KCs safe. If no quantile passes, static reference subtraction is ruled
 out and the next branch is transient relay dynamics or alternative descending
 readouts. Training remains blocked.
+
+The quantile sweep produced no complete candidate, but narrowed the failure to
+one gate. The 90th, 99th and 100th percentile references all left the black
+DNp20/DNpe017 baseline unchanged while preserving stage-two release response,
+incremental motor effect, visual motor response, scene distinction, quiet black
+KCs, the declared KC sparsity ceiling and exact KC recovery. Black release fell
+from the rest-referenced 23.87 equivalents to 10.08, 3.36 and 2.84 respectively;
+the 100th-percentile arm still carried 47.15 original and 148.49 mirrored visual
+release equivalents. Every percentile failed exact motor recovery. This rules
+out ordinary black fluctuations as the remaining baseline problem without yet
+showing whether recovery failure originates at the relay or downstream.
+
+`python -m asteroids.quantile_recovery_audit` is the next read-only diagnostic.
+It consumes the saved quantile `results.json`, compares T4/T5 release at every
+recovery tick with the matched black arm, and checks the saved exact final-second
+DNp20/DNpe017 vector hashes. Persistent relay release routes to a controlled
+transient-output test; recovered relay release with differing motor vectors
+routes to bridge and alternative descending-readout recovery. It does not rerun
+the neural model or change the graph, weights, dynamics, decoder or training
+state.

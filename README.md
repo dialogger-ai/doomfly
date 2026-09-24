@@ -301,6 +301,25 @@ Zero-stage and original rest-referenced controls are repeated. If even the
 black ceiling fails recovery, the next model test must address transient relay
 dynamics or audit alternative anatomically connected descending readouts.
 
+The 90th, 99th and 100th percentile references all restored the exact black
+motor baseline while retaining incremental visual motor activity, scene
+distinction and safe KCs. The 100th-percentile arm reduced black release from
+23.87 to 2.84 equivalents, but every arm still failed exact motor recovery.
+Before changing dynamics or readouts, localize whether the final dark-state
+difference remains at T4/T5 output or only downstream:
+
+```bash
+python -m asteroids.quantile_recovery_audit \
+  --quantile-results outputs/asteroids/quantile-relay-v1/results.json \
+  --out outputs/asteroids/quantile-recovery-audit-v1
+```
+
+This read-only audit uses the saved matched traces and exact motor-vector hashes;
+it does not rerun the brain. If T4/T5 release still differs in the last dark
+second, the next test is transient relay dynamics. If release has recovered but
+motor vectors have not, the next test moves downstream to bridge and alternative
+descending-readout recovery.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
