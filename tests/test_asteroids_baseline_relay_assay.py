@@ -17,6 +17,11 @@ from asteroids.baseline_relay_assay import (
 )
 from asteroids.graded_relay_assay import _deliver_graded_python
 from asteroids.quantile_relay_assay import parse_percentiles, run_sweep
+from asteroids.transient_relay_assay import (
+    TransientBaselineRelay,
+    parse_time_constants,
+    run_sweep as run_transient_sweep,
+)
 
 
 class BaselineFakeBrain:
@@ -115,6 +120,12 @@ def test_quantile_parser_requires_median_and_ceiling_controls():
         parse_percentiles("90,99")
 
 
+def test_transient_parser_requires_positive_unique_time_constants():
+    assert parse_time_constants("25,50,100") == (25.0, 50.0, 100.0)
+    with pytest.raises(Exception, match="positive"):
+        parse_time_constants("0,50")
+
+
 def test_relay_subtracts_declared_reference_not_rest():
     brain = BaselineFakeBrain()
     brain.v[[2, 3]] = [-51.5, -51.5]
@@ -133,6 +144,33 @@ def test_relay_subtracts_declared_reference_not_rest():
     active = relay.deliver()
     assert active["release_equivalents"] == pytest.approx(0.5)
     assert brain.g[4] == pytest.approx(1.0)
+
+
+def test_transient_relay_adapts_using_neural_cursor_time():
+    brain = BaselineFakeBrain()
+    reference = np.asarray([-51.5, -51.5], dtype=np.float32)
+    brain.v[[2, 3]] = reference
+    relay = TransientBaselineRelay(
+        brain,
+        np.asarray([2, 3]),
+        1.0,
+        reference,
+        time_constant_ms=100,
+        deliverer=_deliver_graded_python,
+    )
+    assert relay.deliver()["release_equivalents"] == 0
+
+    brain.cursor = 100
+    brain.v[2] += 3.5
+    first = relay.deliver()
+    brain.cursor = 200
+    second = relay.deliver()
+    assert 0 < second["release_equivalents"] < first["release_equivalents"]
+    assert first["adaptation_elapsed_ms"] == pytest.approx(10.0)
+
+    brain.cursor = 300
+    brain.v[[2, 3]] = reference
+    assert relay.deliver()["release_equivalents"] == 0
 
 
 def test_calibration_uses_black_state_with_second_stage_disabled():
@@ -232,3 +270,27 @@ def test_quantile_sweep_keeps_controls_and_classifies_each_reference():
     assert all(
         row["baseline_relay_candidate"] for row in result["classifications"]
     )
+
+
+def test_transient_sweep_preserves_signal_and_recovers_in_darkness():
+    brain = BaselineFakeBrain()
+    result = run_transient_sweep(
+        brain,
+        [frame()] * 3,
+        groups(),
+        (100,),
+        gain=0.5,
+        upstream_gain=1.0,
+        exposure=1.0,
+        warmup_ms=20,
+        calibration_ms=30,
+        recovery_seconds=2,
+        deliverer=_deliver_graded_python,
+    )
+    classification = result["classifications"][0]
+    assert classification["transient_relay_candidate"] is True
+    assert classification["gates"]["relay_release_dark_recovery"] is True
+    assert classification["gates"]["motor_dark_recovery"] is True
+    assert result["candidate_time_constants_ms"] == [100.0]
+    assert result["transient_relay_gate_passed"] is True
+    assert result["training_ready"] is False

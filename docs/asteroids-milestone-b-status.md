@@ -268,3 +268,25 @@ transient-output test; recovered relay release with differing motor vectors
 routes to bridge and alternative descending-readout recovery. It does not rerun
 the neural model or change the graph, weights, dynamics, decoder or training
 state.
+
+The recovery audit localized the remaining failure to T4/T5 output. For the
+90th, 99th and 100th percentile references, original and mirrored conditions
+differed from their matched black T4/T5 release at all 30 ticks of the final dark
+second. No arm reached sustained release or motor-total recovery within the
+two-second recovery window, and exact DNp20/DNpe017 vectors remained different.
+At the 100th percentile, original-scene final-second release was lower in total
+than black while mirrored-scene release was higher, showing persistent
+scene-dependent relay state rather than a common positive background offset.
+The fixed readouts are still receiving that persistent drive, so replacing them
+now would not isolate the modeled recovery mechanism.
+
+`python -m asteroids.transient_relay_assay` is the next frozen diagnostic. It
+keeps the maximum-observed black reference and gain 0.1, then compares causal
+25, 50, 100 and 250 ms adaptation time constants. The state update uses elapsed
+modeled time from the neural cursor and releases only positive T4/T5 drive above
+an exponentially adapting per-neuron state. Matched zero-stage and static-p100
+controls are mandatory. A candidate must preserve visual motor response and
+scene distinction, keep black motor activity and KCs safe, and restore both
+T4/T5 release and exact motor-vector recovery. The adaptation filter is an
+explicit engineering hypothesis; it is not validated fly physiology. Training
+remains blocked.

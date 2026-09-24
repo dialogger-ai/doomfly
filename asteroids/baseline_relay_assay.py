@@ -22,7 +22,7 @@ import json
 import math
 import os
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -305,6 +305,7 @@ def run_condition(
     warmup_ms: float,
     recovery_seconds: float,
     deliverer: Deliverer = _deliver_graded_python,
+    downstream_factory: Callable[..., GradedRelay] | None = None,
 ) -> dict[str, Any]:
     """Run a matched condition after a common zero-stage black warmup."""
 
@@ -361,12 +362,17 @@ def run_condition(
         )
 
     if reference_mode == "black_baseline":
-        downstream: GradedRelay = BaselineReferencedRelay(
+        factory = downstream_factory or BaselineReferencedRelay
+        downstream: GradedRelay = factory(
             brain,
             downstream_sources,
             downstream_gain,
             reference,
             deliverer=deliverer,
+        )
+    elif downstream_factory is not None:
+        raise ValueError(
+            "A downstream factory is only valid for black-baseline mode"
         )
     else:
         applied_gain = 0.0 if reference_mode == "zero" else downstream_gain

@@ -320,6 +320,26 @@ second, the next test is transient relay dynamics. If release has recovered but
 motor vectors have not, the next test moves downstream to bridge and alternative
 descending-readout recovery.
 
+The audit found persistent T4/T5 output at every tick of the final dark second
+for the 90th, 99th and 100th percentile references. Both visual scenes retained
+different release and motor vectors from their matched black arm, so the relay
+continues driving the failure; changing fixed readouts is premature. Test a
+causal transient-output model:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.transient_relay_assay \
+  --seed 41027 --out outputs/asteroids/transient-relay-v1
+```
+
+The assay keeps the 100th-percentile black reference and gain 0.1, then sweeps
+25, 50, 100 and 250 ms adaptation time constants. At each neural boundary, a
+per-neuron low-pass adaptation state is updated from elapsed modeled neural time;
+only positive drive above that state is released. Zero-stage and static-p100
+controls are rerun. A candidate must retain scene-distinct incremental motor
+output, preserve the clean black/KC baselines, and recover both T4/T5 release and
+exact motor vectors in darkness. The filter is a declared engineering model,
+not a claim about measured T4/T5 adaptation.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
