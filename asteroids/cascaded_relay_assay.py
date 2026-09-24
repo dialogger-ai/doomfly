@@ -517,7 +517,9 @@ def validate_args(args: argparse.Namespace) -> None:
         or not math.isfinite(args.eta)
         or args.eta < 0
     ):
-        raise SystemExit("Use valid positive durations/exposure and nonnegative values.")
+        raise SystemExit(
+            "Use valid positive durations/exposure and nonnegative values."
+        )
     if 0.0 not in args.downstream_gains:
         raise SystemExit("Downstream gains must include zero.")
     if args.out.exists():
