@@ -444,6 +444,26 @@ This frozen assay tests whether horizontally reflected pixels reverse the neural
 turn response and whether an asteroid-free field remains quiet. Failure blocks
 learning and routes to pixel-only side-specific decoder calibration.
 
+The directional gate failed: original and mirrored mean turn commands were
+both positive, no left action appeared, and the no-asteroid controller was
+active on 47.8 percent of ticks. Calibrate a fixed bilateral rate offset and
+quiet-field thresholds from those pixel-only controls with:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_decoder_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional outputs/asteroids/directional-causality-v1 \
+  --seed 84001 --seconds 3 \
+  --out outputs/asteroids/directional-decoder-calibration-v1
+```
+
+This remains fixed engineering calibration, not learning. The turn offset is
+the midpoint of the original and mirrored neural commands in rate units. The
+deadband candidates are fixed 90th, 95th and 99th percentiles of commands in a
+no-asteroid field, with a five-percent margin. Neither step uses game telemetry
+to choose an action or gameplay outcomes to select a candidate.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

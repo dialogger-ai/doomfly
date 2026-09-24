@@ -71,6 +71,7 @@ class AsteroidsNeuralDecoder:
         readouts: Sequence[dict[str, Any]],
         config: DecoderConfig | None = None,
         baseline_rates_hz: Mapping[str, float] | None = None,
+        turn_rate_offset_hz: float = 0.0,
     ) -> None:
         self.readouts = tuple(
             dict(readout)
@@ -108,6 +109,9 @@ class AsteroidsNeuralDecoder:
             self.baseline_rates < 0
         ):
             raise ValueError("Baseline rates must be finite and nonnegative")
+        if not math.isfinite(turn_rate_offset_hz):
+            raise ValueError("Turn-rate offset must be finite")
+        self.turn_rate_offset_hz = float(turn_rate_offset_hz)
         self.rates = self.baseline_rates.copy()
 
     def reset(self) -> None:
@@ -136,6 +140,12 @@ class AsteroidsNeuralDecoder:
                 "ties; otherwise NOOP. FIRE is never emitted."
             ),
         }
+        if self.turn_rate_offset_hz != 0:
+            configuration["turn_rate_offset_hz"] = self.turn_rate_offset_hz
+            configuration["turn_rate_offset_source"] = (
+                "fixed midpoint of original and horizontally mirrored pixel-only "
+                "neural responses"
+            )
         canonical = json.dumps(
             configuration, sort_keys=True, separators=(",", ":")
         ).encode()
@@ -171,7 +181,11 @@ class AsteroidsNeuralDecoder:
                 and (side is None or readout.get("side") == side)
             )
 
-        turn_rate_hz = rate("DNp20", "R") - rate("DNp20", "L")
+        turn_rate_hz = (
+            rate("DNp20", "R")
+            - rate("DNp20", "L")
+            - self.turn_rate_offset_hz
+        )
         thrust_rate_hz = rate("DNpe017")
         turn_command = turn_rate_hz * self.config.turn_gain_per_hz
         thrust_command = thrust_rate_hz * self.config.thrust_gain_per_hz

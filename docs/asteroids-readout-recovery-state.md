@@ -248,3 +248,31 @@ action and no more than twenty-percent active control in the no-threat field.
 These are declared engineering symmetry/quietness checks. A likely failure
 routes to side-specific gain calibration using only mirrored pixels and neural
 activity—not asteroid coordinates or evaluator steering.
+
+The diagnostic failed all four gates. Original and mirrored mean turn commands
+were both rightward (`0.3690` and `0.3217`), neither condition emitted a left
+action, only 47.8 percent of matched actions swapped correctly, and the empty
+field was active on 47.8 percent of ticks. This identifies a fixed decoder-side
+rightward offset plus an overly permissive no-threat deadband; it is not
+evidence for an avoidance strategy.
+
+The next calibration subtracts the midpoint of those matched mean turn
+responses (about `2.878 Hz` in DNp20 right-minus-left rate units) and tests the
+existing thresholds plus no-asteroid command percentiles 90, 95 and 99 with a
+five-percent margin:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_decoder_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional outputs/asteroids/directional-causality-v1 \
+  --seed 84001 \
+  --seconds 3 \
+  --out outputs/asteroids/directional-decoder-calibration-v1
+```
+
+Candidate selection requires mirrored sign reversal, both turn directions, at
+least 50-percent reflected action agreement, at most 20-percent no-threat
+activity and a retained visual turn response. It uses pixels and neural output
+only, keeps weights frozen and leaves `training_ready` false. A pass advances
+to a closed-loop matched left/right threat challenge before any learning loop.

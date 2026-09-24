@@ -140,6 +140,38 @@ def test_black_centered_decoder_rejects_unknown_or_invalid_baselines():
         )
 
 
+def test_fixed_turn_rate_offset_corrects_bilateral_imbalance():
+    config = DecoderConfig(
+        smoothing_seconds=0.001,
+        turn_gain_per_hz=1.0,
+        turn_threshold=0.5,
+        thrust_threshold=999.0,
+    )
+    uncorrected = AsteroidsNeuralDecoder(READOUTS, config)
+    corrected = AsteroidsNeuralDecoder(
+        READOUTS, config, turn_rate_offset_hz=20.0
+    )
+    spikes = np.asarray([2, 0, 0, 0], dtype=np.int32)
+    assert uncorrected.decode(spikes, 0.1)["action"] == Action.RIGHT
+    decision = corrected.decode(spikes, 0.1)
+    assert decision["action"] == Action.NOOP
+    assert decision["turn_rate_hz"] == 0.0
+    assert corrected.configuration()["turn_rate_offset_hz"] == 20.0
+
+
+def test_zero_turn_offset_preserves_existing_configuration_hash():
+    implicit = AsteroidsNeuralDecoder(READOUTS).configuration()
+    explicit = AsteroidsNeuralDecoder(
+        READOUTS, turn_rate_offset_hz=0.0
+    ).configuration()
+    assert explicit == implicit
+
+
+def test_decoder_rejects_nonfinite_turn_offset():
+    with pytest.raises(ValueError, match="Turn-rate offset"):
+        AsteroidsNeuralDecoder(READOUTS, turn_rate_offset_hz=float("nan"))
+
+
 def test_decoder_requires_bilateral_turn_readouts():
     with pytest.raises(ValueError, match="Left and right"):
         AsteroidsNeuralDecoder([READOUTS[0], *READOUTS[2:]])
