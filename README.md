@@ -280,6 +280,27 @@ the black motor baseline unchanged, preserve a scene-distinct incremental motor
 effect, keep KCs within the declared engineering gate and recover exactly in
 darkness. The reference uses no game telemetry and cannot select actions.
 
+The median reference reduced black release from 23.87 to 18.22 equivalents at
+gain 0.1 and from 83.45 to 63.15 at gain 0.3. Both gains retained incremental,
+scene-distinct motor activity with quiet, sparse and recovered KCs, but both
+still changed the black motor baseline and failed motor recovery. The aggregate
+median reference was essentially resting voltage, so a tonic offset alone does
+not explain the failure. Test whether time-varying black excursions require a
+per-neuron background ceiling:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.quantile_relay_assay \
+  --seed 41027 --out outputs/asteroids/quantile-relay-v1
+```
+
+This matched frozen sweep holds gain at the lowest motor-effective value, 0.1,
+and compares per-neuron 50th, 90th, 99th and 100th percentile black references.
+Every reference comes from the same independent 100-sample black calibration;
+the 100th-percentile arm is the observed black maximum, not a visual-scene fit.
+Zero-stage and original rest-referenced controls are repeated. If even the
+black ceiling fails recovery, the next model test must address transient relay
+dynamics or audit alternative anatomically connected descending readouts.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored

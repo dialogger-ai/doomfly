@@ -226,3 +226,25 @@ black motor baseline, a scene-distinct incremental motor effect, sparse KCs and
 exact dark recovery. This reference is an explicit engineering hypothesis based
 only on modeled neural state; it does not use telemetry, alter weights or
 validate T4/T5 physiology. Training remains blocked.
+
+The median-reference assay produced no candidate. At gain 0.1 it reduced black
+release from 23.87 to 18.22 equivalents; at gain 0.3 it reduced black release
+from 83.45 to 63.15. Both gains preserved incremental visual motor effects,
+original-versus-mirrored distinction, quiet black KCs, the declared KC sparsity
+gate and exact KC recovery. Both still changed DNp20/DNpe017 under black input
+and failed final motor recovery. Across 13,585 T4/T5 cells the median calibrated
+reference-minus-rest value was effectively zero, while individual black-state
+samples still crossed it. The failure is therefore not explained by one static
+tonic offset; time-varying background excursions remain.
+
+`python -m asteroids.quantile_relay_assay` is the next frozen diagnostic. At the
+lowest motor-effective gain, 0.1, it derives each neuron's 50th, 90th, 99th and
+100th percentile voltage from the same independent 100-sample black calibration.
+It freezes each reference before matched black, original, mirrored and recovery
+runs, repeating zero-stage and rest-referenced controls. The maximum-observed
+black arm tests the strongest background ceiling available without using visual
+scenes or telemetry. A candidate must preserve scene-distinct incremental motor
+output while leaving black motor activity unchanged, recovering exactly and
+keeping KCs safe. If no quantile passes, static reference subtraction is ruled
+out and the next branch is transient relay dynamics or alternative descending
+readouts. Training remains blocked.

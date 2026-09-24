@@ -11,10 +11,12 @@ import pytest
 from asteroids.baseline_relay_assay import (
     BaselineReferencedRelay,
     calibrate_black_reference,
+    calibrate_black_references,
     parse_candidate_gains,
     run_assay,
 )
 from asteroids.graded_relay_assay import _deliver_graded_python
+from asteroids.quantile_relay_assay import parse_percentiles, run_sweep
 
 
 class BaselineFakeBrain:
@@ -107,6 +109,12 @@ def test_parser_keeps_zero_as_automatic_control():
         parse_candidate_gains("0,.1")
 
 
+def test_quantile_parser_requires_median_and_ceiling_controls():
+    assert parse_percentiles("50,90,99,100") == (50.0, 90.0, 99.0, 100.0)
+    with pytest.raises(Exception, match="include 50 and 100"):
+        parse_percentiles("90,99")
+
+
 def test_relay_subtracts_declared_reference_not_rest():
     brain = BaselineFakeBrain()
     brain.v[[2, 3]] = [-51.5, -51.5]
@@ -144,6 +152,25 @@ def test_calibration_uses_black_state_with_second_stage_disabled():
     assert record["reference_minus_rest_mV"]["median"] == pytest.approx(0.5)
 
 
+def test_calibration_reuses_one_black_sequence_for_per_neuron_quantiles():
+    brain = BaselineFakeBrain()
+    references, record = calibrate_black_references(
+        brain,
+        np.zeros_like(frame()),
+        groups(),
+        percentiles=(50, 90, 100),
+        upstream_gain=1.0,
+        warmup_ms=20,
+        calibration_ms=30,
+        deliverer=_deliver_graded_python,
+    )
+    assert set(references) == {"50", "90", "100"}
+    assert np.all(references["50"] <= references["90"])
+    assert np.all(references["90"] <= references["100"])
+    assert record["method"] == "per-neuron black voltage percentile"
+    assert record["references"]["100"]["percentile"] == 100
+
+
 def test_matched_assay_reduces_black_release_and_preserves_visual_motor_signal():
     brain = BaselineFakeBrain()
     result = run_assay(
@@ -179,3 +206,29 @@ def test_matched_assay_reduces_black_release_and_preserves_visual_motor_signal()
     assert result["training_ready"] is False
     assert all(call["learning"] is False for call in brain.calls)
     assert all(call["frozen"] is True for call in brain.calls)
+
+
+def test_quantile_sweep_keeps_controls_and_classifies_each_reference():
+    brain = BaselineFakeBrain()
+    result = run_sweep(
+        brain,
+        [frame()] * 3,
+        groups(),
+        (50, 100),
+        gain=0.5,
+        upstream_gain=1.0,
+        exposure=1.0,
+        warmup_ms=20,
+        calibration_ms=30,
+        recovery_seconds=2,
+        deliverer=_deliver_graded_python,
+    )
+    assert result["candidate_percentiles"] == [50.0, 100.0]
+    assert result["quantile_relay_gate_passed"] is True
+    assert result["training_ready"] is False
+    assert [
+        row["reference_percentile"] for row in result["classifications"]
+    ] == [50.0, 100.0]
+    assert all(
+        row["baseline_relay_candidate"] for row in result["classifications"]
+    )

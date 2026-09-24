@@ -75,6 +75,7 @@ ASSAY_VERSION = "asteroids-baseline-referenced-t4-t5-v1"
 DEFAULT_GAINS = (0.1, 0.3)
 DEFAULT_CALIBRATION_MS = 1_000.0
 REFERENCE_METHOD = "per-neuron median voltage during black calibration"
+QUANTILE_REFERENCE_METHOD = "per-neuron black voltage percentile"
 
 
 class BaselineReferencedRelay(GradedRelay):
@@ -147,17 +148,18 @@ def _sources(groups: Mapping[str, np.ndarray], names: Sequence[str]) -> np.ndarr
     )
 
 
-def calibrate_black_reference(
+def calibrate_black_references(
     brain: PixelBrain,
     black: np.ndarray,
     groups: Mapping[str, np.ndarray],
     *,
+    percentiles: Sequence[float],
     upstream_gain: float,
     warmup_ms: float,
     calibration_ms: float,
     deliverer: Deliverer = _deliver_graded_python,
-) -> tuple[np.ndarray, dict[str, Any]]:
-    """Measure a fixed T4/T5 black reference with stage two disabled."""
+) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
+    """Measure fixed per-neuron T4/T5 black quantiles with stage two disabled."""
 
     if black.ndim != 3 or black.shape[2] != 3 or black.dtype != np.uint8:
         raise ValueError("Black calibration input must be an RGB uint8 frame")
@@ -170,6 +172,16 @@ def calibrate_black_reference(
         or calibration_ms <= 0
     ):
         raise ValueError("Calibration gains and durations are invalid")
+    requested = tuple(float(value) for value in percentiles)
+    if (
+        not requested
+        or len(set(requested)) != len(requested)
+        or any(
+            not math.isfinite(value) or value < 0 or value > 100
+            for value in requested
+        )
+    ):
+        raise ValueError("Reference percentiles must be unique values from 0 to 100")
     required = (*UPSTREAM_GROUPS, *DOWNSTREAM_GROUPS)
     missing = [name for name in required if name not in groups]
     if missing:
@@ -210,28 +222,73 @@ def calibrate_black_reference(
         remaining -= chunk
 
     samples = np.stack(rows).astype(np.float32, copy=False)
-    reference = np.median(samples, axis=0).astype(np.float32)
     rest = np.asarray(brain.rest[downstream_sources], dtype=np.float32)
-    return reference, {
-        "method": REFERENCE_METHOD,
+    references = {
+        f"{percentile:g}": np.percentile(samples, percentile, axis=0).astype(
+            np.float32
+        )
+        for percentile in requested
+    }
+    reference_records = {}
+    for percentile in requested:
+        label = f"{percentile:g}"
+        reference = references[label]
+        delta = reference - rest
+        reference_records[label] = {
+            "percentile": percentile,
+            "reference_voltage_sha256": array_sha256(reference),
+            "reference_minus_rest_mV": {
+                "minimum": float(delta.min(initial=math.inf)),
+                "median": float(np.median(delta)),
+                "maximum": float(delta.max(initial=-math.inf)),
+            },
+        }
+    return references, {
+        "method": QUANTILE_REFERENCE_METHOD,
         "black_only": True,
         "stage_two_disabled": True,
         "warmup_ms": warmup_ms,
         "calibration_ms": calibration_ms,
         "samples": samples.shape[0],
         "neurons": samples.shape[1],
-        "reference_voltage_sha256": array_sha256(reference),
         "sample_sequence_sha256": array_sha256(samples),
-        "reference_minus_rest_mV": {
-            "minimum": float((reference - rest).min(initial=math.inf)),
-            "median": float(np.median(reference - rest)),
-            "maximum": float((reference - rest).max(initial=-math.inf)),
-        },
+        "references": reference_records,
         "release": {
             "warmup": warmup_release,
             "calibration": calibration_release,
         },
         "kernel_seconds": warmup_kernel_seconds + calibration_kernel_seconds,
+    }
+
+
+def calibrate_black_reference(
+    brain: PixelBrain,
+    black: np.ndarray,
+    groups: Mapping[str, np.ndarray],
+    *,
+    upstream_gain: float,
+    warmup_ms: float,
+    calibration_ms: float,
+    deliverer: Deliverer = _deliver_graded_python,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    """Measure the original median T4/T5 black reference."""
+
+    references, calibration = calibrate_black_references(
+        brain,
+        black,
+        groups,
+        percentiles=(50.0,),
+        upstream_gain=upstream_gain,
+        warmup_ms=warmup_ms,
+        calibration_ms=calibration_ms,
+        deliverer=deliverer,
+    )
+    median_record = calibration["references"]["50"]
+    return references["50"], {
+        **calibration,
+        "method": REFERENCE_METHOD,
+        "reference_voltage_sha256": median_record["reference_voltage_sha256"],
+        "reference_minus_rest_mV": median_record["reference_minus_rest_mV"],
     }
 
 
