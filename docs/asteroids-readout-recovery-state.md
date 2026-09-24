@@ -189,3 +189,32 @@ action-switch rate by at least ten percent. Among eligible variants, selection
 is lexicographic: active-control fraction, switch rate, then ship-path rate.
 These margins are engineering gates, not a spacecraft fuel model or evidence of
 learning.
+
+The development sweep selected `smooth_0p2_both_0p75`. It was the only variant
+to pass every safety and efficiency gate: restricted-mean survival increased
+4.8 percent, contact rate stayed within 3.4 percent and asteroids passed rose
+from 17 to 18. Active-control fraction fell 13.0 percent, action-switch rate
+fell 17.0 percent and turn fraction fell 36.8 percent. Thrust fraction rose 3.4
+percent and ship-path rate rose 30.4 percent, so this is specifically a
+lower-command-effort candidate rather than demonstrated lower total propellant
+use. Inertial path length is recorded but is not itself a fuel measure.
+
+Confirm that candidate on a third, untouched twelve-seed set before adopting it
+for learning experiments:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.efficient_decoder_evaluation \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --heldout outputs/asteroids/heldout-frozen-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --seed-start 73001 \
+  --episodes 12 \
+  --out outputs/asteroids/efficient-decoder-evaluation-v1
+```
+
+The confirmation repeats the safety gates and requires at least five-percent
+lower active-control time, twenty-percent lower turn time, ten-percent lower
+switch rate and no more than a five-percent thrust-fraction increase. If all
+gates pass, the controller is ready to be frozen for persistent reinforcement
+and plasticity implementation. `training_ready` remains false until that
+separate learning system and its controls exist.

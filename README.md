@@ -414,6 +414,21 @@ It keeps the held-out seeds sealed, rejects safety regressions first and tests
 whether fixed smoothing/threshold changes reduce active-control time and command
 switching. It remains a frozen, non-learning calibration.
 
+The sweep selected `smooth_0p2_both_0p75` as its only eligible lower-command-
+effort decoder. Confirm it on a third untouched seed set with:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.efficient_decoder_evaluation \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --heldout outputs/asteroids/heldout-frozen-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --seed-start 73001 --episodes 12 \
+  --out outputs/asteroids/efficient-decoder-evaluation-v1
+```
+
+This is still frozen evaluation. A pass routes to implementation of persistent
+reinforcement/plasticity with matched frozen controls; it is not itself learning.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
