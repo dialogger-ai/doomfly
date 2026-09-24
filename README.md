@@ -340,6 +340,26 @@ output, preserve the clean black/KC baselines, and recover both T4/T5 release an
 exact motor vectors in darkness. The filter is a declared engineering model,
 not a claim about measured T4/T5 adaptation.
 
+No global adaptation time constant passed. The 25, 50 and 100 ms arms preserved
+visual response and scene distinction but removed the incremental effect beyond
+zero-stage activity. The 250 ms arm retained that incremental effect and clean
+black/KC baselines, but T4/T5 release and the fixed motor vectors still failed
+recovery. Rather than stacking another global filter, screen every anatomically
+connected descending cell type under the static-p100 and 250 ms conditions:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.descending_readout_screen \
+  --seed 41027 --out outputs/asteroids/descending-readout-screen-v1
+```
+
+The screen includes every annotated descending neuron reached from T4/T5 within
+one or two retained graph edges and groups them by cell type. A type passes only
+if both scenes are active and incrementally different from zero-stage, the two
+scenes differ, black activity is unchanged, and the final dark state recovers
+exactly. Candidate selection uses connectivity and matched neural responses—not
+game score, survival, target coordinates or action telemetry. No decoder is
+changed by the screen.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored

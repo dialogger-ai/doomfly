@@ -290,3 +290,24 @@ scene distinction, keep black motor activity and KCs safe, and restore both
 T4/T5 release and exact motor-vector recovery. The adaptation filter is an
 explicit engineering hypothesis; it is not validated fly physiology. Training
 remains blocked.
+
+The transient sweep produced no candidate. All four time constants preserved a
+visual release response, visual motor response, original-versus-mirrored motor
+distinction, an unchanged black motor baseline, quiet/sparse/recovered KCs and
+black release no greater than the static-p100 control. The 25, 50 and 100 ms
+arms no longer changed DNp20/DNpe017 beyond the zero-stage visual response. The
+250 ms arm retained the incremental motor effect, with 22.81 original and 74.79
+mirrored release equivalents versus 2.27 black, but both T4/T5 release and exact
+motor recovery still failed. A single global adaptation constant therefore
+trades away useful output before fixing persistence.
+
+`python -m asteroids.descending_readout_screen` is the next frozen experiment.
+It systematically derives every annotated descending neuron reachable from
+T4/T5 within one or two retained graph edges, groups those neurons by cell type,
+and records matched zero-stage, static-p100 and 250 ms transient-p100 spike
+vectors. A candidate type must be active and incrementally changed in both
+visual scenes, distinguish original from mirrored input, preserve its black
+baseline and recover exactly in darkness. The screen uses anatomy and neural
+responses only; it does not use game performance, select actions, change the
+decoder or enable learning. If no type passes, the next branch is explicitly
+cell-type-specific visual dynamics rather than further global filtering.
