@@ -177,3 +177,18 @@ Success requires an incremental scene-dependent effect at the fixed motor
 readouts, an unchanged black motor baseline, sparse KCs and matched dark
 recovery. Training and decoder changes remain disabled.
 
+The cascaded T4/T5 sweep found no candidate. Gains 0.1 and 0.3 produced an
+incremental effect at DNp20/DNpe017 beyond the mandatory zero-stage control, but
+both changed the matched black motor baseline and failed dark recovery. Gain
+0.03 did not add a motor effect and still failed recovery. Gain 1 changed the
+black baseline, failed motor recovery and recruited 37.4 percent of KCs in the
+original scene with failed KC recovery. This rules out simple downstream-gain
+tuning.
+
+The next step is the read-only
+\`python -m asteroids.descending_pathway_audit\`. It measures direct and two-edge
+paths from T4/T5 to the fixed DNp20/DNpe017 readouts and to all neurons declared
+descending in the prepared graph. Its routing decision separates a tonic
+baseline/recovery problem from a mismatched fixed-readout problem. It does not
+run neural dynamics, change weights or enable training.
+

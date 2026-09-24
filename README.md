@@ -227,6 +227,23 @@ the black motor baseline unchanged, remain below the declared five-percent KC
 ceiling and recover to the matched dark baseline. It remains a frozen dynamics
 diagnostic, not training or biological validation.
 
+
+The cascaded sweep found no safe T4/T5 gain. Gains 0.1 and 0.3 changed
+DNp20/DNpe017 beyond the zero-stage control, but also changed the black motor
+baseline and failed dark recovery. Gain 1 additionally recruited 37.4 percent
+of KCs in the original scene and failed KC recovery. Audit the downstream
+anatomy before changing either dynamics or readouts:
+
+\`\`\`bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.descending_pathway_audit \
+  --cascade-results outputs/asteroids/cascaded-relay-v1/results.json \
+  --out outputs/asteroids/descending-audit-v1
+\`\`\`
+
+This read-only audit reports direct and two-edge T4/T5 paths to the fixed
+DNp20/DNpe017 readouts and to every neuron declared descending in the prepared
+graph. It does not run the neural model or modify weights.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
