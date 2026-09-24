@@ -21,7 +21,7 @@ import math
 import os
 import statistics
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -73,6 +73,42 @@ from .visual_assay import (
 
 TRIAL_VERSION = "asteroids-transient-relay-gameplay-v1"
 LOCKED_ACTION_FRACTION = 0.95
+FrameObserver = Callable[[np.ndarray, int], None]
+
+
+class GameplayViewer:
+    """Display-only observer; rendered frames never re-enter the controller."""
+
+    def __init__(self, width: int, height: int) -> None:
+        import pygame
+
+        pygame.display.init()
+        self.pygame = pygame
+        self.surface = pygame.display.set_mode((width, height))
+
+    def show(
+        self,
+        frame: np.ndarray,
+        tick: int,
+        *,
+        mode: str,
+        episode: int,
+        episodes: int,
+    ) -> None:
+        for event in self.pygame.event.get():
+            if event.type == self.pygame.QUIT:
+                raise KeyboardInterrupt("Gameplay viewer closed")
+        display_frame = np.transpose(frame, (1, 0, 2))
+        image = self.pygame.surfarray.make_surface(display_frame)
+        self.surface.blit(image, (0, 0))
+        self.pygame.display.set_caption(
+            f"DOOMFLY Asteroids | {mode} | episode {episode}/{episodes} | "
+            f"{tick / GAME_HZ:.1f}s"
+        )
+        self.pygame.display.flip()
+
+    def close(self) -> None:
+        self.pygame.display.quit()
 
 
 def _sources(groups: Mapping[str, np.ndarray], names: Sequence[str]) -> np.ndarray:
@@ -197,6 +233,7 @@ def run_relay_episode(
     warmup_ms: float,
     out: Path | None = None,
     deliverer: Deliverer = _deliver_graded_python,
+    frame_observer: FrameObserver | None = None,
 ) -> dict[str, Any]:
     if not math.isfinite(seconds) or seconds <= 0:
         raise ValueError("Episode duration must be positive and finite")
@@ -277,6 +314,8 @@ def run_relay_episode(
             decision = decoder.decode(counts, steps / NEURAL_STEPS_PER_SECOND)
             action = Action(decision["action"])
             game_result = env.step(action)
+            if frame_observer is not None:
+                frame_observer(game_result.rgb, tick + 1)
             actions.append(action.name)
             action_counts[action.name] += 1
             activity = _group_spikes(brain, counts)
@@ -461,6 +500,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--calibration-ms", type=float, default=DEFAULT_CALIBRATION_MS)
     parser.add_argument("--eta", type=float, default=0.001)
     parser.add_argument(
+        "--watch",
+        action="store_true",
+        help="Display post-action game frames without feeding them to the controller",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
         default="outputs/asteroids/transient-relay-gameplay-v1",
@@ -572,6 +616,11 @@ def main() -> None:
         "reinforcement_enabled": False,
         "weights_frozen": True,
         "shooting_enabled": False,
+        "watch_display_enabled": args.watch,
+        "watch_boundary": (
+            "Optional display observes post-action RGB only; it cannot modify "
+            "pixels, neural state, actions or fixed-step game time."
+        ),
         "telemetry_boundary": (
             "Game telemetry is logged only after action selection and never enters "
             "pixels, neural dynamics, relay calibration or the decoder."
@@ -583,49 +632,64 @@ def main() -> None:
     }
     _write_json(args.out / "protocol.json", protocol)
 
+    viewer = GameplayViewer(config.width, config.height) if args.watch else None
     mode_summaries = {}
-    for mode, decoder in decoders.items():
-        mode_summaries[mode] = []
-        for index in range(args.episodes):
-            seed = args.seed + index
-            env = AsteroidsEnv(seed=seed, config=config)
-            run = run_relay_episode(
-                brain,
-                env,
-                decoder,
-                pathway,
-                reference,
-                seconds=args.seconds,
-                upstream_gain=args.upstream_gain,
-                downstream_gain=args.gain,
-                transient_tau_ms=args.transient_tau_ms,
-                exposure=args.exposure,
-                warmup_ms=args.warmup_ms,
-                out=args.out / f"{mode}-episode-{index:03d}-seed-{seed}",
-                deliverer=deliverer,
-            )
-            summary = run["summary"]
-            mode_summaries[mode].append(summary)
-            print(
-                json.dumps(
-                    {
-                        "mode": mode,
-                        "episode": index,
-                        "seed": seed,
-                        "game_seconds": summary["game_seconds"],
-                        "terminated": summary["terminated"],
-                        "end_health": summary["end_health"],
-                        "contacts": summary["contacts"],
-                        "actions": summary["action_counts"],
-                        "maximum_action_fraction": summary[
-                            "maximum_action_fraction"
-                        ],
-                        "longest_action_run": summary["longest_action_run"],
-                        "speed": summary["timing"]["brain_to_wall_speed"],
-                    }
-                ),
-                flush=True,
-            )
+    try:
+        for mode, decoder in decoders.items():
+            mode_summaries[mode] = []
+            for index in range(args.episodes):
+                seed = args.seed + index
+                env = AsteroidsEnv(seed=seed, config=config)
+                observer = None
+                if viewer is not None:
+                    observer = lambda frame, tick, mode=mode, index=index: viewer.show(
+                        frame,
+                        tick,
+                        mode=mode,
+                        episode=index + 1,
+                        episodes=args.episodes,
+                    )
+                run = run_relay_episode(
+                    brain,
+                    env,
+                    decoder,
+                    pathway,
+                    reference,
+                    seconds=args.seconds,
+                    upstream_gain=args.upstream_gain,
+                    downstream_gain=args.gain,
+                    transient_tau_ms=args.transient_tau_ms,
+                    exposure=args.exposure,
+                    warmup_ms=args.warmup_ms,
+                    out=args.out / f"{mode}-episode-{index:03d}-seed-{seed}",
+                    deliverer=deliverer,
+                    frame_observer=observer,
+                )
+                summary = run["summary"]
+                mode_summaries[mode].append(summary)
+                print(
+                    json.dumps(
+                        {
+                            "mode": mode,
+                            "episode": index,
+                            "seed": seed,
+                            "game_seconds": summary["game_seconds"],
+                            "terminated": summary["terminated"],
+                            "end_health": summary["end_health"],
+                            "contacts": summary["contacts"],
+                            "actions": summary["action_counts"],
+                            "maximum_action_fraction": summary[
+                                "maximum_action_fraction"
+                            ],
+                            "longest_action_run": summary["longest_action_run"],
+                            "speed": summary["timing"]["brain_to_wall_speed"],
+                        }
+                    ),
+                    flush=True,
+                )
+    finally:
+        if viewer is not None:
+            viewer.close()
 
     classification = classify_trial(mode_summaries)
     result = {

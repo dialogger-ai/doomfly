@@ -108,6 +108,7 @@ OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.relay_gameplay_trial \
   --seed 41027 \
   --seconds 10 \
   --episodes 3 \
+  --watch \
   --out outputs/asteroids/transient-relay-gameplay-v1
 ```
 
@@ -116,3 +117,6 @@ gate requires the centered decoder to change the raw action sequence, avoid
 spending 95 percent of any episode on one action, produce both turn and thrust
 actions, and preserve median survival. Shooting remains disabled in this first
 survival curriculum. Weights are frozen and `training_ready` remains false.
+`--watch` renders each post-action frame in a display-only Pygame window. It
+does not cap wall-clock speed or feed window state back into the experiment;
+omit it for the lowest possible rendering overhead.

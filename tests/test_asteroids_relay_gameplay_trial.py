@@ -79,6 +79,7 @@ def test_live_runner_keeps_weights_frozen_and_telemetry_post_action():
     decoder = AsteroidsNeuralDecoder(
         READOUTS, DecoderConfig(smoothing_seconds=0.001)
     )
+    observed = []
     run = run_relay_episode(
         brain,
         env,
@@ -92,10 +93,13 @@ def test_live_runner_keeps_weights_frozen_and_telemetry_post_action():
         exposure=1.0,
         warmup_ms=0,
         deliverer=_deliver_graded_python,
+        frame_observer=lambda frame, tick: observed.append((frame.copy(), tick)),
     )
     assert run["summary"]["game_ticks"] == 3
     assert run["summary"]["action_counts"]["NOOP"] == 3
     assert run["trace"][0]["telemetry"]["step"] == 1
+    assert [tick for _, tick in observed] == [1, 2, 3]
+    assert observed[0][0].shape == (180, 240, 3)
     assert all(call["learning"] is False for call in brain.calls)
     assert brain.weights_frozen is True
 
