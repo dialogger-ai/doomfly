@@ -149,3 +149,14 @@ next step: it reports direct Mi1/Tm3-to-T4/T5 edges, ranked first-hop target
 types and two-edge bridge types, then routes the next controlled dynamics test.
 It does not modify the graph, weights or neural state, and training remains
 blocked.
+
+The connectivity audit found 85,324 direct Mi1/Tm3-to-T4/T5 edges, all positive.
+Every Mi1 and every T4 participates in the Mi1-to-T4 projection; 2,052 of 2,054
+Tm3 cells and 6,861 of 6,865 T4 cells participate in the Tm3-to-T4 projection.
+This rules out a missing or sign-inverted direct T4 route in the retained graph.
+T5 receives only two direct Mi1 edges and 1,103 direct Tm3 edges, so T4 is the
+primary immediate target of this staged relay. The next diagnostic is
+`python -m asteroids.graded_state_assay`, which preserves the gain-1 release
+schedule and samples T4/T5 voltage and conductance every millisecond under
+matched black, original and mirrored inputs. Its purpose is to measure the
+remaining modeled threshold margin before any intrinsic dynamics are changed.

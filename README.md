@@ -195,6 +195,20 @@ This read-only audit reports direct Mi1/Tm3-to-T4/T5 edges, first-hop target
 cell types and two-edge bridge types. It does not run learning or modify the
 graph, weights or neural state.
 
+When that audit confirms positive direct edges but the gain-1 relay remains
+spike-silent, measure the target integration margin before changing sources or
+intrinsic parameters:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.graded_state_assay \
+  --seed 41027 --gain 1.0 --out outputs/asteroids/graded-state-v1
+```
+
+The assay replays matched black, original and mirrored conditions at fixed 2x
+exposure. It preserves the graded-release schedule while sampling T4/T5 voltage
+and conductance every millisecond. The reported distance from the declared
+-45 mV firing boundary is a model diagnostic, not a physiological measurement.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
