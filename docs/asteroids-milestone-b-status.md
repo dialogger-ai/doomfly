@@ -160,3 +160,20 @@ primary immediate target of this staged relay. The next diagnostic is
 schedule and samples T4/T5 voltage and conductance every millisecond under
 matched black, original and mirrored inputs. Its purpose is to measure the
 remaining modeled threshold margin before any intrinsic dynamics are changed.
+
+The gain-1 state-margin assay then sampled T4/T5 at intervals no greater than
+one millisecond. T4 state was visual and scene-dependent: 425 T4 cells changed
+versus black for the original scene, 757 for the mirrored scene and 1,007
+differed between scenes. The strongest original T4 remained 4.02 mV below the
+declared -45 mV threshold; the strongest mirrored T4 remained 2.93 mV below it.
+No T4 cell came within 2 mV, and only one came within 3 mV. T5 remained roughly
+5.70 mV below threshold. This rejects a small global threshold adjustment as an
+adequate controlled repair.
+
+\`python -m asteroids.cascaded_relay_assay\` is the next frozen diagnostic. It
+keeps the measured Mi1/Tm3 gain at 1, sweeps a second bounded T4/T5 graded-output
+gain through existing signed edges, and includes a mandatory zero-stage control.
+Success requires an incremental scene-dependent effect at the fixed motor
+readouts, an unchanged black motor baseline, sparse KCs and matched dark
+recovery. Training and decoder changes remain disabled.
+

@@ -209,6 +209,24 @@ exposure. It preserves the graded-release schedule while sampling T4/T5 voltage
 and conductance every millisecond. The reported distance from the declared
 -45 mV firing boundary is a model diagnostic, not a physiological measurement.
 
+
+The gain-1 state-margin assay found that T4 carries a scene-dependent signal but
+remains subthreshold: the strongest original-scene T4 stayed 4.02 mV below the
+declared -45 mV boundary and the strongest mirrored-scene T4 stayed 2.93 mV
+below it. Rather than lowering a global threshold, test a second bounded graded
+stage through the existing T4/T5 outgoing edges:
+
+\`\`\`bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.cascaded_relay_assay \
+  --seed 41027 --out outputs/asteroids/cascaded-relay-v1
+\`\`\`
+
+The zero-gain arm is mandatory. A candidate must add a motor effect beyond that
+control for both visual scenes, distinguish original from mirrored input, leave
+the black motor baseline unchanged, remain below the declared five-percent KC
+ceiling and recover to the matched dark baseline. It remains a frozen dynamics
+diagnostic, not training or biological validation.
+
 At fixed 2x exposure, the test sweeps a bounded rectified release gain from zero
 through 0.1 fractional spike-equivalents per 10 ms. It delivers that release
 through every existing signed Mi1/Tm3 outgoing edge. Black, original, mirrored
