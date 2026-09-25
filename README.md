@@ -914,6 +914,21 @@ are trained from the same batch and evaluated on identical new development
 seeds. Results include completed center excursions rather than relying only on
 aggregate central-screen time.
 
+If gameplay and efficiency improve but recovery/safe transfer still fails on
+new trajectories, audit the recorded decisions before adding more memory:
+
+```bash
+python -m asteroids.policy_temporal_recovery_error_audit \
+  --prior outputs/asteroids/policy-temporal-recovery-efficiency-v1 \
+  --out outputs/asteroids/policy-temporal-recovery-error-audit-v1
+```
+
+This is an offline diagnostic: it runs no neural simulation and performs no
+learning. It tests whether errors cluster just after threat/recovery/safe phase
+changes, persist within stable phases, follow teacher-label jitter, or appear as
+control oscillation. The result chooses the next experiment; it does not select
+a policy or touch the reserved held-out seeds.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
