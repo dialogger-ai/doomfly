@@ -373,3 +373,33 @@ reverse mean sign with magnitudes within a factor of two, and correlate at least
 `0.3` with a declared pixel feature in each scene. DNp20 is retained as a failed
 control. The screen ignores its trace actions and cannot authorize gameplay or
 learning; a selected type still requires held-out mirror and no-threat testing.
+
+The screen found no candidate among 303 bilateral descending types (837
+neurons). DNp20 also repeated the interface failure: original and mirrored means
+had the same sign, cross-side correlation (`0.205`) did not beat same-side
+correlation (`0.220`), zero-lag mirror correlation was `-0.143`, and minimum
+pixel-feature correlation was `0.149`. This excludes the current fixed readout
+and every bilateral descending population in the declared two-edge scope; it
+does not establish that the visual signal is absent upstream.
+
+The next screen keeps the same depth and controls but moves the observation
+point to every bilateral, non-descending bridge population in an exact retained
+`T4/T5 -> bridge -> annotated descending neuron` motif:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_bridge_readout_screen \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --descending-screen outputs/asteroids/directional-readout-screen-v1 \
+  --seed 84001 \
+  --seconds 3 \
+  --out outputs/asteroids/directional-bridge-readout-screen-v1
+```
+
+The bridge screen reuses the predeclared black-centered mirror, direction,
+magnitude and pixel-feature gates. It does not use actions, game state, survival
+or collisions to select a population. A passing bridge would still require an
+untouched mirrored/no-threat validation before it could replace the gameplay
+readout; a failure routes back to the visual feature definition and modeled
+motion-path dynamics rather than to reward training.

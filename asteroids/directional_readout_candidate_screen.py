@@ -92,7 +92,7 @@ def _load_failed_readout_audit(
     return protocol, results
 
 
-def bilateral_descending_groups(
+def bilateral_type_groups(
     groups: Mapping[str, np.ndarray], soma_sides: Sequence[str]
 ) -> tuple[dict[str, dict[str, np.ndarray]], dict[str, Any]]:
     sides = np.asarray(soma_sides, dtype=str)
@@ -101,12 +101,12 @@ def bilateral_descending_groups(
     for group, raw_indices in sorted(groups.items()):
         indices = np.asarray(raw_indices, dtype=np.int32)
         if indices.ndim != 1 or np.any(indices < 0) or np.any(indices >= len(sides)):
-            raise ValueError("Descending group contains an invalid neural index")
+            raise ValueError("Candidate group contains an invalid neural index")
         split = {
             side: indices[sides[indices] == side]
             for side in ("L", "R")
         }
-        cell_type = group.removeprefix(DESCENDING_PREFIX)
+        cell_type = group.split("::", 1)[-1]
         if len(split["L"]) and len(split["R"]):
             result[cell_type] = split
         else:
@@ -137,6 +137,9 @@ def bilateral_descending_groups(
         "excluded_nonbilateral_types": len(excluded),
         "excluded_nonbilateral": excluded,
     }
+
+
+bilateral_descending_groups = bilateral_type_groups
 
 
 def _condition_rate_matrix(
@@ -454,7 +457,7 @@ def main() -> None:
     descending_groups, anatomy = reachable_descending_type_groups(
         brain, cell_types, brain.superclass, pathway
     )
-    bilateral_groups, bilateral_scope = bilateral_descending_groups(
+    bilateral_groups, bilateral_scope = bilateral_type_groups(
         descending_groups, soma_sides
     )
     if not bilateral_groups:

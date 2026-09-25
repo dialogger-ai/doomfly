@@ -531,6 +531,26 @@ members. Signals are centered on a matched black run. DNp20 remains an explicit
 failed control. Passing this development screen would require separate mirrored
 and quiet-field validation before any candidate could control gameplay.
 
+No descending type passed: all 303 bilateral types in the two-edge anatomical
+scope failed the declared mirror-equivariance gates, and the DNp20 control again
+failed sign reversal and pixel-feature coupling. Rather than admitting arbitrary
+deeper neurons, screen the exact non-descending visual bridge types in retained
+`T4/T5 -> bridge -> descending neuron` motifs:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_bridge_readout_screen \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --descending-screen outputs/asteroids/directional-readout-screen-v1 \
+  --seed 84001 --seconds 3 \
+  --out outputs/asteroids/directional-bridge-readout-screen-v1
+```
+
+This screen applies the same black-centered mirrored-pixel gates to bilateral
+bridge populations. It ignores decoder actions, telemetry and outcomes; weights
+remain frozen and learning remains blocked.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
