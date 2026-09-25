@@ -1086,6 +1086,25 @@ field that can restore both classes and improve by at least fifteen points. The
 result distinguishes stimulus weakness, sampling density, retinal geometry and
 missing local receptive fields without changing the connectome.
 
+If full pixels retain radial motion while every retina-sized luminance sampler
+loses it, preserve brightening and darkening edges before spatial subsampling:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.policy_temporal_contrast_sampling_audit \
+  --prior outputs/asteroids/policy-retinal-sampling-audit-v1 \
+  --out outputs/asteroids/policy-temporal-contrast-sampling-audit-v1
+```
+
+This offline audit computes dense full-resolution ON and OFF temporal-contrast
+channels, pools those channels separately, and only then samples a screen-
+uniform or prepared MaleCNS retinal layout. It tests unpooled channels and
+fixed four-, eight-, sixteen- and thirty-two-pixel pooling radii. Keeping ON and
+OFF signals separate prevents a moving object's leading and trailing edges
+from canceling during averaging. The result determines whether temporal
+contrast can restore motion at the prepared retinal interface before another
+connectome replay. These channels are an explicit engineering front end, not a
+claim about validated fly retinal dynamics.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
