@@ -1069,6 +1069,23 @@ from image luminance. The result routes the next experiment to the controlled
 stimulus, retinal projection, modeled visual dynamics or decoder instead of
 guessing. This run is offline and does not use `caffeinate` or `--watch`.
 
+If the coarse pixel control is informative but misses its strict gate while the
+prepared retina remains at chance, compare retinal sampling mechanisms directly:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.policy_retinal_sampling_audit \
+  --prior outputs/asteroids/policy-optic-flow-encoding-audit-v1 \
+  --out outputs/asteroids/policy-retinal-sampling-audit-v1
+```
+
+This offline audit compares full-resolution radial motion, a screen-uniform
+sampler with approximately the same number of receptors, the prepared MaleCNS
+point projection, and fixed two-, four- and eight-pixel box-pooled receptive
+fields at the prepared receptor locations. It predeclares the smallest pooled
+field that can restore both classes and improve by at least fifteen points. The
+result distinguishes stimulus weakness, sampling density, retinal geometry and
+missing local receptive fields without changing the connectome.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
