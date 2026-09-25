@@ -1017,6 +1017,23 @@ fixed ridge folds hold out opposite direction pairs. No gameplay policy is
 trained, and no collision outcome, reward or privileged trajectory coordinate
 is supplied to a probe.
 
+If those longer histories remain near chance, separate projection information
+loss from decoder limitations with one fresh matched-motion collection:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_temporal_projection_capacity_assay \
+  --prior outputs/asteroids/policy-temporal-representation-separability-v1 \
+  --out outputs/asteroids/policy-temporal-projection-capacity-v1
+```
+
+This assay compares frozen 256-, 1024- and 4096-feature projections using both
+direction-held-out ridge and nonlinear RBF probes. It saves every projected
+five-state history in `projected_sequences.npz`; later decoder experiments can
+therefore reuse the same neural collection offline. A configuration must
+generalize to unseen motion directions, classify both safe and recovery states,
+and materially exceed the prior 200-ms result before it can become a training
+candidate. This is a representation diagnostic, not gameplay training.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
