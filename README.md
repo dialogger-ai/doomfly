@@ -705,6 +705,24 @@ again removes the teacher. It must improve reward and safety, remain at most
 35-percent active, spend at most 20 percent of time near an edge and remain in
 the central envelope at least 60 percent of the time.
 
+If the safe-envelope teacher improves development safety but autonomous
+deployment remains all-NOOP, audit the exact saved logits before another long
+training run:
+
+```bash
+python -m asteroids.policy_capacity_margin_audit \
+  --prior outputs/asteroids/policy-safe-envelope-curriculum-v1 \
+  --out outputs/asteroids/policy-capacity-margin-audit-v1
+```
+
+This trace-only audit screens NOOP-logit adjustments in `0.05` increments
+against the recorded teacher labels and autonomous decision probabilities. It
+requires sparse predicted control, recall of threat labels, preservation of
+safe NOOP states and correct evasive action identity. No trajectory is changed
+and no gameplay outcome selects the offset. A pass saves an explicitly
+calibrated checkpoint for matched gameplay; a failure routes to a small
+nonlinear policy rather than repeating linear training.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
