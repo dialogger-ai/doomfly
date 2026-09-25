@@ -985,6 +985,19 @@ candidate is rejected if the stronger lesson increases unnecessary movement,
 edge exposure or collision rate. The failed asteroid-free candidates are not
 parents of this run.
 
+If no risk-matched candidate passes, summarize whether stronger replay merely
+raises action propensity or actually improves autonomous discrimination:
+
+```bash
+python -m asteroids.policy_risk_matched_recovery_transfer_audit \
+  --prior outputs/asteroids/policy-risk-matched-recovery-curriculum-v1 \
+  --out outputs/asteroids/policy-risk-matched-recovery-transfer-audit-v1
+```
+
+This audit is offline. It compares controlled fit, autonomous recovery and safe
+classification, completed center returns, collision rate, activity, edge
+exposure and reward. It performs no learning or neural simulation.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
