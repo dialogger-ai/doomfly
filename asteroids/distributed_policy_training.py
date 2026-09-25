@@ -65,6 +65,8 @@ class RewardConfig:
     thrust_cost: float = 0.003
     switch_cost: float = 0.0005
     asteroid_pass_reward: float = 0.02
+    risk_exposure_penalty: float = 0.0
+    risk_reduction_gain: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -324,6 +326,9 @@ def reward_after_action(
     previous_action: Action | None,
     previous_asteroids_passed: int,
     config: RewardConfig,
+    *,
+    previous_risk: float = 0.0,
+    current_risk: float = 0.0,
 ) -> tuple[float, dict[str, float]]:
     damage = int(telemetry["damage_this_step"])
     passed = max(0, int(telemetry["asteroids_passed"]) - previous_asteroids_passed)
@@ -339,8 +344,50 @@ def reward_after_action(
             else 0.0
         ),
         "asteroid_pass": config.asteroid_pass_reward * passed,
+        "risk_exposure": -config.risk_exposure_penalty * current_risk,
+        "risk_reduction": config.risk_reduction_gain
+        * (previous_risk - current_risk),
     }
     return float(sum(components.values())), components
+
+
+def collision_risk(
+    telemetry: Mapping[str, Any], config: AsteroidsConfig, *, horizon: float = 2.0
+) -> float:
+    """Return a bounded evaluator-only closest-approach risk estimate."""
+
+    if not math.isfinite(horizon) or horizon <= 0:
+        raise ValueError("Risk horizon must be positive and finite")
+    ship = telemetry["ship"]
+    ship_x = float(ship["x"])
+    ship_y = float(ship["y"])
+    ship_vx = float(ship["vx"])
+    ship_vy = float(ship["vy"])
+    maximum = 0.0
+    for asteroid in telemetry["asteroids"]:
+        dx = (float(asteroid["x"]) - ship_x + config.width / 2) % config.width
+        dx -= config.width / 2
+        dy = (float(asteroid["y"]) - ship_y + config.height / 2) % config.height
+        dy -= config.height / 2
+        dvx = float(asteroid["vx"]) - ship_vx
+        dvy = float(asteroid["vy"]) - ship_vy
+        speed_squared = dvx * dvx + dvy * dvy
+        closest_time = 0.0
+        if speed_squared > 1e-12:
+            closest_time = float(
+                np.clip(-(dx * dvx + dy * dvy) / speed_squared, 0.0, horizon)
+            )
+        closest_x = dx + dvx * closest_time
+        closest_y = dy + dvy * closest_time
+        clearance = (
+            math.hypot(closest_x, closest_y)
+            - float(asteroid["radius"])
+            - config.ship_radius
+        )
+        spatial = max(0.0, 1.0 - clearance / 120.0)
+        urgency = 1.0 - 0.25 * closest_time / horizon
+        maximum = max(maximum, spatial * urgency)
+    return float(np.clip(maximum, 0.0, 1.0))
 
 
 def _load_state_assay(root: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, np.ndarray]]:
@@ -393,7 +440,10 @@ def run_policy_episode(
     mode: str,
     episode_index: int,
     total_episodes: int,
+    decision_ticks: int = 1,
 ) -> dict[str, Any]:
+    if decision_ticks < 1:
+        raise ValueError("Decision ticks must be positive")
     out.mkdir(parents=True)
     upstream_sources = _sources(pathway, UPSTREAM_GROUPS)
     downstream_sources = _sources(pathway, DOWNSTREAM_GROUPS)
@@ -428,12 +478,17 @@ def run_policy_episode(
             "thrust",
             "switch",
             "asteroid_pass",
+            "risk_exposure",
+            "risk_reduction",
         )
     }
     action_counts = {action.name: 0 for action in Action}
     rows = []
     previous_action = None
     previous_passed = 0
+    previous_risk = collision_risk(env.telemetry(), env.config)
+    action = Action.NOOP
+    probs = policy.probabilities(np.zeros(encoder.output_features))
     origin = brain.cursor
     horizon = round(seconds * GAME_HZ)
     started = time.perf_counter()
@@ -451,20 +506,26 @@ def run_policy_episode(
             expected = round((tick + 1) * NEURAL_STEPS_PER_SECOND / GAME_HZ)
             if brain.cursor - origin != expected:
                 raise ValueError("Brain cursor did not match the game clock")
-            observation = encoder.encode_brain(brain)
-            action, probs = policy.act(observation, training=training)
+            decision = tick % decision_ticks == 0
+            if decision:
+                observation = encoder.encode_brain(brain)
+                action, probs = policy.act(observation, training=training)
+                observations.append(observation)
+                action_indices.append(POLICY_ACTIONS.index(action))
+                probabilities.append(probs)
+                rewards.append(0.0)
             result = env.step(action)
+            current_risk = collision_risk(result.telemetry, env.config)
             reward, components = reward_after_action(
                 result.telemetry,
                 action,
                 previous_action,
                 previous_passed,
                 reward_config,
+                previous_risk=previous_risk,
+                current_risk=current_risk,
             )
-            observations.append(observation)
-            action_indices.append(POLICY_ACTIONS.index(action))
-            probabilities.append(probs)
-            rewards.append(reward)
+            rewards[-1] += reward
             action_counts[action.name] += 1
             for name, value in components.items():
                 reward_totals[name] += value
@@ -472,12 +533,14 @@ def run_policy_episode(
                 "tick": tick + 1,
                 "neural_state_sha256": array_sha256(observation),
                 "action": action.name,
+                "new_policy_decision": decision,
                 "action_probabilities": {
                     candidate.name: float(probability)
                     for candidate, probability in zip(POLICY_ACTIONS, probs)
                 },
                 "reward": reward,
                 "reward_components": components,
+                "collision_risk": current_risk,
                 "post_action_telemetry": result.telemetry,
             }
             rows.append(row)
@@ -493,6 +556,7 @@ def run_policy_episode(
                 )
             previous_action = action
             previous_passed = int(result.telemetry["asteroids_passed"])
+            previous_risk = current_risk
             if result.terminated:
                 break
 
@@ -529,6 +593,7 @@ def run_policy_episode(
         "policy_parameter_sha256_after": after,
         "policy_updated": before != after,
         "policy_update": update,
+        "decision_ticks": decision_ticks,
         "neural_weights_frozen": bool(brain.weights_frozen),
         "timing": {
             "wall_seconds": time.perf_counter() - started,
@@ -600,9 +665,9 @@ def classify_training(
     }
     operational = all(operational_gates.values())
     improvement_gates = {
-        "post_mean_reward_not_lower": (
+        "post_mean_reward_strictly_higher": (
             post_summary["mean_total_reward"]
-            >= pre_summary["mean_total_reward"]
+            > pre_summary["mean_total_reward"] + 1e-12
         ),
         "post_contact_rate_not_higher": (
             post_summary["contacts_per_game_minute"]
@@ -612,19 +677,9 @@ def classify_training(
             post_summary["median_game_seconds"]
             >= pre_summary["median_game_seconds"]
         ),
-        "post_active_fraction_not_higher": (
+        "post_active_fraction_within_declared_35_percent_ceiling": (
             post_summary["active_action_fraction"]
-            <= pre_summary["active_action_fraction"]
-        ),
-        "at_least_one_development_metric_strictly_improved": (
-            post_summary["mean_total_reward"]
-            > pre_summary["mean_total_reward"] + 1e-12
-            or post_summary["contacts_per_game_minute"]
-            < pre_summary["contacts_per_game_minute"] - 1e-12
-            or post_summary["median_game_seconds"]
-            > pre_summary["median_game_seconds"] + 1e-12
-            or post_summary["active_action_fraction"]
-            < pre_summary["active_action_fraction"] - 1e-12
+            <= max(pre_summary["active_action_fraction"], 0.35)
         ),
     }
     improved = operational and all(improvement_gates.values())

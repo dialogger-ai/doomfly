@@ -619,6 +619,26 @@ learning in an engineered BCI layer rather than biological synaptic learning.
 The command compares the policy before and after training on separate
 development seeds and reserves another seed range for later frozen evaluation.
 
+If that smoke test changes and checkpoints parameters but remains deterministic
+`NOOP` before and after training, continue from its saved policy with longer
+credit-assignment intervals:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_credit_assignment_training \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --prior outputs/asteroids/distributed-policy-training-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-credit-assignment-v1
+```
+
+This development-only continuation holds a selected action for six game ticks
+(`200 ms`) so exploratory turns and thrusts can affect the ship. It also adds a
+bounded closest-approach term to the post-action reward, reducing the sparsity of
+collision-only feedback. Asteroid geometry remains evaluator-only and never
+enters the policy observation. Safety still dominates movement cost, checkpoints
+remain exact and the reserved held-out seeds remain untouched.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

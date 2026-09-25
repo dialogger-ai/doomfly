@@ -10,6 +10,7 @@ from asteroids.distributed_policy_training import (
     RewardConfig,
     SoftmaxActorCritic,
     classify_training,
+    collision_risk,
     reward_after_action,
 )
 from asteroids.environment import Action
@@ -49,6 +50,25 @@ def test_reward_penalizes_damage_movement_and_switching():
     assert components["switch"] == -config.switch_cost
     assert components["asteroid_pass"] == config.asteroid_pass_reward
     assert reward == sum(components.values())
+
+
+def test_collision_risk_increases_for_centered_approach():
+    from asteroids.environment import AsteroidsConfig
+
+    config = AsteroidsConfig(star_count=0)
+    base = {
+        "ship": {"x": 320, "y": 240, "vx": 0, "vy": 0},
+        "asteroids": [
+            {"x": 100, "y": 240, "vx": 80, "vy": 0, "radius": 20}
+        ],
+    }
+    miss = {
+        **base,
+        "asteroids": [
+            {"x": 100, "y": 50, "vx": 80, "vy": 0, "radius": 20}
+        ],
+    }
+    assert collision_risk(base, config) > collision_risk(miss, config)
 
 
 def test_actor_critic_updates_and_checkpoint_roundtrips(tmp_path: Path):
