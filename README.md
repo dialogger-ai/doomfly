@@ -1105,6 +1105,26 @@ contrast can restore motion at the prepared retinal interface before another
 connectome replay. These channels are an explicit engineering front end, not a
 claim about validated fly retinal dynamics.
 
+If the prepared MaleCNS layout passes with a fixed pooled ON/OFF channel, test
+whether that repaired sensory signal survives the frozen neural dynamics:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_temporal_contrast_connectome_assay \
+  --prior outputs/asteroids/policy-temporal-contrast-sampling-audit-v1 \
+  --out outputs/asteroids/policy-temporal-contrast-connectome-v1
+```
+
+This assay retains the selected 32-pixel field and computes causal ON/OFF
+contrast from consecutive frames. A bounded neutral-centered display proxy
+maps the contrast into the existing photoreceptor-current range, while the
+connectome weights and graded-relay configuration remain frozen. The same
+pixel-matched inward/outward trajectories are evaluated with four folds that
+each hold out an opposite direction pair. Structured neural sequences are
+saved for later policy work. No action, outcome, reward or gameplay policy is
+used in this run; it is a neural representation gate and requires the compiled
+whole-brain runtime, so it can take substantially longer than the two preceding
+offline audits.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

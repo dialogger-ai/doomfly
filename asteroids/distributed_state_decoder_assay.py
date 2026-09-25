@@ -188,6 +188,7 @@ def run_state_feature_condition(
     exposure: float,
     warmup_ms: float,
     deliverer: Any,
+    warmup_frame: np.ndarray | None = None,
 ) -> StateFeatureRun:
     if not frames:
         raise ValueError("At least one RGB frame is required")
@@ -224,7 +225,13 @@ def run_state_feature_condition(
         brain, upstream_sources, upstream_gain, deliverer=deliverer
     )
     zero_stage = GradedRelay(brain, downstream_sources, 0.0, deliverer=deliverer)
-    black = np.zeros_like(frames[0])
+    black = (
+        np.zeros_like(frames[0])
+        if warmup_frame is None
+        else np.asarray(warmup_frame)
+    )
+    if black.shape != shape or black.dtype != np.uint8:
+        raise ValueError("Warmup frame must match the RGB stimulus frames")
     warmup_steps = round(warmup_ms / NEURAL_DT_MS)
     if warmup_steps:
         _advance_cascade(brain, upstream, zero_stage, black, warmup_steps)
