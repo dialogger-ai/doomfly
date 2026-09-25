@@ -600,6 +600,25 @@ controlled reinforcement-learning curriculum using the full distributed state,
 rather than another single-cell anatomy screen. The fit is supervised BCI
 calibration, not learning by the fly brain.
 
+If that diagnostic finds varying distributed state but fails held-out decoding,
+start the first auditable reinforcement loop with:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.distributed_policy_training \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --episodes 8 --eval-episodes 4 --seconds 8 --watch \
+  --out outputs/asteroids/distributed-policy-training-v1
+```
+
+This trains a compact actor-critic policy from a fixed projection of the full
+distributed neural state. Post-action damage and survival supply reward; turning,
+thrust and action switching carry explicit small costs. Telemetry never enters
+the observation. The connectome remains frozen, so this is reinforcement
+learning in an engineered BCI layer rather than biological synaptic learning.
+The command compares the policy before and after training on separate
+development seeds and reserves another seed range for later frozen evaluation.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
