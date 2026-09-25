@@ -486,6 +486,28 @@ turn-action pairs, keep expected turn counts within a factor of two and remain
 at most 20-percent active without asteroids. Gameplay outcomes and telemetry do
 not select the multiplier. Weights remain frozen and learning remains blocked.
 
+No scalar side gain passed. Gains at the 95th percentile and above produced
+both turn directions while keeping the no-asteroid field within the activity
+limit, but zero turn-involving ticks formed mirrored action pairs. The larger
+left gain also drove both scene averages leftward. Audit the individual DNp20
+cells and their timing before changing the decoder again:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_feature_readout_audit \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --side-gain outputs/asteroids/side-specific-gain-v1 \
+  --seed 84001 --seconds 3 \
+  --out outputs/asteroids/directional-feature-readout-audit-v1
+```
+
+This frozen diagnostic records each left/right DNp20 rate under the original
+and reflected pixels. It measures cross-side versus same-side correspondence,
+turn-signal antisymmetry over lags of plus or minus 15 ticks, and coupling to
+pixel-only horizontal luminance and motion moments. Those simple features are
+diagnostic references, not a replacement game policy.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

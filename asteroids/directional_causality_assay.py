@@ -130,8 +130,10 @@ def run_frame_condition(
             {
                 "tick": tick + 1,
                 "action": action,
+                "turn_rate_hz": float(decision["turn_rate_hz"]),
                 "turn_command": float(decision["turn_command"]),
                 "thrust_command": float(decision["thrust_command"]),
+                "readouts": decision["readouts"],
             }
         )
     turns = [float(row["turn_command"]) for row in rows]

@@ -307,3 +307,37 @@ factor of two and keep mean command magnitudes within a factor of two. Passing
 candidates are selected by the smallest maximum multiplier, then lower quiet
 activity. This is decoder normalization from pixel/neural controls, not a game
 policy, reinforcement or learning.
+
+The side-gain sweep did not pass. The 95th-, 99th- and 100th-percentile matches
+finally emitted both expected directions and all stayed at or below the
+20-percent empty-field activity ceiling. However, none of their turn-involving
+ticks were reflected action pairs (`0/6`, `0/8` and `0/10`). Increasing the
+left multiplier from `1.18` to `1.40` also shifted both scene means leftward,
+eventually breaking mean sign reversal. The response therefore cannot be
+treated as a fixed weak-left scalar; its temporal/sign structure differs under
+reflection.
+
+The next frozen audit leaves the successful offset and `quiet_p90` thresholds
+unchanged. It records the two individual DNp20 centered rates and the combined
+turn rate for the same pixels and exact reflection. It compares original-right
+with mirrored-left, original-left with mirrored-right, same-side controls and
+the antisymmetric turn signal over lags from -15 to +15 ticks. Pixel-only
+horizontal luminance and frame-difference motion moments provide declared,
+interpretable reference series:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_feature_readout_audit \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --side-gain outputs/asteroids/side-specific-gain-v1 \
+  --seed 84001 \
+  --seconds 3 \
+  --out outputs/asteroids/directional-feature-readout-audit-v1
+```
+
+The audit routes to a fixed-lag test only if a correlated mirrored signal exists
+away from zero lag. It routes to identity/side-label review if cross-side
+correspondence is not preferred, or to an anatomically constrained alternative
+readout screen if the DNp20 difference is not mirror-equivariant at any tested
+lag. It uses no telemetry or outcomes and cannot enable learning by itself.
