@@ -573,6 +573,33 @@ collision course than a near miss and decay below 20 percent during the final
 quiet second. These are declared engineering gates for low-action control, not
 measured fly thresholds. Actions, telemetry and outcomes remain excluded.
 
+No individual bilateral bridge type passed. `MeVPMe2` was the only reported
+near miss with the expected mean sign reversal, but its collision signal was
+weaker than its near-miss signal (`0.856x`) and its quiet-tail signal was larger
+than its collision signal (`1.279x`). Most other bridge populations remained
+spike-silent. The final pre-learning diagnostic therefore tests whether the
+threat signal exists in distributed subthreshold state rather than in one
+spiking cell type:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.distributed_state_decoder_assay \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --controlled-assay outputs/asteroids/controlled-threat-readout-v1 \
+  --seconds 3 \
+  --out outputs/asteroids/distributed-state-decoder-v1
+```
+
+This assay fits one fixed ridge readout to voltage and conductance from the
+declared visual/motion path under the development collision, near-miss and
+quiet pixel controls. It freezes both that readout and its action threshold
+before testing a held-out asteroid size, starting point, collision offset and
+opposite-side near miss. The held-out set is never used for fitting or
+threshold selection. A pass routes directly to controller integration and
+reinforcement learning; a failure with varying neural state routes to a
+controlled reinforcement-learning curriculum using the full distributed state,
+rather than another single-cell anatomy screen. The fit is supervised BCI
+calibration, not learning by the fly brain.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

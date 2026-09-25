@@ -153,6 +153,7 @@ def controlled_threat_scenes(
     *,
     width: int = 640,
     height: int = 480,
+    variant: str = "development",
 ) -> tuple[dict[str, list[np.ndarray]], dict[str, Any]]:
     if not math.isfinite(seconds) or seconds <= 0:
         raise ValueError("Use a positive finite duration")
@@ -163,7 +164,20 @@ def controlled_threat_scenes(
     if transit_ticks < 2:
         raise ValueError("Controlled threat assay requires at least 1.6 seconds")
     config = AsteroidsConfig(width=width, height=height)
-    asteroid_radius = 22
+    if variant == "development":
+        asteroid_radius = 22
+        start_fraction = 0.08
+        collision_y_offset = 0
+        near_miss_direction = -1
+        near_miss_margin_fraction = 0.10
+    elif variant == "heldout":
+        asteroid_radius = 18
+        start_fraction = 0.12
+        collision_y_offset = 6
+        near_miss_direction = 1
+        near_miss_margin_fraction = 0.12
+    else:
+        raise ValueError("Unknown controlled threat stimulus variant")
     ship_radius = round(config.ship_radius)
     quiet = _render_controlled_frame(
         width,
@@ -172,11 +186,17 @@ def controlled_threat_scenes(
         asteroid_radius=asteroid_radius,
         ship_radius=ship_radius,
     )
-    start_x = max(asteroid_radius + 8, round(width * 0.08))
+    start_x = max(asteroid_radius + 8, round(width * start_fraction))
     stop_x = round(width / 2 - asteroid_radius - ship_radius - 5)
-    collision_y = round(height / 2)
+    collision_y = round(height / 2 + collision_y_offset)
     near_miss_y = round(
-        height / 2 - asteroid_radius - ship_radius - min(width, height) * 0.10
+        height / 2
+        + near_miss_direction
+        * (
+            asteroid_radius
+            + ship_radius
+            + min(width, height) * near_miss_margin_fraction
+        )
     )
 
     def left_scene(y: int) -> list[np.ndarray]:
@@ -231,7 +251,12 @@ def controlled_threat_scenes(
         ),
     }
     return scenes, {
-        "version": "controlled-single-asteroid-trajectory-v1",
+        "version": (
+            "controlled-single-asteroid-trajectory-v1"
+            if variant == "development"
+            else "controlled-single-asteroid-trajectory-heldout-v1"
+        ),
+        "variant": variant,
         "width": width,
         "height": height,
         "ticks": ticks,

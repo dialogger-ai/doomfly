@@ -16,6 +16,8 @@ from asteroids.controlled_threat_readout_assay import (
 
 def test_controlled_scenes_are_exact_mirrors_and_end_quiet():
     scenes, metadata = controlled_threat_scenes(3.0, width=160, height=120)
+    assert metadata["version"] == "controlled-single-asteroid-trajectory-v1"
+    assert metadata["variant"] == "development"
     assert metadata["mirror_checks"] == {
         "collision_exact": True,
         "near_miss_exact": True,
@@ -34,6 +36,24 @@ def test_controlled_scenes_are_exact_mirrors_and_end_quiet():
             for tick, frame in enumerate(scenes[left])
             if tail["start"] <= tick < tail["stop"]
         )
+
+
+def test_heldout_stimulus_changes_geometry_without_changing_mirror_control():
+    development, development_meta = controlled_threat_scenes(
+        3.0, width=160, height=120
+    )
+    heldout, heldout_meta = controlled_threat_scenes(
+        3.0, width=160, height=120, variant="heldout"
+    )
+    assert heldout_meta["variant"] == "heldout"
+    assert all(heldout_meta["mirror_checks"].values())
+    assert development_meta["geometry"] != heldout_meta["geometry"]
+    assert development_meta["frame_sequence_sha256"]["left_collision"] != (
+        heldout_meta["frame_sequence_sha256"]["left_collision"]
+    )
+    assert not np.array_equal(
+        development["left_collision"][30], heldout["left_collision"][30]
+    )
 
 
 def _synthetic_matrices(*, near_scale: float):
