@@ -1,8 +1,38 @@
 """Checks for phase-balanced autonomous replay selection."""
 
+import json
+from pathlib import Path
+
 from asteroids.policy_phase_balanced_curriculum import (
     classify_phase_balanced_candidates,
+    resolve_reward_configuration,
 )
+from asteroids.policy_nonlinear_guided_curriculum import CURRICULUM_VERSION
+
+
+def test_reward_configuration_falls_back_to_nonlinear_ancestor(tmp_path: Path):
+    ancestor = tmp_path / "nonlinear"
+    ancestor.mkdir()
+    (ancestor / "protocol.json").write_text(
+        json.dumps(
+            {
+                "training": CURRICULUM_VERSION,
+                "graph_sha256": "graph",
+                "graph_manifest_sha256": "manifest",
+                "policy": {"projection_features": 256},
+                "reward": {"survival_per_tick": 0.01},
+            }
+        )
+    )
+    reward = resolve_reward_configuration(
+        {
+            "prior_source": str(ancestor),
+            "graph_sha256": "graph",
+            "graph_manifest_sha256": "manifest",
+            "policy": {"projection_features": 256},
+        }
+    )
+    assert reward == {"survival_per_tick": 0.01}
 
 
 def _episode(

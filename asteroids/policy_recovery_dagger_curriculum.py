@@ -368,6 +368,7 @@ def main() -> None:
         "reference_calibration": reference_calibration,
         "encoder": encoder.configuration(),
         "policy": asdict(policy_config),
+        "reward": asdict(reward_config),
         "collection_boundary": (
             "The current greedy policy controls every collection action. The "
             "teacher only labels the pre-action state for later supervised replay."

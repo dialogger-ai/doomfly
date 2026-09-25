@@ -45,6 +45,9 @@ from .policy_nonlinear_error_audit import (
     classify_error_records,
     decision_records,
 )
+from .policy_nonlinear_guided_curriculum import (
+    CURRICULUM_VERSION as NONLINEAR_VERSION,
+)
 from .policy_recovery_dagger_curriculum import (
     CURRICULUM_VERSION as RECOVERY_VERSION,
 )
@@ -74,6 +77,27 @@ GUIDED_LEARNING_RATE = 0.00075
 GUIDED_EPOCHS = 20
 MINIMUM_ACTIVE_RECALL = 0.40
 MINIMUM_SAFE_NOOP_SPECIFICITY = 0.80
+
+
+def resolve_reward_configuration(
+    recovery_protocol: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Resolve reward settings omitted by the first recovery protocol."""
+
+    if "reward" in recovery_protocol:
+        return dict(recovery_protocol["reward"])
+    source = Path(str(recovery_protocol["prior_source"])) / "protocol.json"
+    ancestor = json.loads(source.read_text())
+    if ancestor.get("training") != NONLINEAR_VERSION:
+        raise ValueError("Recovery reward ancestor is not the nonlinear curriculum")
+    for key in ("graph_sha256", "graph_manifest_sha256"):
+        if ancestor.get(key) != recovery_protocol.get(key):
+            raise ValueError(f"Recovery reward ancestor used a different {key}")
+    if ancestor.get("policy") != recovery_protocol.get("policy"):
+        raise ValueError("Recovery reward ancestor used a different policy")
+    if "reward" not in ancestor:
+        raise ValueError("Recovery reward ancestor has no reward configuration")
+    return dict(ancestor["reward"])
 
 
 def _load_inputs(
@@ -111,6 +135,8 @@ def _load_inputs(
         or confidence_protocol.get("prior_checkpoint_sha256") != checkpoint_sha256
     ):
         raise ValueError("Confidence calibration does not route to phase balancing")
+    prior_protocol = dict(prior_protocol)
+    prior_protocol["reward"] = resolve_reward_configuration(prior_protocol)
     return prior_protocol, prior_results, checkpoint
 
 
