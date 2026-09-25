@@ -798,6 +798,26 @@ traces and preserves the original phase and mismatch definitions, allowing a
 direct diagnosis of whether aggregation traded false NOOP errors for
 unnecessary safe-state activity or wrong active actions.
 
+If recovery response improves but safe-state movement rises above the declared
+efficiency envelope, screen a fixed confidence abstention rule before doing
+more training:
+
+```bash
+python -m asteroids.policy_confidence_abstention_calibration \
+  --prior outputs/asteroids/policy-recovery-dagger-curriculum-v1 \
+  --error-audit outputs/asteroids/policy-recovery-error-audit-v1 \
+  --out outputs/asteroids/policy-confidence-abstention-calibration-v1
+```
+
+This trace-only calibration raises the required active-action probability over
+NOOP through a predeclared log-margin grid. A candidate must reduce total active
+control to at most 35 percent, restore at least 80-percent safe NOOP specificity,
+retain both turn directions and preserve at least 80 percent of the checkpoint's
+threat, recovery and edge-recovery responses (with a 40-percent absolute floor).
+It changes no trajectory or weight. A passing margin still requires prospective
+gameplay on new development seeds; a failure routes to phase-balanced replay
+with explicit safe-state validation.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

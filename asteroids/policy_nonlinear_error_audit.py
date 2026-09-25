@@ -130,6 +130,10 @@ def decision_records(
                 ),
                 "chosen_probability": float(probabilities[policy_action.name]),
                 "teacher_probability": float(probabilities[teacher_action.name]),
+                "action_probabilities": {
+                    action.name: float(probabilities[action.name])
+                    for action in (Action.NOOP, Action.LEFT, Action.RIGHT, Action.THRUST)
+                },
             }
         )
     return records
