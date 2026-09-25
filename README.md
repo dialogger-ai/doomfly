@@ -783,6 +783,21 @@ requires aggregate safety, movement and position improvement plus reward gains
 on at least half the individual seeds and an edge-zone pass on at least three
 quarters. Reserved held-out seeds remain sealed.
 
+If recovery aggregation fixes aggregate edge dwelling but fails the movement,
+reward or seed-level gates, repeat the same fixed-trace error localization on
+the new autonomous checkpoint:
+
+```bash
+python -m asteroids.policy_nonlinear_error_audit \
+  --prior outputs/asteroids/policy-recovery-dagger-curriculum-v1 \
+  --out outputs/asteroids/policy-recovery-error-audit-v1
+```
+
+The repeated audit accepts the recovery curriculum's development-validation
+traces and preserves the original phase and mismatch definitions, allowing a
+direct diagnosis of whether aggregation traded false NOOP errors for
+unnecessary safe-state activity or wrong active actions.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

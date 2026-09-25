@@ -2,9 +2,12 @@
 
 from asteroids.environment import Action, AsteroidsConfig
 from asteroids.policy_nonlinear_error_audit import (
+    RECOVERY_DAGGER_VERSION,
     classify_error_records,
     decision_records,
+    prior_route,
 )
+from asteroids.policy_nonlinear_guided_curriculum import CURRICULUM_VERSION
 from asteroids.policy_safe_envelope_curriculum import SafeEnvelopeTeacherConfig
 
 
@@ -110,3 +113,30 @@ def test_safe_overactivity_routes_to_regularization():
         "autonomous policy over-activates in teacher-safe states"
     )
     assert "confidence abstention" in result["next_gate"]
+
+
+def test_prior_route_accepts_original_and_recovery_curricula():
+    _, original_seed_key = prior_route(
+        {"training": CURRICULUM_VERSION},
+        {
+            "training": CURRICULUM_VERSION,
+            "complete": True,
+            "development_improvement_observed": False,
+            "next_gate": (
+                "audit autonomous nonlinear policy errors on matched development seeds"
+            ),
+        },
+    )
+    _, recovery_seed_key = prior_route(
+        {"training": RECOVERY_DAGGER_VERSION},
+        {
+            "training": RECOVERY_DAGGER_VERSION,
+            "complete": True,
+            "development_improvement_observed": False,
+            "next_gate": (
+                "repeat autonomous transfer-error audit after recovery aggregation"
+            ),
+        },
+    )
+    assert original_seed_key == "development_evaluation_seeds"
+    assert recovery_seed_key == "development_validation_seeds"

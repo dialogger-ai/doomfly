@@ -31,6 +31,34 @@ from .visual_assay import file_sha256
 
 AUDIT_VERSION = "asteroids-policy-nonlinear-error-audit-v1"
 DEFAULT_PRIOR = Path("outputs/asteroids/policy-nonlinear-guided-curriculum-v1")
+RECOVERY_DAGGER_VERSION = "asteroids-policy-recovery-dagger-curriculum-v1"
+
+
+def prior_route(
+    protocol: Mapping[str, Any], results: Mapping[str, Any]
+) -> tuple[str, str]:
+    """Return the expected next gate and evaluation-seed manifest key."""
+
+    training_version = protocol.get("training")
+    if results.get("training") != training_version or not results.get("complete"):
+        raise ValueError("Input is not a completed supported policy curriculum")
+    if training_version == CURRICULUM_VERSION:
+        expected_next_gate = (
+            "audit autonomous nonlinear policy errors on matched development seeds"
+        )
+        seed_key = "development_evaluation_seeds"
+    elif training_version == RECOVERY_DAGGER_VERSION:
+        expected_next_gate = (
+            "repeat autonomous transfer-error audit after recovery aggregation"
+        )
+        seed_key = "development_validation_seeds"
+    else:
+        raise ValueError("Input policy curriculum version is not supported")
+    if results.get("development_improvement_observed"):
+        raise ValueError("Policy curriculum already passed development gates")
+    if results.get("next_gate") != expected_next_gate:
+        raise ValueError("Policy result does not route to this error audit")
+    return expected_next_gate, seed_key
 
 
 def _teacher_decision(
@@ -244,18 +272,11 @@ def main() -> None:
         raise SystemExit(f"Nonlinear curriculum files are required under {args.prior}")
     protocol = json.loads(protocol_path.read_text())
     results = json.loads(results_path.read_text())
-    if (
-        protocol.get("training") != CURRICULUM_VERSION
-        or results.get("training") != CURRICULUM_VERSION
-        or not results.get("complete")
-    ):
-        raise SystemExit("Input is not a completed nonlinear guided curriculum")
-    if results.get("development_improvement_observed"):
-        raise SystemExit("Nonlinear curriculum already passed development gates")
-    if results.get("next_gate") != (
-        "audit autonomous nonlinear policy errors on matched development seeds"
-    ):
-        raise SystemExit("Nonlinear result does not route to this error audit")
+    training_version = protocol.get("training")
+    try:
+        _, seed_key = prior_route(protocol, results)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
     checkpoint = args.prior / "policy-final.npz"
     if (
         not checkpoint.exists()
@@ -266,7 +287,8 @@ def main() -> None:
     game_config = AsteroidsConfig(**protocol["environment"]["configuration"])
     teacher_config = SafeEnvelopeTeacherConfig(**protocol["teacher"])
     episodes = []
-    for index, seed in enumerate(protocol["development_evaluation_seeds"]):
+    evaluation_seeds = protocol[seed_key]
+    for index, seed in enumerate(evaluation_seeds):
         trace_path = args.prior / f"post-episode-{index:03d}-seed-{seed}" / "trace.jsonl"
         if not trace_path.exists():
             raise SystemExit(f"Required autonomous trace is missing: {trace_path}")
@@ -308,8 +330,9 @@ def main() -> None:
         "audit": AUDIT_VERSION,
         "status": "fixed autonomous-trace teacher comparison; no replay or learning",
         "prior_source": str(args.prior),
+        "prior_training": training_version,
         "prior_checkpoint_sha256": results["final_checkpoint"]["sha256"],
-        "development_evaluation_seeds": protocol["development_evaluation_seeds"],
+        "development_evaluation_seeds": evaluation_seeds,
         "teacher": protocol["teacher"],
         "environment": protocol["environment"],
         "decision_alignment": (
