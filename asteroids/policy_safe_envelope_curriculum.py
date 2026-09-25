@@ -132,16 +132,16 @@ def _steer_or_thrust(
     return Action.THRUST
 
 
-def safe_envelope_action(
-    env: AsteroidsEnv,
+def safe_envelope_action_from_telemetry(
+    telemetry: Mapping[str, Any],
+    game_config: AsteroidsConfig,
     config: SafeEnvelopeTeacherConfig = SafeEnvelopeTeacherConfig(),
 ) -> Action:
-    """Evade immediate threats, then coast or recover toward screen center."""
+    """Select the teacher action from a telemetry snapshot."""
 
-    telemetry = env.telemetry()
     ship = telemetry["ship"]
     risk, threat = _direct_threat(
-        telemetry, env.config, horizon=config.risk_horizon_seconds
+        telemetry, game_config, horizon=config.risk_horizon_seconds
     )
     if risk >= config.risk_trigger and threat is not None:
         closest_x, closest_y, dvx, dvy = threat
@@ -156,19 +156,19 @@ def safe_envelope_action(
             tolerance_degrees=config.alignment_tolerance_degrees,
         )
 
-    center_x = env.config.width / 2.0
-    center_y = env.config.height / 2.0
+    center_x = game_config.width / 2.0
+    center_y = game_config.height / 2.0
     offset_x = center_x - float(ship["x"])
     offset_y = center_y - float(ship["y"])
     current_distance = math.hypot(offset_x, offset_y)
     projected_x = (
         float(ship["x"])
         + float(ship["vx"]) * config.recovery_projection_seconds
-    ) % env.config.width
+    ) % game_config.width
     projected_y = (
         float(ship["y"])
         + float(ship["vy"]) * config.recovery_projection_seconds
-    ) % env.config.height
+    ) % game_config.height
     projected_distance = math.hypot(
         center_x - projected_x, center_y - projected_y
     )
@@ -198,6 +198,17 @@ def safe_envelope_action(
         desired_vx - float(ship["vx"]),
         desired_vy - float(ship["vy"]),
         tolerance_degrees=config.alignment_tolerance_degrees,
+    )
+
+
+def safe_envelope_action(
+    env: AsteroidsEnv,
+    config: SafeEnvelopeTeacherConfig = SafeEnvelopeTeacherConfig(),
+) -> Action:
+    """Evade immediate threats, then coast or recover toward screen center."""
+
+    return safe_envelope_action_from_telemetry(
+        env.telemetry(), env.config, config
     )
 
 

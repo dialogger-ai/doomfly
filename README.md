@@ -746,6 +746,22 @@ safety with at most 35-percent autonomous movement, limited edge dwelling and
 at least 60-percent central-envelope occupancy. Reserved held-out seeds remain
 sealed.
 
+If autonomous reward, collision rate and survival improve but the position
+gate fails, localize the remaining transfer error without another brain run:
+
+```bash
+python -m asteroids.policy_nonlinear_error_audit \
+  --prior outputs/asteroids/policy-nonlinear-guided-curriculum-v1 \
+  --out outputs/asteroids/policy-nonlinear-error-audit-v1
+```
+
+The audit recomputes the same teacher from telemetry immediately before each
+saved autonomous decision and classifies mismatches as false NOOP,
+unnecessary movement or the wrong active action. It separately measures threat
+response, safe-state specificity, position recovery and edge-state behavior.
+The comparison is fixed-trace and counterfactual: it performs no neural replay,
+learning or outcome-based parameter selection.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
