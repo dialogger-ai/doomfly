@@ -878,6 +878,23 @@ but still receives no coordinates, telemetry, health, reward or future frame.
 The unchanged parent collects shadow teacher labels; predeclared phase weights
 are trained from the same batch and selected only on new development seeds.
 
+If `safe_weight_4` improves all short validation outcomes but misses the strict
+efficiency gates, replicate and ablate that exact frozen checkpoint:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_temporal_candidate_ablation \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --temporal outputs/asteroids/policy-temporal-phase-curriculum-v1 \
+  --episodes 8 --seconds 20 --watch \
+  --out outputs/asteroids/policy-temporal-candidate-ablation-v1
+```
+
+This performs no learning. The same new seeds compare the recovery parent, the
+temporal checkpoint with every delta feature forced to zero, and the intact
+temporal checkpoint. This separates longer-run generalization from a causal
+benefit of the 200-ms neural-state change signal before further optimization.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
