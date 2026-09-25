@@ -841,6 +841,26 @@ the existing center/edge gates; at least 80-percent safe specificity; and at
 least 40-percent threat and recovery response. The reserved held-out seeds
 remain sealed.
 
+If the strict phase screen rejects every candidate but `safe_weight_8` improves
+all aggregate gameplay outcomes, replicate that exact frozen checkpoint on
+longer, new development seeds before changing the architecture:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_phase_candidate_replication \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --phase outputs/asteroids/policy-phase-balanced-curriculum-v1 \
+  --episodes 8 --seconds 20 --watch \
+  --out outputs/asteroids/policy-phase-candidate-replication-v1
+```
+
+This performs no learning. It compares the original recovery checkpoint with
+the exact `safe_weight_8` checkpoint on eight unused 20-second development
+seeds. Passing requires better reward, non-worse contacts and survival, sparse
+control, the existing center/edge gates and seed-level consistency. A pass
+routes to the still-untouched reserved evaluation; a failure routes to a policy
+with short temporal context.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
