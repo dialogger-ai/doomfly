@@ -276,3 +276,34 @@ least 50-percent reflected action agreement, at most 20-percent no-threat
 activity and a retained visual turn response. It uses pixels and neural output
 only, keeps weights frozen and leaves `training_ready` false. A pass advances
 to a closed-loop matched left/right threat challenge before any learning loop.
+
+The offset itself worked: the original and mirrored mean commands became
+`+0.023635` and `-0.023635`. The `quiet_p90` thresholds retained visual turning
+and lowered empty-field activity from 47.8 to 16.7 percent, passing the declared
+quiet gate. It nevertheless emitted no left action, so no threshold candidate
+passed. Higher thresholds further quieted the controller but removed visual
+turn actions and therefore do not solve the directional interface.
+
+The next assay freezes the successful `2.8779 Hz` offset and `quiet_p90`
+thresholds. It derives separate dimensionless left/right response multipliers
+from percentiles 75, 90, 95, 99 and 100 of the matched original and horizontally
+reflected pixel-control commands:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.side_specific_gain_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --seed 84001 \
+  --seconds 3 \
+  --out outputs/asteroids/side-specific-gain-v1
+```
+
+Any multiplier above eight is rejected rather than silently clipped into use.
+A candidate must pass the earlier reflection and quiet gates, produce right
+turns for the original and left turns for the reflection, mirror at least half
+of all turn-involving tick pairs, keep those expected turn counts within a
+factor of two and keep mean command magnitudes within a factor of two. Passing
+candidates are selected by the smallest maximum multiplier, then lower quiet
+activity. This is decoder normalization from pixel/neural controls, not a game
+policy, reinforcement or learning.

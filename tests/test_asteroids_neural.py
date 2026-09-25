@@ -162,7 +162,10 @@ def test_fixed_turn_rate_offset_corrects_bilateral_imbalance():
 def test_zero_turn_offset_preserves_existing_configuration_hash():
     implicit = AsteroidsNeuralDecoder(READOUTS).configuration()
     explicit = AsteroidsNeuralDecoder(
-        READOUTS, turn_rate_offset_hz=0.0
+        READOUTS,
+        turn_rate_offset_hz=0.0,
+        left_turn_response_gain=1.0,
+        right_turn_response_gain=1.0,
     ).configuration()
     assert explicit == implicit
 
@@ -170,6 +173,35 @@ def test_zero_turn_offset_preserves_existing_configuration_hash():
 def test_decoder_rejects_nonfinite_turn_offset():
     with pytest.raises(ValueError, match="Turn-rate offset"):
         AsteroidsNeuralDecoder(READOUTS, turn_rate_offset_hz=float("nan"))
+
+
+def test_fixed_side_gain_scales_only_the_matching_turn_direction():
+    config = DecoderConfig(
+        smoothing_seconds=0.001,
+        turn_gain_per_hz=1.0,
+        turn_threshold=30.0,
+        thrust_threshold=999.0,
+    )
+    baseline = AsteroidsNeuralDecoder(READOUTS, config)
+    amplified = AsteroidsNeuralDecoder(
+        READOUTS,
+        config,
+        right_turn_response_gain=2.0,
+    )
+    right_spikes = np.asarray([2, 0, 0, 0], dtype=np.int32)
+    assert baseline.decode(right_spikes, 0.1)["action"] == Action.NOOP
+    decision = amplified.decode(right_spikes, 0.1)
+    assert decision["action"] == Action.RIGHT
+    assert decision["turn_command"] == 40.0
+    assert amplified.configuration()["turn_response_gains"] == {
+        "LEFT": 1.0,
+        "RIGHT": 2.0,
+    }
+
+
+def test_decoder_rejects_invalid_side_gain():
+    with pytest.raises(ValueError, match="Turn-response gains"):
+        AsteroidsNeuralDecoder(READOUTS, left_turn_response_gain=0.0)
 
 
 def test_decoder_requires_bilateral_turn_readouts():

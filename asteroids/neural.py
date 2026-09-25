@@ -72,6 +72,8 @@ class AsteroidsNeuralDecoder:
         config: DecoderConfig | None = None,
         baseline_rates_hz: Mapping[str, float] | None = None,
         turn_rate_offset_hz: float = 0.0,
+        left_turn_response_gain: float = 1.0,
+        right_turn_response_gain: float = 1.0,
     ) -> None:
         self.readouts = tuple(
             dict(readout)
@@ -112,6 +114,16 @@ class AsteroidsNeuralDecoder:
         if not math.isfinite(turn_rate_offset_hz):
             raise ValueError("Turn-rate offset must be finite")
         self.turn_rate_offset_hz = float(turn_rate_offset_hz)
+        turn_response_gains = {
+            "LEFT": float(left_turn_response_gain),
+            "RIGHT": float(right_turn_response_gain),
+        }
+        if not all(
+            math.isfinite(value) and value > 0
+            for value in turn_response_gains.values()
+        ):
+            raise ValueError("Turn-response gains must be positive and finite")
+        self.turn_response_gains = turn_response_gains
         self.rates = self.baseline_rates.copy()
 
     def reset(self) -> None:
@@ -145,6 +157,13 @@ class AsteroidsNeuralDecoder:
             configuration["turn_rate_offset_source"] = (
                 "fixed midpoint of original and horizontally mirrored pixel-only "
                 "neural responses"
+            )
+        if any(value != 1.0 for value in self.turn_response_gains.values()):
+            configuration["turn_response_gains"] = dict(
+                self.turn_response_gains
+            )
+            configuration["turn_response_gain_source"] = (
+                "fixed matched original/mirrored pixel-response quantiles"
             )
         canonical = json.dumps(
             configuration, sort_keys=True, separators=(",", ":")
@@ -187,7 +206,12 @@ class AsteroidsNeuralDecoder:
             - self.turn_rate_offset_hz
         )
         thrust_rate_hz = rate("DNpe017")
-        turn_command = turn_rate_hz * self.config.turn_gain_per_hz
+        turn_side = "RIGHT" if turn_rate_hz >= 0 else "LEFT"
+        turn_command = (
+            turn_rate_hz
+            * self.config.turn_gain_per_hz
+            * self.turn_response_gains[turn_side]
+        )
         thrust_command = thrust_rate_hz * self.config.thrust_gain_per_hz
         turn_strength = abs(turn_command) / self.config.turn_threshold
         thrust_strength = thrust_command / self.config.thrust_threshold

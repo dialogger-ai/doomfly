@@ -464,6 +464,28 @@ deadband candidates are fixed 90th, 95th and 99th percentiles of commands in a
 no-asteroid field, with a five-percent margin. Neither step uses game telemetry
 to choose an action or gameplay outcomes to select a candidate.
 
+The offset correction produced equal-and-opposite mean turn commands, and the
+`quiet_p90` deadband reduced no-threat activity to 16.7 percent. It still did
+not emit both turn directions: the weaker reflected response changed sign but
+did not cross the discrete action boundary. Keep that offset and deadband fixed
+while calibrating bilateral response magnitudes:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.side_specific_gain_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --seed 84001 --seconds 3 \
+  --out outputs/asteroids/side-specific-gain-v1
+```
+
+The declared candidates match left/right neural-command magnitudes at visual
+response percentiles 75, 90, 95, 99 and 100. A candidate must retain mirrored
+sign reversal, produce the expected turn on each side, match at least half of
+turn-action pairs, keep expected turn counts within a factor of two and remain
+at most 20-percent active without asteroids. Gameplay outcomes and telemetry do
+not select the multiplier. Weights remain frozen and learning remains blocked.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
