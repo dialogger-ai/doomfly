@@ -7,10 +7,13 @@ from asteroids.policy_controlled_recovery_curriculum import (
     build_controlled_scenarios,
     classify_controlled_candidates,
     configure_controlled_scenario,
+    configure_risk_matched_scenario,
+    risk_matched_constellation_sha256,
 )
 from asteroids.policy_phase_balanced_curriculum import teacher_phase
 from asteroids.policy_safe_envelope_curriculum import (
     SafeEnvelopeTeacherConfig,
+    _direct_threat,
     safe_envelope_action,
 )
 
@@ -89,6 +92,28 @@ def test_controlled_scenarios_begin_in_declared_phase():
         configure_controlled_scenario(env, scenario)
         action = safe_envelope_action(env, teacher)
         assert teacher_phase(env, action, teacher) == scenario.declared_phase
+
+
+def test_risk_matched_pairs_share_harmless_asteroid_context():
+    config = AsteroidsConfig(initial_asteroids=3, maximum_asteroids=3)
+    teacher = SafeEnvelopeTeacherConfig()
+    scenarios = build_controlled_scenarios(config)
+    for pair_index in range(0, len(scenarios), 2):
+        hashes = []
+        for scenario in scenarios[pair_index : pair_index + 2]:
+            env = AsteroidsEnv(seed=7000 + pair_index // 2, config=config)
+            configure_risk_matched_scenario(env, scenario)
+            hashes.append(risk_matched_constellation_sha256(env))
+            assert len(env.telemetry()["asteroids"]) == 3
+            for _ in range(120):
+                action = safe_envelope_action(env, teacher)
+                assert teacher_phase(env, action, teacher) != "threat"
+                risk, _ = _direct_threat(
+                    env.telemetry(), config, horizon=teacher.risk_horizon_seconds
+                )
+                assert risk < teacher.risk_trigger
+                env.step(action)
+        assert hashes[0] == hashes[1]
 
 
 def test_balances_phases_while_retaining_every_scenario():

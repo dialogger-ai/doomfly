@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict, deque
 from dataclasses import asdict, dataclass, replace
+import hashlib
 import json
 import math
 import os
@@ -51,6 +52,7 @@ from .policy_safe_envelope_curriculum import (
     MAXIMUM_EDGE_ZONE_FRACTION,
     MINIMUM_CENTRAL_ENVELOPE_FRACTION,
     SafeEnvelopeTeacherConfig,
+    _direct_threat,
     safe_envelope_action,
 )
 from .policy_temporal_recovery_efficiency_curriculum import (
@@ -67,6 +69,8 @@ from .visual_assay import GRAPH, GRAPH_MANIFEST, file_sha256, pathway_groups
 
 
 CURRICULUM_VERSION = "asteroids-policy-controlled-recovery-curriculum-v1"
+RISK_MATCHED_VERSION = "asteroids-policy-risk-matched-recovery-curriculum-v1"
+TRANSFER_AUDIT_VERSION = "asteroids-policy-controlled-recovery-transfer-audit-v1"
 DEFAULT_RECOVERY = Path(
     "outputs/asteroids/policy-temporal-recovery-efficiency-v1"
 )
@@ -77,6 +81,7 @@ DEFAULT_CONTROLLED_SEED = 115001
 DEFAULT_VALIDATION_SEED = 114001
 RESERVED_HELDOUT_SEED = 96001
 CONTROLLED_REPLAY_WEIGHTS = (1.0, 2.0, 4.0)
+RISK_MATCHED_REPLAY_WEIGHTS = (2.0, 4.0, 8.0)
 MAXIMUM_ACTIVE_FRACTION = 0.40
 MAXIMUM_ACTIVE_INCREASE = 0.03
 MINIMUM_SAFE_SPECIFICITY = 0.70
@@ -171,6 +176,51 @@ def configure_controlled_scenario(
     env.ship.velocity = pygame.Vector2(scenario.velocity_x, scenario.velocity_y)
     env.ship.rotation_degrees = scenario.rotation_degrees
     env._render_world()
+
+
+def configure_risk_matched_scenario(
+    env: AsteroidsEnv,
+    scenario: ControlledScenario,
+) -> None:
+    """Place an identical, nonthreatening asteroid field behind each pair."""
+
+    if len(env._asteroids) != 3:
+        raise ValueError("Risk-matched recovery requires exactly three asteroids")
+    env.ship.position = pygame.Vector2(scenario.position_x, scenario.position_y)
+    env.ship.velocity = pygame.Vector2(scenario.velocity_x, scenario.velocity_y)
+    env.ship.rotation_degrees = scenario.rotation_degrees
+    direction = int(scenario.name.rsplit("-", 1)[-1])
+    base_angle = math.radians(direction * 45.0 + 180.0)
+    center = pygame.Vector2(env.config.width / 2.0, env.config.height / 2.0)
+    for asteroid, offset_degrees in zip(env._asteroids, (0.0, -40.0, 40.0)):
+        angle = base_angle + math.radians(offset_degrees)
+        asteroid.position = center + pygame.Vector2(
+            190.0 * math.cos(angle), 190.0 * math.sin(angle)
+        )
+        asteroid.velocity = pygame.Vector2(0.0, 0.0)
+    env._render_world()
+
+
+def risk_matched_constellation_sha256(env: AsteroidsEnv) -> str:
+    """Hash every visual asteroid/star property while excluding ship state."""
+
+    payload = {
+        "stars": env._stars,
+        "asteroids": [
+            {
+                "identifier": asteroid.identifier,
+                "position": [asteroid.position.x, asteroid.position.y],
+                "velocity": [asteroid.velocity.x, asteroid.velocity.y],
+                "radius": asteroid.radius,
+                "rotation_degrees": asteroid.rotation_degrees,
+                "rotation_speed": asteroid.rotation_speed_degrees_per_second,
+                "vertices": asteroid.vertices,
+            }
+            for asteroid in env._asteroids
+        ],
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def balanced_phase_indices(
@@ -447,6 +497,43 @@ def _load_inputs(
     )
 
 
+def _load_risk_matched_route(
+    controlled_root: Path, transfer_root: Path
+) -> tuple[Path, Path, dict[str, Any], dict[str, Any]]:
+    controlled_protocol = json.loads(
+        (controlled_root / "protocol.json").read_text()
+    )
+    controlled_results = json.loads((controlled_root / "results.json").read_text())
+    transfer_protocol = json.loads((transfer_root / "protocol.json").read_text())
+    transfer_results = json.loads((transfer_root / "results.json").read_text())
+    classification = transfer_results.get("classification", {})
+    expected_diagnosis = (
+        "asteroid-free scenes create a context shortcut while recovery remains "
+        "underfit"
+    )
+    expected_gate = (
+        "collect balanced safe and recovery examples with nonthreatening "
+        "asteroids present"
+    )
+    if (
+        controlled_protocol.get("training") != CURRICULUM_VERSION
+        or controlled_results.get("training") != CURRICULUM_VERSION
+        or not controlled_results.get("complete")
+        or not controlled_results.get("controlled_recovery_operational")
+        or controlled_results.get("development_improvement_observed")
+        or transfer_protocol.get("audit") != TRANSFER_AUDIT_VERSION
+        or transfer_results.get("audit") != TRANSFER_AUDIT_VERSION
+        or not transfer_results.get("complete")
+        or Path(str(transfer_protocol.get("prior_source"))) != controlled_root
+        or classification.get("diagnosis") != expected_diagnosis
+        or classification.get("next_gate") != expected_gate
+    ):
+        raise ValueError("Inputs do not route from the controlled transfer audit")
+    recovery_root = Path(str(controlled_protocol["recovery_source"]))
+    audit_root = Path(str(controlled_protocol["temporal_error_audit_source"]))
+    return recovery_root, audit_root, controlled_protocol, transfer_protocol
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Train balanced safe/recovery trajectories by position and velocity"
@@ -455,6 +542,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--state-assay", type=Path, default=DEFAULT_STATE_ASSAY)
     parser.add_argument("--recovery", type=Path, default=DEFAULT_RECOVERY)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
+    parser.add_argument(
+        "--risk-matched",
+        action="store_true",
+        help="Use paired harmless-asteroid contexts routed from transfer audit",
+    )
+    parser.add_argument(
+        "--controlled",
+        type=Path,
+        default=Path("outputs/asteroids/policy-controlled-recovery-curriculum-v1"),
+    )
+    parser.add_argument(
+        "--transfer-audit",
+        type=Path,
+        default=Path(
+            "outputs/asteroids/policy-controlled-recovery-transfer-audit-v1"
+        ),
+    )
     parser.add_argument("--controlled-seed", type=int, default=DEFAULT_CONTROLLED_SEED)
     parser.add_argument("--validation-seed", type=int, default=DEFAULT_VALIDATION_SEED)
     parser.add_argument("--controlled-seconds", type=float, default=4.0)
@@ -471,6 +575,17 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.risk_matched:
+        if args.controlled_seed == DEFAULT_CONTROLLED_SEED:
+            args.controlled_seed = 117001
+        if args.validation_seed == DEFAULT_VALIDATION_SEED:
+            args.validation_seed = 116001
+    training_version = RISK_MATCHED_VERSION if args.risk_matched else CURRICULUM_VERSION
+    replay_weight_values = (
+        RISK_MATCHED_REPLAY_WEIGHTS
+        if args.risk_matched
+        else CONTROLLED_REPLAY_WEIGHTS
+    )
     if (
         args.eval_episodes < 4
         or not math.isfinite(args.seconds)
@@ -485,13 +600,25 @@ def main() -> None:
     if os.environ.get("OPENBLAS_NUM_THREADS") != "1":
         raise SystemExit("Launch with OPENBLAS_NUM_THREADS=1.")
     try:
+        if args.risk_matched:
+            (
+                recovery_root,
+                audit_root,
+                failed_controlled_protocol,
+                transfer_audit_protocol,
+            ) = _load_risk_matched_route(args.controlled, args.transfer_audit)
+        else:
+            recovery_root = args.recovery
+            audit_root = args.audit
+            failed_controlled_protocol = None
+            transfer_audit_protocol = None
         (
             recovery_protocol,
             recovery_results,
             audit_protocol,
             checkpoint,
             parent_mode,
-        ) = _load_inputs(args.recovery, args.audit)
+        ) = _load_inputs(recovery_root, audit_root)
     except (KeyError, OSError, ValueError, json.JSONDecodeError) as error:
         raise SystemExit(str(error)) from error
 
@@ -539,12 +666,15 @@ def main() -> None:
     )
     controlled_config = replace(
         game_config,
-        initial_asteroids=0,
-        maximum_asteroids=0,
+        initial_asteroids=3 if args.risk_matched else 0,
+        maximum_asteroids=3 if args.risk_matched else 0,
     )
     teacher_config = SafeEnvelopeTeacherConfig(**recovery_protocol["teacher"])
     scenarios = build_controlled_scenarios(controlled_config)
-    scenario_seeds = [args.controlled_seed + index for index in range(len(scenarios))]
+    scenario_seeds = [
+        args.controlled_seed + (index // 2 if args.risk_matched else index)
+        for index in range(len(scenarios))
+    ]
     validation_seeds = [
         args.validation_seed + index for index in range(args.eval_episodes)
     ]
@@ -553,6 +683,9 @@ def main() -> None:
         *recovery_protocol["collection_seeds"],
         *recovery_protocol["development_validation_seeds"],
     }
+    if failed_controlled_protocol is not None:
+        prior_used.update(failed_controlled_protocol["controlled_scenario_seeds"])
+        prior_used.update(failed_controlled_protocol["development_validation_seeds"])
     proposed = set(scenario_seeds) | set(validation_seeds)
     if (
         set(scenario_seeds) & set(validation_seeds)
@@ -591,21 +724,37 @@ def main() -> None:
 
     args.out.mkdir(parents=True)
     (args.out / "checkpoints").mkdir()
-    modes = [f"controlled_weight_{weight:g}" for weight in CONTROLLED_REPLAY_WEIGHTS]
-    replay_weights = dict(zip(modes, CONTROLLED_REPLAY_WEIGHTS))
+    modes = [f"controlled_weight_{weight:g}" for weight in replay_weight_values]
+    replay_weights = dict(zip(modes, replay_weight_values))
     scenario_manifest = [asdict(scenario) for scenario in scenarios]
     protocol = {
         "schema": 1,
-        "training": CURRICULUM_VERSION,
-        "status": "balanced controlled safe/recovery replay and autonomous validation",
+        "training": training_version,
+        "status": (
+            "risk-matched safe/recovery replay and autonomous validation"
+            if args.risk_matched
+            else "balanced controlled safe/recovery replay and autonomous validation"
+        ),
         "candidate_source": str(args.candidate),
         "state_assay_source": str(args.state_assay),
-        "recovery_source": str(args.recovery),
-        "temporal_error_audit_source": str(args.audit),
+        "recovery_source": str(recovery_root),
+        "temporal_error_audit_source": str(audit_root),
+        "failed_controlled_source": (
+            str(args.controlled) if args.risk_matched else None
+        ),
+        "controlled_transfer_audit_source": (
+            str(args.transfer_audit) if args.risk_matched else None
+        ),
         "parent_mode": parent_mode,
         "parent_checkpoint_sha256": file_sha256(checkpoint),
         "parent_parameter_sha256": parent_policy.parameter_sha256(),
         "controlled_scenario_seeds": scenario_seeds,
+        "paired_context_seed_rule": (
+            "Safe and recovery directions share a seed and exact asteroid/star "
+            "constellation; only ship state differs."
+            if args.risk_matched
+            else None
+        ),
         "controlled_scenarios": scenario_manifest,
         "development_validation_seeds": validation_seeds,
         "reserved_heldout_seeds": sorted(reserved),
@@ -642,9 +791,18 @@ def main() -> None:
             "are never policy inputs."
         ),
         "collection_boundary": (
-            "The telemetry teacher controls only declared asteroid-free "
-            "development trajectories. Autonomous validation uses the normal "
-            "asteroid game without teacher control."
+            (
+                "The telemetry teacher controls paired development trajectories "
+                "with an identical nonthreatening asteroid field in each safe/"
+                "recovery pair. Autonomous validation uses the normal asteroid "
+                "game without teacher control."
+            )
+            if args.risk_matched
+            else (
+                "The telemetry teacher controls only declared asteroid-free "
+                "development trajectories. Autonomous validation uses the normal "
+                "asteroid game without teacher control."
+            )
         ),
         "connectome_weights_frozen": True,
         "engineered_policy_learning_enabled": True,
@@ -681,13 +839,29 @@ def main() -> None:
     phases: list[str] = []
     scenario_names: list[str] = []
     current_scenario = ""
+    maximum_controlled_risk = 0.0
+    controlled_constellation_hashes: list[str] = []
+    controlled_initial_risks: list[float] = []
 
     def collect_example(
         observation: np.ndarray, action: Action, env: AsteroidsEnv
     ) -> None:
+        nonlocal maximum_controlled_risk
+        risk, _ = _direct_threat(
+            env.telemetry(),
+            env.config,
+            horizon=teacher_config.risk_horizon_seconds,
+        )
+        maximum_controlled_risk = max(maximum_controlled_risk, risk)
+        phase = teacher_phase(env, action, teacher_config)
+        if args.risk_matched and phase == "threat":
+            raise ValueError(
+                "Risk-matched collection entered threat phase; constellation "
+                "is not a safe context control"
+            )
         observations.append(observation)
         targets.append(POLICY_ACTIONS.index(action))
-        phases.append(teacher_phase(env, action, teacher_config))
+        phases.append(phase)
         scenario_names.append(current_scenario)
 
     candidate_episodes: dict[str, list[dict[str, Any]]] = {
@@ -727,7 +901,20 @@ def main() -> None:
 
         for index, (seed, scenario) in enumerate(zip(scenario_seeds, scenarios)):
             env = AsteroidsEnv(seed=seed, config=controlled_config)
-            configure_controlled_scenario(env, scenario)
+            if args.risk_matched:
+                configure_risk_matched_scenario(env, scenario)
+                controlled_constellation_hashes.append(
+                    risk_matched_constellation_sha256(env)
+                )
+            else:
+                configure_controlled_scenario(env, scenario)
+            initial_risk, _ = _direct_threat(
+                env.telemetry(),
+                env.config,
+                horizon=teacher_config.risk_horizon_seconds,
+            )
+            controlled_initial_risks.append(initial_risk)
+            maximum_controlled_risk = max(maximum_controlled_risk, initial_risk)
             initial_action = safe_envelope_action(env, teacher_config)
             initial_phase = teacher_phase(env, initial_action, teacher_config)
             initial_phase_checks.append(initial_phase == scenario.declared_phase)
@@ -842,9 +1029,31 @@ def main() -> None:
     operational_gates = {
         "candidate_checkpoint_roundtrip_exact": checkpoint_roundtrip_exact,
         "all_initial_scenario_phases_match": all(initial_phase_checks),
-        "controlled_environment_has_no_asteroids": (
-            controlled_config.initial_asteroids == 0
-            and controlled_config.maximum_asteroids == 0
+        "controlled_visual_context_matches_design": (
+            (
+                controlled_config.initial_asteroids == 3
+                and controlled_config.maximum_asteroids == 3
+                and len(controlled_constellation_hashes) == len(scenarios)
+            )
+            if args.risk_matched
+            else (
+                controlled_config.initial_asteroids == 0
+                and controlled_config.maximum_asteroids == 0
+            )
+        ),
+        "paired_safe_recovery_constellations_exact": (
+            all(
+                controlled_constellation_hashes[index]
+                == controlled_constellation_hashes[index + 1]
+                for index in range(0, len(controlled_constellation_hashes), 2)
+            )
+            if args.risk_matched
+            else True
+        ),
+        "all_controlled_asteroids_below_threat_threshold": (
+            maximum_controlled_risk < teacher_config.risk_trigger
+            if args.risk_matched
+            else True
         ),
         "balanced_safe_and_recovery_examples": (
             selected_phase_counts.get("safe_noop", 0)
@@ -881,6 +1090,8 @@ def main() -> None:
         operational_gates=operational_gates,
     )
     selected_mode = classification["selected_mode"]
+    if args.risk_matched and selected_mode is None:
+        classification["next_gate"] = "audit risk-matched recovery transfer"
     final_checkpoint = None
     if selected_mode is not None:
         final_checkpoint = args.out / "policy-final.npz"
@@ -889,13 +1100,16 @@ def main() -> None:
         )
     result = {
         "schema": 1,
-        "training": CURRICULUM_VERSION,
+        "training": training_version,
         "complete": True,
         "baseline_episodes": baseline,
         "controlled_episodes": controlled,
         "raw_controlled_phase_counts": raw_phase_counts,
         "selected_controlled_phase_counts": selected_phase_counts,
         "selected_controlled_scenario_counts": selected_scenario_counts,
+        "controlled_initial_risks": controlled_initial_risks,
+        "maximum_controlled_risk": maximum_controlled_risk,
+        "controlled_constellation_sha256": controlled_constellation_hashes,
         "candidate_episodes": candidate_episodes,
         "candidate_updates": candidate_updates,
         "candidate_checkpoint_roundtrip_exact": checkpoint_roundtrip_exact,
@@ -919,7 +1133,7 @@ def main() -> None:
     print(
         json.dumps(
             {
-                "training": CURRICULUM_VERSION,
+                "training": training_version,
                 "parent_mode": parent_mode,
                 "raw_controlled_phase_counts": raw_phase_counts,
                 "selected_controlled_phase_counts": selected_phase_counts,

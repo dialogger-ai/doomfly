@@ -962,6 +962,29 @@ This offline dose-response audit compares controlled exercise fit, autonomous
 safe/recovery behavior, completed center returns, activity and edge exposure.
 It runs no connectome simulation and performs no learning.
 
+If that audit identifies the asteroid-free scene as a context shortcut, return
+to the clean pre-shortcut checkpoint and repeat the lesson with risk-matched
+visual context:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_controlled_recovery_curriculum \
+  --risk-matched \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --controlled outputs/asteroids/policy-controlled-recovery-curriculum-v1 \
+  --transfer-audit outputs/asteroids/policy-controlled-recovery-transfer-audit-v1 \
+  --controlled-seconds 4 --eval-episodes 6 --seconds 12 --watch \
+  --out outputs/asteroids/policy-risk-matched-recovery-curriculum-v1
+```
+
+Each safe/recovery pair uses the same random seed, star field and three static
+asteroids on the nonthreatening side of the screen; only ship state differs.
+Every collected frame must remain below the teacher's threat threshold. Replay
+weights 2, 4 and 8 address the measured controlled-recovery underfit, but a
+candidate is rejected if the stronger lesson increases unnecessary movement,
+edge exposure or collision rate. The failed asteroid-free candidates are not
+parents of this run.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
