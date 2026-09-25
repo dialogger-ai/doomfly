@@ -820,11 +820,14 @@ def run_policy_episode(
     total_episodes: int,
     decision_ticks: int = 1,
     guided_teacher: Callable[[AsteroidsEnv], Action] | None = None,
+    shadow_teacher: Callable[[AsteroidsEnv], Action] | None = None,
     guided_learning_rate: float = 0.05,
     guided_epochs: int = 6,
 ) -> dict[str, Any]:
     if decision_ticks < 1:
         raise ValueError("Decision ticks must be positive")
+    if guided_teacher is not None and shadow_teacher is not None:
+        raise ValueError("Guided and shadow teachers are mutually exclusive")
     out.mkdir(parents=True)
     upstream_sources = _sources(pathway, UPSTREAM_GROUPS)
     downstream_sources = _sources(pathway, DOWNSTREAM_GROUPS)
@@ -847,6 +850,7 @@ def run_policy_episode(
 
     observations = []
     action_indices = []
+    teacher_action_indices = []
     probabilities = []
     rewards = []
     reward_totals = {
@@ -864,6 +868,7 @@ def run_policy_episode(
         )
     }
     action_counts = {action.name: 0 for action in Action}
+    shadow_teacher_action_counts = {action.name: 0 for action in POLICY_ACTIONS}
     rows = []
     center_distances = []
     edge_zone_ticks = 0
@@ -891,17 +896,31 @@ def run_policy_episode(
             if brain.cursor - origin != expected:
                 raise ValueError("Brain cursor did not match the game clock")
             decision = tick % decision_ticks == 0
+            shadow_action = None
             if decision:
                 observation = encoder.encode_brain(brain)
-                if guided_teacher is None:
+                if guided_teacher is None and shadow_teacher is None:
                     action, probs = policy.act(observation, training=training)
-                else:
+                elif guided_teacher is not None:
                     probs = policy.probabilities(observation)
                     action = Action(guided_teacher(env))
                     if action not in POLICY_ACTIONS:
                         raise ValueError("Guided teacher selected a disabled action")
+                else:
+                    action, probs = policy.act(observation, training=False)
+                    shadow_action = Action(shadow_teacher(env))
+                    if shadow_action not in POLICY_ACTIONS:
+                        raise ValueError("Shadow teacher selected a disabled action")
+                    shadow_teacher_action_counts[shadow_action.name] += 1
                 observations.append(observation)
                 action_indices.append(POLICY_ACTIONS.index(action))
+                teacher_action_indices.append(
+                    POLICY_ACTIONS.index(
+                        shadow_action
+                        if shadow_action is not None
+                        else action
+                    )
+                )
                 probabilities.append(probs)
                 rewards.append(0.0)
             result = env.step(action)
@@ -939,6 +958,9 @@ def run_policy_episode(
                 "tick": tick + 1,
                 "neural_state_sha256": array_sha256(observation),
                 "action": action.name,
+                "shadow_teacher_action": (
+                    shadow_action.name if decision and shadow_action is not None else None
+                ),
                 "new_policy_decision": decision,
                 "action_probabilities": {
                     candidate.name: float(probability)
@@ -971,7 +993,7 @@ def run_policy_episode(
     before = policy.parameter_sha256()
     update = None
     if training:
-        if guided_teacher is None:
+        if guided_teacher is None and shadow_teacher is None:
             update = policy.update_episode(
                 np.asarray(observations),
                 np.asarray(action_indices),
@@ -981,7 +1003,7 @@ def run_policy_episode(
         else:
             update = policy.update_guided_episode(
                 np.asarray(observations),
-                np.asarray(action_indices),
+                np.asarray(teacher_action_indices),
                 learning_rate=guided_learning_rate,
                 epochs=guided_epochs,
             )
@@ -1026,6 +1048,8 @@ def run_policy_episode(
         "policy_updated": before != after,
         "policy_update": update,
         "guided_teacher_enabled": guided_teacher is not None,
+        "shadow_teacher_enabled": shadow_teacher is not None,
+        "shadow_teacher_action_counts": shadow_teacher_action_counts,
         "decision_ticks": decision_ticks,
         "neural_weights_frozen": bool(brain.weights_frozen),
         "timing": {

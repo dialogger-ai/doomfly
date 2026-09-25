@@ -762,6 +762,27 @@ response, safe-state specificity, position recovery and edge-state behavior.
 The comparison is fixed-trace and counterfactual: it performs no neural replay,
 learning or outcome-based parameter selection.
 
+If false NOOP dominates and recovery recall is below 60 percent, aggregate
+labels on the states created by the autonomous policy itself:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_recovery_dagger_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --prior outputs/asteroids/policy-nonlinear-guided-curriculum-v1 \
+  --error-audit outputs/asteroids/policy-nonlinear-error-audit-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-recovery-dagger-curriculum-v1
+```
+
+During collection the current greedy policy—not the coach—controls every game
+action. The coach runs only as a shadow labeler, adding the policy's own edge,
+recovery and threat states to the existing replay set. Matched pre/post runs on
+separate development-validation seeds have no teacher or labels. The pass rule
+requires aggregate safety, movement and position improvement plus reward gains
+on at least half the individual seeds and an edge-zone pass on at least three
+quarters. Reserved held-out seeds remain sealed.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
