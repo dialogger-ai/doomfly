@@ -658,6 +658,29 @@ survival, emit a non-NOOP action and remain at most 35-percent active. Selection
 then prefers greater reward, less movement and the smallest adjustment. The
 reserved held-out seeds remain sealed.
 
+If that screen reveals a useful but discontinuous action margin—smaller offsets
+remain all-NOOP while the first active offset moves almost continuously—run the
+development-only guided threat curriculum:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_guided_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --prior outputs/asteroids/policy-credit-assignment-v1 \
+  --calibration outputs/asteroids/policy-noop-bias-calibration-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-guided-threat-curriculum-v1
+```
+
+During guided episodes only, privileged closest-approach geometry demonstrates
+whether to stay still, turn toward an escape direction or thrust. A
+square-root-class-balanced cross-entropy update maps the corresponding frozen
+neural state to that action. The matched post-training evaluation removes the
+teacher completely. It passes only if reward and safety improve while active
+control remains at most 35 percent and the policy returns to NOOP. This is
+explicit supervised assistance to an engineered BCI policy, not biological
+synaptic learning or held-out evidence.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

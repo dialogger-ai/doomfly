@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 import statistics
 import time
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -280,6 +280,83 @@ class SoftmaxActorCritic:
             "mean_policy_entropy": float(entropy.mean()),
         }
 
+    def update_guided_episode(
+        self,
+        observations: np.ndarray,
+        target_action_indices: np.ndarray,
+        *,
+        learning_rate: float,
+        epochs: int,
+        l2_penalty: float = 1e-4,
+    ) -> dict[str, Any]:
+        """Fit teacher actions while retaining neural state as the sole input."""
+
+        x = np.asarray(observations, dtype=np.float64)
+        targets = np.asarray(target_action_indices, dtype=np.int64)
+        steps = len(targets)
+        if (
+            x.shape != (steps, self.weights.shape[1])
+            or np.any(targets < 0)
+            or np.any(targets >= len(POLICY_ACTIONS))
+            or not np.isfinite(x).all()
+            or not math.isfinite(learning_rate)
+            or learning_rate <= 0
+            or epochs < 1
+            or not math.isfinite(l2_penalty)
+            or l2_penalty < 0
+        ):
+            raise ValueError("Invalid guided policy episode")
+        counts = np.bincount(targets, minlength=len(POLICY_ACTIONS))
+        # Square-root inverse frequency keeps safe NOOP examples influential
+        # while preventing the rarer evasive labels from disappearing.
+        sample_weights = 1.0 / np.sqrt(np.maximum(counts[targets], 1))
+        sample_weights /= sample_weights.mean()
+        initial_probabilities = np.asarray(
+            [self.probabilities(row) for row in x], dtype=np.float64
+        )
+        initial_loss = -float(
+            np.average(
+                np.log(np.maximum(initial_probabilities[np.arange(steps), targets], 1e-12)),
+                weights=sample_weights,
+            )
+        )
+        for _ in range(epochs):
+            logits = x @ self.weights.T + self.bias
+            logits -= logits.max(axis=1, keepdims=True)
+            probabilities = np.exp(logits)
+            probabilities /= probabilities.sum(axis=1, keepdims=True)
+            one_hot = np.zeros_like(probabilities)
+            one_hot[np.arange(steps), targets] = 1.0
+            gradient = sample_weights[:, None] * (one_hot - probabilities)
+            denominator = float(sample_weights.sum())
+            self.weights += learning_rate * (
+                gradient.T @ x / denominator - l2_penalty * self.weights
+            )
+            self.bias += learning_rate * gradient.sum(axis=0) / denominator
+            np.clip(self.weights, -5.0, 5.0, out=self.weights)
+            np.clip(self.bias, -5.0, 5.0, out=self.bias)
+        final_probabilities = np.asarray(
+            [self.probabilities(row) for row in x], dtype=np.float64
+        )
+        final_loss = -float(
+            np.average(
+                np.log(np.maximum(final_probabilities[np.arange(steps), targets], 1e-12)),
+                weights=sample_weights,
+            )
+        )
+        return {
+            "steps": steps,
+            "epochs": epochs,
+            "learning_rate": learning_rate,
+            "l2_penalty": l2_penalty,
+            "target_action_counts": {
+                action.name: int(count)
+                for action, count in zip(POLICY_ACTIONS, counts)
+            },
+            "weighted_cross_entropy_before": initial_loss,
+            "weighted_cross_entropy_after": final_loss,
+        }
+
     def parameter_sha256(self) -> str:
         return _array_digest(
             self.weights,
@@ -441,6 +518,9 @@ def run_policy_episode(
     episode_index: int,
     total_episodes: int,
     decision_ticks: int = 1,
+    guided_teacher: Callable[[AsteroidsEnv], Action] | None = None,
+    guided_learning_rate: float = 0.05,
+    guided_epochs: int = 6,
 ) -> dict[str, Any]:
     if decision_ticks < 1:
         raise ValueError("Decision ticks must be positive")
@@ -509,7 +589,13 @@ def run_policy_episode(
             decision = tick % decision_ticks == 0
             if decision:
                 observation = encoder.encode_brain(brain)
-                action, probs = policy.act(observation, training=training)
+                if guided_teacher is None:
+                    action, probs = policy.act(observation, training=training)
+                else:
+                    probs = policy.probabilities(observation)
+                    action = Action(guided_teacher(env))
+                    if action not in POLICY_ACTIONS:
+                        raise ValueError("Guided teacher selected a disabled action")
                 observations.append(observation)
                 action_indices.append(POLICY_ACTIONS.index(action))
                 probabilities.append(probs)
@@ -563,12 +649,20 @@ def run_policy_episode(
     before = policy.parameter_sha256()
     update = None
     if training:
-        update = policy.update_episode(
-            np.asarray(observations),
-            np.asarray(action_indices),
-            np.asarray(probabilities),
-            np.asarray(rewards),
-        )
+        if guided_teacher is None:
+            update = policy.update_episode(
+                np.asarray(observations),
+                np.asarray(action_indices),
+                np.asarray(probabilities),
+                np.asarray(rewards),
+            )
+        else:
+            update = policy.update_guided_episode(
+                np.asarray(observations),
+                np.asarray(action_indices),
+                learning_rate=guided_learning_rate,
+                epochs=guided_epochs,
+            )
     after = policy.parameter_sha256()
     terminal = rows[-1]["post_action_telemetry"]
     ticks = len(rows)
@@ -593,6 +687,7 @@ def run_policy_episode(
         "policy_parameter_sha256_after": after,
         "policy_updated": before != after,
         "policy_update": update,
+        "guided_teacher_enabled": guided_teacher is not None,
         "decision_ticks": decision_ticks,
         "neural_weights_frozen": bool(brain.weights_frozen),
         "timing": {
