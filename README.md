@@ -639,6 +639,25 @@ collision-only feedback. Asteroid geometry remains evaluator-only and never
 enters the policy observation. Safety still dominates movement cost, checkpoints
 remain exact and the reserved held-out seeds remain untouched.
 
+If the continued checkpoint still evaluates as `NOOP` on every tick, test
+whether the original conservative action prior is hiding learned preferences:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_noop_bias_calibration \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --prior outputs/asteroids/policy-credit-assignment-v1 \
+  --episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-noop-bias-calibration-v1
+```
+
+The matched development screen removes `0`, `0.25`, `0.5`, `0.75` or `1.0`
+from only the fixed NOOP logit. It does not learn or alter neural weights. A
+candidate must strictly improve reward without worsening contacts or median
+survival, emit a non-NOOP action and remain at most 35-percent active. Selection
+then prefers greater reward, less movement and the smallest adjustment. The
+reserved held-out seeds remain sealed.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
