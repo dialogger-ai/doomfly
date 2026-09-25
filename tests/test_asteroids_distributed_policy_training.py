@@ -6,11 +6,14 @@ import numpy as np
 
 from asteroids.distributed_policy_training import (
     HashedStateEncoder,
+    NonlinearGuidedPolicy,
     PolicyConfig,
     RewardConfig,
     SoftmaxActorCritic,
+    TemporalDifferenceEncoder,
     classify_training,
     collision_risk,
+    expand_nonlinear_policy_with_temporal_delta,
     reward_after_action,
 )
 from asteroids.environment import Action
@@ -33,6 +36,61 @@ def test_hashed_encoder_is_deterministic_and_uses_active_state_only():
     assert np.array_equal(
         first.encode_state(state), first.encode_state(changed_inactive)
     )
+
+
+def test_temporal_encoder_exposes_delta_and_resets_episode():
+    class StubEncoder:
+        output_features = 2
+
+        def __init__(self):
+            self.value = np.asarray([1.0, 2.0], dtype=np.float32)
+
+        def encode_brain(self, _brain):
+            return self.value.copy()
+
+        def configuration(self):
+            return {"projection_sha256": "projection"}
+
+    base = StubEncoder()
+    encoder = TemporalDifferenceEncoder(base)
+    first = encoder.encode_brain(None)
+    base.value = np.asarray([1.5, 1.0], dtype=np.float32)
+    second = encoder.encode_brain(None)
+    assert np.array_equal(first, np.asarray([1.0, 2.0, 0.0, 0.0]))
+    assert np.array_equal(second, np.asarray([1.5, 1.0, 0.5, -1.0]))
+    encoder.reset_episode()
+    reset = encoder.encode_brain(None)
+    assert np.array_equal(reset, np.asarray([1.5, 1.0, 0.0, 0.0]))
+
+
+def test_temporal_policy_expansion_preserves_outputs_then_learns_delta():
+    config = PolicyConfig(projection_features=2, initial_noop_bias=0.0)
+    base = NonlinearGuidedPolicy(2, config, seed=3, hidden_features=4)
+    observations = np.asarray([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32)
+    targets = np.asarray([1, 2], dtype=np.int64)
+    base.update_guided_episode(
+        observations, targets, learning_rate=0.01, epochs=3
+    )
+    expanded = expand_nonlinear_policy_with_temporal_delta(base, seed=7)
+    for observation in observations:
+        temporal = np.concatenate((observation, np.asarray([0.4, -0.2])))
+        assert np.allclose(
+            base.probabilities(observation),
+            expanded.probabilities(temporal),
+            rtol=0.0,
+            atol=1e-12,
+        )
+    temporal_examples = np.asarray(
+        [[1.0, 0.0, 1.0, -1.0], [1.0, 0.0, -1.0, 1.0]],
+        dtype=np.float32,
+    )
+    expanded.update_guided_episode(
+        temporal_examples,
+        np.asarray([1, 2], dtype=np.int64),
+        learning_rate=0.01,
+        epochs=3,
+    )
+    assert np.linalg.norm(expanded.input_weights[:, 2:]) > 0.0
 
 
 def test_reward_penalizes_damage_movement_and_switching():

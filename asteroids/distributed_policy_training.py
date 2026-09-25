@@ -177,6 +177,51 @@ class HashedStateEncoder:
         }
 
 
+class TemporalDifferenceEncoder:
+    """Expose current projected neural state and its one-decision change.
+
+    The wrapped connectome projection remains unchanged.  The appended feature
+    block is simply ``current - previous`` at policy decision times, giving the
+    engineered decoder a short approach/recession cue without telemetry or
+    object coordinates.
+    """
+
+    def __init__(self, base: HashedStateEncoder) -> None:
+        self.base = base
+        self.output_features = 2 * base.output_features
+        self._previous: np.ndarray | None = None
+
+    def reset_episode(self) -> None:
+        self._previous = None
+
+    def encode_brain(self, brain: PixelBrain) -> np.ndarray:
+        current = self.base.encode_brain(brain)
+        delta = (
+            np.zeros_like(current)
+            if self._previous is None
+            else current - self._previous
+        )
+        self._previous = current.copy()
+        return np.concatenate((current, delta)).astype(np.float32, copy=False)
+
+    def configuration(self) -> dict[str, Any]:
+        base = self.base.configuration()
+        return {
+            "version": "current-plus-one-decision-delta-v1",
+            "base_encoder": base,
+            "base_features": self.base.output_features,
+            "output_features": self.output_features,
+            "feature_order": "current projected state then current-minus-previous",
+            "episode_boundary": "previous state cleared before every episode",
+            "temporal_encoding_sha256": hashlib.sha256(
+                (
+                    base["projection_sha256"]
+                    + ":current-plus-one-decision-delta-v1"
+                ).encode()
+            ).hexdigest(),
+        }
+
+
 class SoftmaxActorCritic:
     """Small episodic actor-critic with a reproducible local RNG."""
 
@@ -724,6 +769,54 @@ class NonlinearGuidedPolicy:
         return policy, episode
 
 
+def expand_nonlinear_policy_with_temporal_delta(
+    policy: NonlinearGuidedPolicy,
+    *,
+    seed: int,
+) -> NonlinearGuidedPolicy:
+    """Append zero-initialized temporal inputs without changing behavior.
+
+    Existing current-state weights, optimizer state and replay are retained.
+    Prior replay examples receive an all-zero delta block, while subsequent
+    temporal examples can teach weights in the appended block.
+    """
+
+    current_features = policy.input_weights.shape[1]
+    expanded = NonlinearGuidedPolicy(
+        2 * current_features,
+        policy.config,
+        seed=seed,
+        hidden_features=policy.hidden_features,
+        replay_capacity=policy.replay_capacity,
+    )
+    expanded.input_weights.fill(0.0)
+    expanded.input_weights[:, :current_features] = policy.input_weights
+    expanded.input_bias[:] = policy.input_bias
+    expanded.output_weights[:] = policy.output_weights
+    expanded.output_bias[:] = policy.output_bias
+    expanded.replay_observations = np.concatenate(
+        (
+            policy.replay_observations,
+            np.zeros_like(policy.replay_observations),
+        ),
+        axis=1,
+    )
+    expanded.replay_targets = policy.replay_targets.copy()
+    expanded.replay_sample_weights = policy.replay_sample_weights.copy()
+    expanded.optimizer_step = policy.optimizer_step
+    for moments_name in ("_adam_first", "_adam_second"):
+        source = getattr(policy, moments_name)
+        target = getattr(expanded, moments_name)
+        target["input_weights"].fill(0.0)
+        target["input_weights"][:, :current_features] = source["input_weights"]
+        for name in ("input_bias", "output_weights", "output_bias"):
+            target[name][:] = source[name]
+    expanded.rng.bit_generator.state = json.loads(
+        json.dumps(policy.rng.bit_generator.state)
+    )
+    return expanded
+
+
 def reward_after_action(
     telemetry: Mapping[str, Any],
     action: Action,
@@ -860,6 +953,9 @@ def run_policy_episode(
     if shadow_example_callback is not None and shadow_teacher is None:
         raise ValueError("Shadow example callback requires a shadow teacher")
     out.mkdir(parents=True)
+    reset_encoder = getattr(encoder, "reset_episode", None)
+    if reset_encoder is not None:
+        reset_encoder()
     upstream_sources = _sources(pathway, UPSTREAM_GROUPS)
     downstream_sources = _sources(pathway, DOWNSTREAM_GROUPS)
     brain.reset()

@@ -861,6 +861,23 @@ control, the existing center/edge gates and seed-level consistency. A pass
 routes to the still-untouched reserved evaluation; a failure routes to a policy
 with short temporal context.
 
+If that longer replication fails, train the declared short-context policy:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_temporal_phase_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --replication outputs/asteroids/policy-phase-candidate-replication-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-temporal-phase-curriculum-v1
+```
+
+The connectome and visual relay remain frozen. The policy receives the current
+projected connectome state plus its change since the preceding 200-ms decision,
+but still receives no coordinates, telemetry, health, reward or future frame.
+The unchanged parent collects shadow teacher labels; predeclared phase weights
+are trained from the same batch and selected only on new development seeds.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
