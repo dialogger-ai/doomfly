@@ -90,3 +90,16 @@ def test_separate_pooling_retains_both_motion_edges():
     difference = encoded[-1].astype(np.int16) - neutral.astype(np.int16)
     assert np.any(difference > 0)
     assert np.any(difference < 0)
+
+
+def test_full_resolution_pool_clamps_integral_image_roundoff():
+    first = np.zeros((480, 640, 3), dtype=np.uint8)
+    second = np.zeros_like(first)
+    first[220:260, 280:330] = 255
+    second[220:260, 282:332] = 255
+    encoded = causal_temporal_contrast_frames(
+        (first, second), source_exposure=4.0, pool_radius_pixels=32
+    )
+    assert len(encoded) == 2
+    assert all(frame.shape == first.shape for frame in encoded)
+    assert all(frame.dtype == np.uint8 for frame in encoded)

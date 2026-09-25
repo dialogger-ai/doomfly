@@ -154,8 +154,16 @@ def causal_temporal_contrast_frames(
     encoded = []
     for current in luminance:
         delta = current - previous
-        on = box_pool(np.maximum(delta, 0), pool_radius_pixels)
-        off = box_pool(np.maximum(-delta, 0), pool_radius_pixels)
+        # The float32 integral-image subtraction in a large box pool can leave
+        # roundoff near -1e-8 even though both source channels are nonnegative.
+        # Clamp only that mathematically impossible negative tail before the
+        # strict ON/OFF boundary validation.
+        on = np.maximum(
+            box_pool(np.maximum(delta, 0), pool_radius_pixels), 0
+        )
+        off = np.maximum(
+            box_pool(np.maximum(-delta, 0), pool_radius_pixels), 0
+        )
         drive = contrast_current(on, off)
         encoded.append(linear_to_srgb_uint8(current_to_luminance(drive)))
         previous = current
