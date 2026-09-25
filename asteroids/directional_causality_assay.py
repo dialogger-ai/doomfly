@@ -78,12 +78,21 @@ def run_frame_condition(
     exposure: float,
     warmup_ms: float,
     deliverer,
+    observed_indices: Sequence[int] | None = None,
 ) -> dict[str, Any]:
     if not frames:
         raise ValueError("At least one RGB frame is required")
     shape = frames[0].shape
     if any(frame.shape != shape or frame.dtype != np.uint8 for frame in frames):
         raise ValueError("Frames must be matching RGB uint8 arrays")
+    observed = np.asarray(
+        [] if observed_indices is None else observed_indices,
+        dtype=np.int64,
+    )
+    if observed.ndim != 1 or np.any(observed < 0) or np.any(observed >= brain.n):
+        raise ValueError("Observed neural indices are invalid")
+    if len(np.unique(observed)) != len(observed):
+        raise ValueError("Observed neural indices must be unique")
     upstream_sources = _sources(pathway, UPSTREAM_GROUPS)
     downstream_sources = _sources(pathway, DOWNSTREAM_GROUPS)
     reference = np.asarray(reference_voltage, dtype=np.float32)
@@ -129,11 +138,13 @@ def run_frame_condition(
         rows.append(
             {
                 "tick": tick + 1,
+                "neural_steps": steps,
                 "action": action,
                 "turn_rate_hz": float(decision["turn_rate_hz"]),
                 "turn_command": float(decision["turn_command"]),
                 "thrust_command": float(decision["thrust_command"]),
                 "readouts": decision["readouts"],
+                "observed_spikes": spikes[observed].astype(int).tolist(),
             }
         )
     turns = [float(row["turn_command"]) for row in rows]

@@ -341,3 +341,35 @@ away from zero lag. It routes to identity/side-label review if cross-side
 correspondence is not preferred, or to an anatomically constrained alternative
 readout screen if the DNp20 difference is not mirror-equivariant at any tested
 lag. It uses no telemetry or outcomes and cannot enable learning by itself.
+
+The result rules out a fixed-lag repair. Pixel reflection was exact and the
+declared cross-side mapping was better than the same-side control, but its best
+correlation was only `0.347` versus `0.184`. The DNp20 difference failed the
+mirror-correlation gate both at zero lag and across every tested lag. At least
+one declared pixel feature still coupled to the neural trace at absolute
+correlation `0.642`, localizing the failure to the fixed DNp20 directional
+interface rather than input reflection or complete visual silence.
+
+The next development screen considers every annotated descending cell type
+containing left and right members and reached from T4/T5 within one or two exact
+retained graph edges. It records those neurons during black, original and
+reflected conditions; centers each neuron on the black run; and evaluates the
+bilateral population difference:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_readout_candidate_screen \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --readout-audit outputs/asteroids/directional-feature-readout-audit-v1 \
+  --seed 84001 \
+  --seconds 3 \
+  --out outputs/asteroids/directional-readout-screen-v1
+```
+
+A candidate must be active bilaterally in both visual scenes, prefer cross-side
+reflection, exceed `0.5` cross-side and zero-lag antisymmetry correlations,
+reverse mean sign with magnitudes within a factor of two, and correlate at least
+`0.3` with a declared pixel feature in each scene. DNp20 is retained as a failed
+control. The screen ignores its trace actions and cannot authorize gameplay or
+learning; a selected type still requires held-out mirror and no-threat testing.

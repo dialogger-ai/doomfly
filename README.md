@@ -508,6 +508,29 @@ turn-signal antisymmetry over lags of plus or minus 15 ticks, and coupling to
 pixel-only horizontal luminance and motion moments. Those simple features are
 diagnostic references, not a replacement game policy.
 
+The audit verified exact pixel reflection and found that cross-side DNp20
+mapping was preferable to same-side mapping, but weak (`0.347` versus `0.184`).
+The DNp20 difference was not mirror-correlated at zero lag or anywhere within
+the tested half-second window. A declared pixel feature still correlated with
+neural activity at `|r| = 0.642`, so screen other anatomically eligible neural
+readouts rather than adding more DNp20 calibration:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.directional_readout_candidate_screen \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --readout-audit outputs/asteroids/directional-feature-readout-audit-v1 \
+  --seed 84001 --seconds 3 \
+  --out outputs/asteroids/directional-readout-screen-v1
+```
+
+The screen is restricted to annotated descending types reached from T4/T5
+within one or two retained graph edges and having both left- and right-sided
+members. Signals are centered on a matched black run. DNp20 remains an explicit
+failed control. Passing this development screen would require separate mirrored
+and quiet-field validation before any candidate could control gameplay.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
