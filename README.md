@@ -551,6 +551,28 @@ This screen applies the same black-centered mirrored-pixel gates to bilateral
 bridge populations. It ignores decoder actions, telemetry and outcomes; weights
 remain frozen and learning remains blocked.
 
+The bridge screen found no candidate among 168 bilateral types. This exhausts
+the current global horizontal-feature test but does not show that controlled
+threat direction is absent. Replace the busy replay with a ship-only baseline,
+a single left collision-course asteroid, its exact right reflection and matched
+near-miss trajectories:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.controlled_threat_readout_assay \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --bridge-screen outputs/asteroids/directional-bridge-readout-screen-v1 \
+  --seconds 3 \
+  --out outputs/asteroids/controlled-threat-readout-v1
+```
+
+The assay reports directional candidates separately from efficient-threat
+candidates. The latter must respond at least 25 percent more strongly to a
+collision course than a near miss and decay below 20 percent during the final
+quiet second. These are declared engineering gates for low-action control, not
+measured fly thresholds. Actions, telemetry and outcomes remain excluded.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

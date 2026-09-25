@@ -403,3 +403,41 @@ or collisions to select a population. A passing bridge would still require an
 untouched mirrored/no-threat validation before it could replace the gameplay
 readout; a failure routes back to the visual feature definition and modeled
 motion-path dynamics rather than to reward training.
+
+The bridge screen retained 4,174 neurons across 215 exact bridge types; 168
+types containing 4,098 neurons had both declared sides. None passed the global
+horizontal-feature gates. Together with the descending screen, this rules out a
+single bilateral cell-type difference under the busy scripted replay. It does
+not rule out a distributed signal, nor does it determine whether the failure
+comes from the multi-object stimulus, the global feature or modeled dynamics.
+
+The next assay changes only the visual question. A fixed, game-like asteroid
+moves toward the stationary ship from the left, and the right condition is its
+exact pixel reflection. Matched trajectories pass safely above the ship. Every
+stimulus has a half-second ship-only prelude and a final ship-only second:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.controlled_threat_readout_assay \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --calibration outputs/asteroids/efficiency-calibration-v1 \
+  --directional-calibration outputs/asteroids/directional-decoder-calibration-v1 \
+  --bridge-screen outputs/asteroids/directional-bridge-readout-screen-v1 \
+  --seconds 3 \
+  --out outputs/asteroids/controlled-threat-readout-v1
+```
+
+The controlled assay uses the same 168 bilateral bridge types and subtracts a
+tick-matched ship-only run. Directional gates require bilateral activity,
+cross-side mirror correspondence, zero-lag antisymmetry, sign reversal and
+balanced magnitude. The second stage implements the project goal explicitly:
+the collision-course signal must exceed both matched near-miss signals by at
+least 25 percent, then fall below 20 percent of its transit strength during the
+quiet tail. These conservative thresholds are declared engineering criteria,
+not fly physiology. No contact is rendered, and no action, game telemetry,
+survival result or reward enters the assay.
+
+If a type passes both stages, it still requires an untouched stimulus
+validation before controlling gameplay. A directional-only result routes to a
+distributed collision-risk/recovery readout. If no type is directional even in
+this controlled scene, the next justified test is a distributed population
+decoder rather than another anatomical-depth expansion.
