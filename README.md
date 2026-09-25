@@ -998,6 +998,25 @@ This audit is offline. It compares controlled fit, autonomous recovery and safe
 classification, completed center returns, collision rate, activity, edge
 exposure and reward. It performs no learning or neural simulation.
 
+If risk-matched replay raises activity without improving autonomous recovery,
+test the temporal observation itself before training another policy:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_temporal_representation_separability_assay \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --risk-matched outputs/asteroids/policy-risk-matched-recovery-curriculum-v1 \
+  --transfer-audit outputs/asteroids/policy-risk-matched-recovery-transfer-audit-v1 \
+  --out outputs/asteroids/policy-temporal-representation-separability-v1
+```
+
+Safe and recovery trajectories reach pixel-identical target frames with inward
+versus outward velocity. Frozen connectome histories are tested with current
+state, the deployed 200-ms delta, and predeclared 400/800-ms histories. Four
+fixed ridge folds hold out opposite direction pairs. No gameplay policy is
+trained, and no collision outcome, reward or privileged trajectory coordinate
+is supplied to a probe.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
