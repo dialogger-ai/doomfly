@@ -723,6 +723,29 @@ and no gameplay outcome selects the offset. A pass saves an explicitly
 calibrated checkpoint for matched gameplay; a failure routes to a small
 nonlinear policy rather than repeating linear training.
 
+If the audit reports `guided_margin_separable: false`, run the predeclared
+one-hidden-layer capacity test:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_nonlinear_guided_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --safe-prior outputs/asteroids/policy-safe-envelope-curriculum-v1 \
+  --capacity-audit outputs/asteroids/policy-capacity-margin-audit-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-nonlinear-guided-curriculum-v1
+```
+
+This clean nonlinear decoder has 64 tanh hidden units and is trained with
+class-balanced supervised replay across the guided development episodes. The
+teacher still uses privileged collision and center geometry only to choose
+development labels. Pre/post autonomous runs use the same new development
+seeds, remove the teacher completely and expose only the frozen projected
+neural state. Passing requires replay separation plus improved reward and
+safety with at most 35-percent autonomous movement, limited edge dwelling and
+at least 60-percent central-envelope occupancy. Reserved held-out seeds remain
+sealed.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

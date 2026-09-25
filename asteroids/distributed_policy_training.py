@@ -397,6 +397,307 @@ class SoftmaxActorCritic:
         return policy, episode
 
 
+class NonlinearGuidedPolicy:
+    """Small one-hidden-layer policy for guided neural-state classification.
+
+    The connectome state is still the sole observation.  This class only
+    changes the capacity of the engineered action decoder after the linear
+    actor's fixed-trace margin audit demonstrates inseparable labels.
+    """
+
+    def __init__(
+        self,
+        features: int,
+        config: PolicyConfig,
+        *,
+        seed: int,
+        hidden_features: int = 64,
+        replay_capacity: int = 4096,
+    ) -> None:
+        if features < 1 or hidden_features < 1 or replay_capacity < 1:
+            raise ValueError("Nonlinear policy dimensions must be positive")
+        self.config = config
+        self.hidden_features = int(hidden_features)
+        self.replay_capacity = int(replay_capacity)
+        self.rng = np.random.default_rng(seed)
+        scale = 1.0 / math.sqrt(features)
+        self.input_weights = self.rng.normal(
+            0.0, scale, size=(self.hidden_features, features)
+        ).astype(np.float64)
+        self.input_bias = np.zeros(self.hidden_features, dtype=np.float64)
+        self.output_weights = np.zeros(
+            (len(POLICY_ACTIONS), self.hidden_features), dtype=np.float64
+        )
+        self.output_bias = np.zeros(len(POLICY_ACTIONS), dtype=np.float64)
+        self.output_bias[0] = config.initial_noop_bias
+        self.replay_observations = np.empty((0, features), dtype=np.float32)
+        self.replay_targets = np.empty(0, dtype=np.int64)
+        self.optimizer_step = 0
+        self._adam_first = {
+            name: np.zeros_like(value)
+            for name, value in self._parameters().items()
+        }
+        self._adam_second = {
+            name: np.zeros_like(value)
+            for name, value in self._parameters().items()
+        }
+
+    def _parameters(self) -> dict[str, np.ndarray]:
+        return {
+            "input_weights": self.input_weights,
+            "input_bias": self.input_bias,
+            "output_weights": self.output_weights,
+            "output_bias": self.output_bias,
+        }
+
+    def _forward(self, observations: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        x = np.asarray(observations, dtype=np.float64)
+        hidden = np.tanh(x @ self.input_weights.T + self.input_bias)
+        logits = hidden @ self.output_weights.T + self.output_bias
+        logits -= logits.max(axis=-1, keepdims=True)
+        probabilities = np.exp(logits)
+        probabilities /= probabilities.sum(axis=-1, keepdims=True)
+        return hidden, probabilities
+
+    def probabilities(self, observation: Sequence[float]) -> np.ndarray:
+        values = np.asarray(observation, dtype=np.float64)
+        if (
+            values.shape != (self.input_weights.shape[1],)
+            or not np.isfinite(values).all()
+        ):
+            raise ValueError("Invalid policy observation")
+        _, probabilities = self._forward(values[None, :])
+        return probabilities[0]
+
+    def act(
+        self, observation: Sequence[float], *, training: bool
+    ) -> tuple[Action, np.ndarray]:
+        probabilities = self.probabilities(observation)
+        if training:
+            action_index = int(self.rng.choice(len(POLICY_ACTIONS), p=probabilities))
+        else:
+            action_index = int(np.argmax(probabilities))
+        return POLICY_ACTIONS[action_index], probabilities
+
+    @staticmethod
+    def _classification_metrics(
+        targets: np.ndarray, probabilities: np.ndarray
+    ) -> dict[str, Any]:
+        predicted = np.argmax(probabilities, axis=1)
+        active = targets != 0
+        predicted_active = predicted != 0
+        active_count = int(np.count_nonzero(active))
+        noop_count = len(targets) - active_count
+        return {
+            "examples": len(targets),
+            "exact_action_accuracy": float(np.mean(predicted == targets)),
+            "teacher_active_recall": (
+                float(np.count_nonzero(active & predicted_active) / active_count)
+                if active_count
+                else 0.0
+            ),
+            "teacher_noop_specificity": (
+                float(np.count_nonzero(~active & ~predicted_active) / noop_count)
+                if noop_count
+                else 0.0
+            ),
+            "teacher_active_exact_action_accuracy": (
+                float(np.count_nonzero(active & (predicted == targets)) / active_count)
+                if active_count
+                else 0.0
+            ),
+            "predicted_active_fraction": float(np.mean(predicted_active)),
+            "predicted_action_counts": {
+                action.name: int(np.count_nonzero(predicted == index))
+                for index, action in enumerate(POLICY_ACTIONS)
+            },
+        }
+
+    def replay_metrics(self) -> dict[str, Any]:
+        if not len(self.replay_targets):
+            return {}
+        _, probabilities = self._forward(self.replay_observations)
+        return self._classification_metrics(self.replay_targets, probabilities)
+
+    def update_guided_episode(
+        self,
+        observations: np.ndarray,
+        target_action_indices: np.ndarray,
+        *,
+        learning_rate: float,
+        epochs: int,
+        l2_penalty: float = 1e-4,
+    ) -> dict[str, Any]:
+        """Append teacher examples and fit all retained development replay."""
+
+        x_new = np.asarray(observations, dtype=np.float32)
+        targets_new = np.asarray(target_action_indices, dtype=np.int64)
+        steps = len(targets_new)
+        if (
+            x_new.shape != (steps, self.input_weights.shape[1])
+            or np.any(targets_new < 0)
+            or np.any(targets_new >= len(POLICY_ACTIONS))
+            or not np.isfinite(x_new).all()
+            or not math.isfinite(learning_rate)
+            or learning_rate <= 0
+            or epochs < 1
+            or not math.isfinite(l2_penalty)
+            or l2_penalty < 0
+        ):
+            raise ValueError("Invalid guided nonlinear policy episode")
+        self.replay_observations = np.concatenate(
+            (self.replay_observations, x_new), axis=0
+        )[-self.replay_capacity :]
+        self.replay_targets = np.concatenate(
+            (self.replay_targets, targets_new), axis=0
+        )[-self.replay_capacity :]
+
+        x = np.asarray(self.replay_observations, dtype=np.float64)
+        targets = self.replay_targets
+        counts = np.bincount(targets, minlength=len(POLICY_ACTIONS))
+        sample_weights = 1.0 / np.sqrt(np.maximum(counts[targets], 1))
+        sample_weights /= sample_weights.mean()
+        _, initial_probabilities = self._forward(x)
+        initial_loss = -float(
+            np.average(
+                np.log(
+                    np.maximum(
+                        initial_probabilities[np.arange(len(targets)), targets],
+                        1e-12,
+                    )
+                ),
+                weights=sample_weights,
+            )
+        )
+        beta1 = 0.9
+        beta2 = 0.999
+        epsilon = 1e-8
+        for _ in range(epochs):
+            hidden, probabilities = self._forward(x)
+            one_hot = np.zeros_like(probabilities)
+            one_hot[np.arange(len(targets)), targets] = 1.0
+            dlogits = sample_weights[:, None] * (probabilities - one_hot)
+            dlogits /= float(sample_weights.sum())
+            gradients = {
+                "output_weights": dlogits.T @ hidden
+                + l2_penalty * self.output_weights,
+                "output_bias": dlogits.sum(axis=0),
+            }
+            dhidden = dlogits @ self.output_weights
+            dz = dhidden * (1.0 - hidden * hidden)
+            gradients["input_weights"] = (
+                dz.T @ x + l2_penalty * self.input_weights
+            )
+            gradients["input_bias"] = dz.sum(axis=0)
+            norm = math.sqrt(
+                sum(float(np.sum(value * value)) for value in gradients.values())
+            )
+            if norm > 5.0:
+                gradients = {
+                    name: value * (5.0 / norm)
+                    for name, value in gradients.items()
+                }
+            self.optimizer_step += 1
+            correction1 = 1.0 - beta1**self.optimizer_step
+            correction2 = 1.0 - beta2**self.optimizer_step
+            for name, parameter in self._parameters().items():
+                gradient = gradients[name]
+                first = self._adam_first[name]
+                second = self._adam_second[name]
+                first *= beta1
+                first += (1.0 - beta1) * gradient
+                second *= beta2
+                second += (1.0 - beta2) * gradient * gradient
+                parameter -= learning_rate * (first / correction1) / (
+                    np.sqrt(second / correction2) + epsilon
+                )
+                np.clip(parameter, -8.0, 8.0, out=parameter)
+
+        _, final_probabilities = self._forward(x)
+        final_loss = -float(
+            np.average(
+                np.log(
+                    np.maximum(
+                        final_probabilities[np.arange(len(targets)), targets], 1e-12
+                    )
+                ),
+                weights=sample_weights,
+            )
+        )
+        return {
+            "steps": steps,
+            "replay_examples": len(targets),
+            "epochs": epochs,
+            "learning_rate": learning_rate,
+            "l2_penalty": l2_penalty,
+            "target_action_counts": {
+                action.name: int(count)
+                for action, count in zip(POLICY_ACTIONS, counts)
+            },
+            "weighted_cross_entropy_before": initial_loss,
+            "weighted_cross_entropy_after": final_loss,
+            "replay_classification": self._classification_metrics(
+                targets, final_probabilities
+            ),
+        }
+
+    def parameter_sha256(self) -> str:
+        return _array_digest(*self._parameters().values())
+
+    def save(self, path: Path, *, episode: int) -> None:
+        state = json.dumps(self.rng.bit_generator.state, sort_keys=True)
+        arrays: dict[str, Any] = {
+            **self._parameters(),
+            "episode": np.asarray([episode], dtype=np.int64),
+            "rng_state": np.asarray([state]),
+            "hidden_features": np.asarray([self.hidden_features], dtype=np.int64),
+            "replay_capacity": np.asarray([self.replay_capacity], dtype=np.int64),
+            "replay_observations": self.replay_observations,
+            "replay_targets": self.replay_targets,
+            "optimizer_step": np.asarray([self.optimizer_step], dtype=np.int64),
+        }
+        arrays.update(
+            {f"adam_first_{name}": value for name, value in self._adam_first.items()}
+        )
+        arrays.update(
+            {f"adam_second_{name}": value for name, value in self._adam_second.items()}
+        )
+        np.savez_compressed(path, **arrays)
+
+    @classmethod
+    def load(
+        cls, path: Path, config: PolicyConfig, *, seed: int
+    ) -> tuple["NonlinearGuidedPolicy", int]:
+        with np.load(path, allow_pickle=False) as saved:
+            input_weights = np.asarray(saved["input_weights"], dtype=np.float64)
+            policy = cls(
+                input_weights.shape[1],
+                config,
+                seed=seed,
+                hidden_features=int(saved["hidden_features"][0]),
+                replay_capacity=int(saved["replay_capacity"][0]),
+            )
+            for name, parameter in policy._parameters().items():
+                value = np.asarray(saved[name], dtype=np.float64)
+                if value.shape != parameter.shape:
+                    raise ValueError("Checkpoint nonlinear policy dimensions differ")
+                parameter[:] = value
+                policy._adam_first[name][:] = np.asarray(
+                    saved[f"adam_first_{name}"], dtype=np.float64
+                )
+                policy._adam_second[name][:] = np.asarray(
+                    saved[f"adam_second_{name}"], dtype=np.float64
+                )
+            policy.replay_observations = np.asarray(
+                saved["replay_observations"], dtype=np.float32
+            )
+            policy.replay_targets = np.asarray(saved["replay_targets"], dtype=np.int64)
+            policy.optimizer_step = int(saved["optimizer_step"][0])
+            policy.rng.bit_generator.state = json.loads(str(saved["rng_state"][0]))
+            episode = int(saved["episode"][0])
+        return policy, episode
+
+
 def reward_after_action(
     telemetry: Mapping[str, Any],
     action: Action,
