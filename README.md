@@ -1052,6 +1052,23 @@ assay compares the complete structured temporal vector with fixed 64- and
 It saves `structured_sequences.npz`, so later sequence-model comparisons do not
 require another connectome replay. No gameplay policy is trained in this run.
 
+If structured and recurrent probes still fail, localize the missing optic-flow
+signal without another neural simulation:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m asteroids.policy_optic_flow_encoding_audit \
+  --prior outputs/asteroids/policy-structured-recurrent-separability-v1 \
+  --out outputs/asteroids/policy-optic-flow-encoding-audit-v1
+```
+
+The audit regenerates the exact controlled pixels, samples the prepared retinal
+projection, and reuses `structured_sequences.npz`. It compares pixel-grid,
+retinal-input and saved structured-brain histories under the same held-out
+direction rule, with an additional signed radial-motion control calculated only
+from image luminance. The result routes the next experiment to the controlled
+stimulus, retinal projection, modeled visual dynamics or decoder instead of
+guessing. This run is offline and does not use `caffeinate` or `--watch`.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
