@@ -949,6 +949,19 @@ the normal asteroid game on identical new seeds. Telemetry creates labels and
 controlled starts only; autonomous candidate actions still use current and
 200-ms-delta connectome state alone.
 
+If the controlled candidates improve survival but fail the recovery/efficiency
+gates, audit whether the asteroid-free lesson transferred:
+
+```bash
+python -m asteroids.policy_controlled_recovery_transfer_audit \
+  --prior outputs/asteroids/policy-controlled-recovery-curriculum-v1 \
+  --out outputs/asteroids/policy-controlled-recovery-transfer-audit-v1
+```
+
+This offline dose-response audit compares controlled exercise fit, autonomous
+safe/recovery behavior, completed center returns, activity and edge exposure.
+It runs no connectome simulation and performs no learning.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
