@@ -25,8 +25,13 @@ def test_nonlinear_policy_learns_xor_and_roundtrips(tmp_path: Path):
         (20, 1),
     )
     targets = np.tile(np.asarray([0, 1, 1, 0], dtype=np.int64), 20)
+    sample_weights = np.where(targets == 0, 2.0, 1.0)
     update = policy.update_guided_episode(
-        observations, targets, learning_rate=0.02, epochs=160
+        observations,
+        targets,
+        learning_rate=0.02,
+        epochs=160,
+        sample_weights=sample_weights,
     )
     predicted = [int(np.argmax(policy.probabilities(row))) for row in observations[:4]]
     assert predicted == [0, 1, 1, 0]
@@ -42,6 +47,9 @@ def test_nonlinear_policy_learns_xor_and_roundtrips(tmp_path: Path):
     assert episode == 3
     assert loaded.parameter_sha256() == policy.parameter_sha256()
     assert loaded.replay_metrics() == policy.replay_metrics()
+    assert np.array_equal(
+        loaded.replay_sample_weights, policy.replay_sample_weights
+    )
 
 
 def _episode(

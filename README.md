@@ -818,6 +818,29 @@ It changes no trajectory or weight. A passing margin still requires prospective
 gameplay on new development seeds; a failure routes to phase-balanced replay
 with explicit safe-state validation.
 
+If no confidence margin can suppress safe-state movement without also erasing
+threat and recovery responses, run the phase-balanced replay screen:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_phase_balanced_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --prior outputs/asteroids/policy-recovery-dagger-curriculum-v1 \
+  --error-audit outputs/asteroids/policy-recovery-error-audit-v1 \
+  --confidence outputs/asteroids/policy-confidence-abstention-calibration-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-phase-balanced-curriculum-v1
+```
+
+The unchanged recovery policy controls one shadow-labeled collection batch.
+Four candidates then start from the same checkpoint and replay the identical
+states with safe-NOOP weights of `1`, `2`, `4` or `8`. The coach never controls
+collection or validation. Selection occurs on separate development seeds and
+requires non-worse reward, contacts and survival; at most 35-percent activity;
+the existing center/edge gates; at least 80-percent safe specificity; and at
+least 40-percent threat and recovery response. The reserved held-out seeds
+remain sealed.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

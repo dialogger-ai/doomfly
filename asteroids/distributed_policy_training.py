@@ -432,6 +432,7 @@ class NonlinearGuidedPolicy:
         self.output_bias[0] = config.initial_noop_bias
         self.replay_observations = np.empty((0, features), dtype=np.float32)
         self.replay_targets = np.empty(0, dtype=np.int64)
+        self.replay_sample_weights = np.empty(0, dtype=np.float64)
         self.optimizer_step = 0
         self._adam_first = {
             name: np.zeros_like(value)
@@ -527,17 +528,26 @@ class NonlinearGuidedPolicy:
         learning_rate: float,
         epochs: int,
         l2_penalty: float = 1e-4,
+        sample_weights: np.ndarray | None = None,
     ) -> dict[str, Any]:
         """Append teacher examples and fit all retained development replay."""
 
         x_new = np.asarray(observations, dtype=np.float32)
         targets_new = np.asarray(target_action_indices, dtype=np.int64)
         steps = len(targets_new)
+        weights_new = (
+            np.ones(steps, dtype=np.float64)
+            if sample_weights is None
+            else np.asarray(sample_weights, dtype=np.float64)
+        )
         if (
             x_new.shape != (steps, self.input_weights.shape[1])
+            or weights_new.shape != (steps,)
             or np.any(targets_new < 0)
             or np.any(targets_new >= len(POLICY_ACTIONS))
             or not np.isfinite(x_new).all()
+            or not np.isfinite(weights_new).all()
+            or np.any(weights_new <= 0.0)
             or not math.isfinite(learning_rate)
             or learning_rate <= 0
             or epochs < 1
@@ -551,12 +561,18 @@ class NonlinearGuidedPolicy:
         self.replay_targets = np.concatenate(
             (self.replay_targets, targets_new), axis=0
         )[-self.replay_capacity :]
+        self.replay_sample_weights = np.concatenate(
+            (self.replay_sample_weights, weights_new), axis=0
+        )[-self.replay_capacity :]
 
         x = np.asarray(self.replay_observations, dtype=np.float64)
         targets = self.replay_targets
         counts = np.bincount(targets, minlength=len(POLICY_ACTIONS))
-        sample_weights = 1.0 / np.sqrt(np.maximum(counts[targets], 1))
-        sample_weights /= sample_weights.mean()
+        effective_sample_weights = (
+            self.replay_sample_weights
+            / np.sqrt(np.maximum(counts[targets], 1))
+        )
+        effective_sample_weights /= effective_sample_weights.mean()
         _, initial_probabilities = self._forward(x)
         initial_loss = -float(
             np.average(
@@ -566,7 +582,7 @@ class NonlinearGuidedPolicy:
                         1e-12,
                     )
                 ),
-                weights=sample_weights,
+                weights=effective_sample_weights,
             )
         )
         beta1 = 0.9
@@ -576,8 +592,8 @@ class NonlinearGuidedPolicy:
             hidden, probabilities = self._forward(x)
             one_hot = np.zeros_like(probabilities)
             one_hot[np.arange(len(targets)), targets] = 1.0
-            dlogits = sample_weights[:, None] * (probabilities - one_hot)
-            dlogits /= float(sample_weights.sum())
+            dlogits = effective_sample_weights[:, None] * (probabilities - one_hot)
+            dlogits /= float(effective_sample_weights.sum())
             gradients = {
                 "output_weights": dlogits.T @ hidden
                 + l2_penalty * self.output_weights,
@@ -621,7 +637,7 @@ class NonlinearGuidedPolicy:
                         final_probabilities[np.arange(len(targets)), targets], 1e-12
                     )
                 ),
-                weights=sample_weights,
+                weights=effective_sample_weights,
             )
         )
         return {
@@ -630,6 +646,10 @@ class NonlinearGuidedPolicy:
             "epochs": epochs,
             "learning_rate": learning_rate,
             "l2_penalty": l2_penalty,
+            "new_sample_weight_range": {
+                "minimum": float(weights_new.min()) if steps else None,
+                "maximum": float(weights_new.max()) if steps else None,
+            },
             "target_action_counts": {
                 action.name: int(count)
                 for action, count in zip(POLICY_ACTIONS, counts)
@@ -654,6 +674,7 @@ class NonlinearGuidedPolicy:
             "replay_capacity": np.asarray([self.replay_capacity], dtype=np.int64),
             "replay_observations": self.replay_observations,
             "replay_targets": self.replay_targets,
+            "replay_sample_weights": self.replay_sample_weights,
             "optimizer_step": np.asarray([self.optimizer_step], dtype=np.int64),
         }
         arrays.update(
@@ -692,6 +713,11 @@ class NonlinearGuidedPolicy:
                 saved["replay_observations"], dtype=np.float32
             )
             policy.replay_targets = np.asarray(saved["replay_targets"], dtype=np.int64)
+            policy.replay_sample_weights = (
+                np.asarray(saved["replay_sample_weights"], dtype=np.float64)
+                if "replay_sample_weights" in saved.files
+                else np.ones(len(policy.replay_targets), dtype=np.float64)
+            )
             policy.optimizer_step = int(saved["optimizer_step"][0])
             policy.rng.bit_generator.state = json.loads(str(saved["rng_state"][0]))
             episode = int(saved["episode"][0])
@@ -821,6 +847,9 @@ def run_policy_episode(
     decision_ticks: int = 1,
     guided_teacher: Callable[[AsteroidsEnv], Action] | None = None,
     shadow_teacher: Callable[[AsteroidsEnv], Action] | None = None,
+    shadow_example_callback: (
+        Callable[[np.ndarray, Action, AsteroidsEnv], None] | None
+    ) = None,
     guided_learning_rate: float = 0.05,
     guided_epochs: int = 6,
 ) -> dict[str, Any]:
@@ -828,6 +857,8 @@ def run_policy_episode(
         raise ValueError("Decision ticks must be positive")
     if guided_teacher is not None and shadow_teacher is not None:
         raise ValueError("Guided and shadow teachers are mutually exclusive")
+    if shadow_example_callback is not None and shadow_teacher is None:
+        raise ValueError("Shadow example callback requires a shadow teacher")
     out.mkdir(parents=True)
     upstream_sources = _sources(pathway, UPSTREAM_GROUPS)
     downstream_sources = _sources(pathway, DOWNSTREAM_GROUPS)
@@ -912,6 +943,10 @@ def run_policy_episode(
                     if shadow_action not in POLICY_ACTIONS:
                         raise ValueError("Shadow teacher selected a disabled action")
                     shadow_teacher_action_counts[shadow_action.name] += 1
+                    if shadow_example_callback is not None:
+                        shadow_example_callback(
+                            observation.copy(), shadow_action, env
+                        )
                 observations.append(observation)
                 action_indices.append(POLICY_ACTIONS.index(action))
                 teacher_action_indices.append(
