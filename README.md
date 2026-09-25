@@ -895,6 +895,25 @@ temporal checkpoint with every delta feature forced to zero, and the intact
 temporal checkpoint. This separates longer-run generalization from a causal
 benefit of the 200-ms neural-state change signal before further optimization.
 
+If the intact temporal policy beats the zero-delta control but remains too
+active and edge-prone, train explicit threat, recovery and safe-NOOP phases:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_temporal_recovery_efficiency_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --ablation outputs/asteroids/policy-temporal-candidate-ablation-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-temporal-recovery-efficiency-v1
+```
+
+The frozen causal temporal policy collects all trajectories. The teacher never
+controls those actions; it labels immediate threats, position recovery and
+safe centered states afterward. Four predeclared recovery/safe weighting pairs
+are trained from the same batch and evaluated on identical new development
+seeds. Results include completed center excursions rather than relying only on
+aggregate central-screen time.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
