@@ -1034,6 +1034,24 @@ generalize to unseen motion directions, classify both safe and recovery states,
 and materially exceed the prior 200-ms result before it can become a training
 candidate. This is a representation diagnostic, not gameplay training.
 
+If neither projection width nor nonlinear decoding restores motion-phase
+generalization, preserve anatomical and optic-column organization in a fresh
+sequence assay:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_structured_recurrent_separability_assay \
+  --prior outputs/asteroids/policy-temporal-projection-capacity-v1 \
+  --out outputs/asteroids/policy-structured-recurrent-separability-v1
+```
+
+The encoder partitions every observed neuron by declared visual-pathway class
+or two-edge bridge population. Visual-pathway populations retain cell type,
+left/right anatomical side and a four-by-four inferred optic-column bin. The
+assay compares the complete structured temporal vector with fixed 64- and
+256-state recurrent reservoir decoders under the same direction-held-out rule.
+It saves `structured_sequences.npz`, so later sequence-model comparisons do not
+require another connectome replay. No gameplay policy is trained in this run.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.
