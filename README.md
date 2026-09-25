@@ -681,6 +681,30 @@ control remains at most 35 percent and the policy returns to NOOP. This is
 explicit supervised assistance to an engineered BCI policy, not biological
 synaptic learning or held-out evidence.
 
+If visual review shows that the first teacher avoids a threat and then remains
+near an edge, restart from the clean pre-guidance checkpoint with an explicit
+safe operating envelope:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_safe_envelope_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --prior outputs/asteroids/policy-credit-assignment-v1 \
+  --failed-guided outputs/asteroids/policy-guided-threat-curriculum-v1 \
+  --episodes 12 --eval-episodes 4 --seconds 12 --watch \
+  --out outputs/asteroids/policy-safe-envelope-curriculum-v1
+```
+
+This revision measures center distance, edge-zone dwell and central-envelope
+dwell on every run. The development teacher prioritizes immediate collision
+avoidance, coasts when momentum is already returning the ship safely, otherwise
+uses a velocity-aware minimal recovery toward the central region, and returns
+to NOOP inside the envelope. Its 24-degree alignment tolerance accounts for the
+48-degree turn produced by each six-tick macro-action. Post-training evaluation
+again removes the teacher. It must improve reward and safety, remain at most
+35-percent active, spend at most 20 percent of time near an edge and remain in
+the central envelope at least 60 percent of the time.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

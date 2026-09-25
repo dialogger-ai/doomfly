@@ -564,6 +564,9 @@ def run_policy_episode(
     }
     action_counts = {action.name: 0 for action in Action}
     rows = []
+    center_distances = []
+    edge_zone_ticks = 0
+    central_envelope_ticks = 0
     previous_action = None
     previous_passed = 0
     previous_risk = collision_risk(env.telemetry(), env.config)
@@ -601,6 +604,22 @@ def run_policy_episode(
                 probabilities.append(probs)
                 rewards.append(0.0)
             result = env.step(action)
+            ship = result.telemetry["ship"]
+            center_distance = math.hypot(
+                float(ship["x"]) - env.config.width / 2.0,
+                float(ship["y"]) - env.config.height / 2.0,
+            )
+            center_distances.append(center_distance)
+            edge_zone = (
+                float(ship["x"]) < env.config.width * 0.15
+                or float(ship["x"]) > env.config.width * 0.85
+                or float(ship["y"]) < env.config.height * 0.15
+                or float(ship["y"]) > env.config.height * 0.85
+            )
+            edge_zone_ticks += int(edge_zone)
+            central_envelope_ticks += int(
+                center_distance <= min(env.config.width, env.config.height) / 3.0
+            )
             current_risk = collision_risk(result.telemetry, env.config)
             reward, components = reward_after_action(
                 result.telemetry,
@@ -627,6 +646,8 @@ def run_policy_episode(
                 "reward": reward,
                 "reward_components": components,
                 "collision_risk": current_risk,
+                "center_distance_pixels": center_distance,
+                "edge_zone": edge_zone,
                 "post_action_telemetry": result.telemetry,
             }
             rows.append(row)
@@ -681,6 +702,22 @@ def run_policy_episode(
         "active_action_fraction": (
             1.0 - action_counts["NOOP"] / ticks if ticks else 0.0
         ),
+        "position_metrics": {
+            "mean_center_distance_pixels": (
+                float(statistics.mean(center_distances)) if center_distances else 0.0
+            ),
+            "maximum_center_distance_pixels": (
+                float(max(center_distances)) if center_distances else 0.0
+            ),
+            "edge_zone_fraction": edge_zone_ticks / ticks if ticks else 0.0,
+            "central_envelope_fraction": (
+                central_envelope_ticks / ticks if ticks else 0.0
+            ),
+            "edge_zone_definition": "outer 15 percent of either screen axis",
+            "central_envelope_radius_pixels": (
+                min(env.config.width, env.config.height) / 3.0
+            ),
+        },
         "total_reward": float(sum(rewards)),
         "reward_components": reward_totals,
         "policy_parameter_sha256_before": before,
@@ -710,7 +747,9 @@ def summarize_mode(episodes: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         for name, count in row["action_counts"].items():
             actions[name] += int(count)
     active = actions["LEFT"] + actions["RIGHT"] + actions["THRUST"]
-    return {
+    position_rows = [row.get("position_metrics") for row in episodes]
+    positions_available = all(item is not None for item in position_rows)
+    summary = {
         "episodes": len(episodes),
         "mean_total_reward": statistics.mean(
             float(row["total_reward"]) for row in episodes
@@ -726,6 +765,32 @@ def summarize_mode(episodes: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "action_counts": actions,
         "active_action_fraction": active / ticks if ticks else 0.0,
     }
+    if positions_available:
+        summary["position_metrics"] = {
+            "mean_center_distance_pixels": sum(
+                float(row["position_metrics"]["mean_center_distance_pixels"])
+                * int(row["game_ticks"])
+                for row in episodes
+            )
+            / ticks,
+            "maximum_center_distance_pixels": max(
+                float(row["position_metrics"]["maximum_center_distance_pixels"])
+                for row in episodes
+            ),
+            "edge_zone_fraction": sum(
+                float(row["position_metrics"]["edge_zone_fraction"])
+                * int(row["game_ticks"])
+                for row in episodes
+            )
+            / ticks,
+            "central_envelope_fraction": sum(
+                float(row["position_metrics"]["central_envelope_fraction"])
+                * int(row["game_ticks"])
+                for row in episodes
+            )
+            / ticks,
+        }
+    return summary
 
 
 def classify_training(
