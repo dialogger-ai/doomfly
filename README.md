@@ -929,6 +929,26 @@ changes, persist within stable phases, follow teacher-label jitter, or appear as
 control oscillation. The result chooses the next experiment; it does not select
 a policy or touch the reserved held-out seeds.
 
+If the audit finds recovery and safe states remain aliased on new trajectories,
+train a position/velocity-balanced controlled curriculum:
+
+```bash
+OPENBLAS_NUM_THREADS=1 caffeinate -i python -m asteroids.policy_controlled_recovery_curriculum \
+  --candidate outputs/asteroids/transient-relay-gameplay-v1 \
+  --state-assay outputs/asteroids/distributed-state-decoder-v1 \
+  --recovery outputs/asteroids/policy-temporal-recovery-efficiency-v1 \
+  --audit outputs/asteroids/policy-temporal-recovery-error-audit-v1 \
+  --controlled-seconds 4 --eval-episodes 6 --seconds 12 --watch \
+  --out outputs/asteroids/policy-controlled-recovery-curriculum-v1
+```
+
+Sixteen teacher-controlled, asteroid-free development trajectories span eight
+directions and four velocity regimes. Safe and recovery examples are balanced
+before replay. Three fixed replay strengths are then evaluated autonomously in
+the normal asteroid game on identical new seeds. Telemetry creates labels and
+controlled starts only; autonomous candidate actions still use current and
+200-ms-delta connectome state alone.
+
 ## Evidence and publication hygiene
 
 Historical reports and failed experiments are preserved. Large connectome downloads, mutable checkpoints, raw operational logs, dependencies, credentials and the separately generated Twitter banners are excluded. Existing application graphics and scientific plots remain included.

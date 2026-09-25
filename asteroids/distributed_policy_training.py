@@ -943,6 +943,9 @@ def run_policy_episode(
     shadow_example_callback: (
         Callable[[np.ndarray, Action, AsteroidsEnv], None] | None
     ) = None,
+    guided_example_callback: (
+        Callable[[np.ndarray, Action, AsteroidsEnv], None] | None
+    ) = None,
     guided_learning_rate: float = 0.05,
     guided_epochs: int = 6,
 ) -> dict[str, Any]:
@@ -952,6 +955,8 @@ def run_policy_episode(
         raise ValueError("Guided and shadow teachers are mutually exclusive")
     if shadow_example_callback is not None and shadow_teacher is None:
         raise ValueError("Shadow example callback requires a shadow teacher")
+    if guided_example_callback is not None and guided_teacher is None:
+        raise ValueError("Guided example callback requires a guided teacher")
     out.mkdir(parents=True)
     reset_encoder = getattr(encoder, "reset_episode", None)
     if reset_encoder is not None:
@@ -1033,6 +1038,8 @@ def run_policy_episode(
                     action = Action(guided_teacher(env))
                     if action not in POLICY_ACTIONS:
                         raise ValueError("Guided teacher selected a disabled action")
+                    if guided_example_callback is not None:
+                        guided_example_callback(observation.copy(), action, env)
                 else:
                     action, probs = policy.act(observation, training=False)
                     shadow_action = Action(shadow_teacher(env))
