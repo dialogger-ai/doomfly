@@ -1,0 +1,352 @@
+{
+  "schema": 1,
+  "diagnostic": "asteroids-multithreat-neural-transfer-diagnostic-v1",
+  "uploaded_results_sha256": "eab774a60721024025c9c09752049a30def95b75f075a2ebe1bfcdb414ba99e3",
+  "source_results_sha256": "232ba2546e99cb20734caf31f5c1c6e78801906f7a3a27c7211e0a570d3c2197",
+  "graph_sha256": "fcd8c9cd5dbf7de751da339cf644c32e2d05f32304aa3f0d8a6512446290d061",
+  "complete": true,
+  "folds": {
+    "current": {
+      "folds": [
+        {
+          "withheld_orientation": 0,
+          "training_decisions": 60,
+          "evaluation": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.7352941176470589,
+            "quiet_NOOP_specificity": 0.4,
+            "teacher_action_counts": {
+              "NOOP": 16,
+              "LEFT": 8,
+              "RIGHT": 15,
+              "THRUST": 11
+            },
+            "predicted_action_counts": {
+              "NOOP": 15,
+              "LEFT": 10,
+              "RIGHT": 11,
+              "THRUST": 14
+            }
+          },
+          "training_majority": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.32,
+            "teacher_active_recall": 0.0,
+            "quiet_NOOP_specificity": 1.0,
+            "teacher_action_counts": {
+              "NOOP": 16,
+              "LEFT": 8,
+              "RIGHT": 15,
+              "THRUST": 11
+            },
+            "predicted_action_counts": {
+              "NOOP": 50,
+              "LEFT": 0,
+              "RIGHT": 0,
+              "THRUST": 0
+            }
+          }
+        },
+        {
+          "withheld_orientation": 1,
+          "training_decisions": 60,
+          "evaluation": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.34,
+            "teacher_active_recall": 0.5277777777777778,
+            "quiet_NOOP_specificity": 0.6,
+            "teacher_action_counts": {
+              "NOOP": 14,
+              "LEFT": 12,
+              "RIGHT": 9,
+              "THRUST": 15
+            },
+            "predicted_action_counts": {
+              "NOOP": 25,
+              "LEFT": 7,
+              "RIGHT": 9,
+              "THRUST": 9
+            }
+          },
+          "training_majority": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.0,
+            "quiet_NOOP_specificity": 1.0,
+            "teacher_action_counts": {
+              "NOOP": 14,
+              "LEFT": 12,
+              "RIGHT": 9,
+              "THRUST": 15
+            },
+            "predicted_action_counts": {
+              "NOOP": 50,
+              "LEFT": 0,
+              "RIGHT": 0,
+              "THRUST": 0
+            }
+          }
+        }
+      ],
+      "mean_exact_action_accuracy": 0.31000000000000005,
+      "mean_quiet_NOOP_specificity": 0.5,
+      "mean_active_recall": 0.6315359477124183
+    },
+    "current_plus_delta": {
+      "folds": [
+        {
+          "withheld_orientation": 0,
+          "training_decisions": 60,
+          "evaluation": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.38,
+            "teacher_active_recall": 0.6470588235294118,
+            "quiet_NOOP_specificity": 0.7,
+            "teacher_action_counts": {
+              "NOOP": 16,
+              "LEFT": 8,
+              "RIGHT": 15,
+              "THRUST": 11
+            },
+            "predicted_action_counts": {
+              "NOOP": 23,
+              "LEFT": 6,
+              "RIGHT": 8,
+              "THRUST": 13
+            }
+          },
+          "training_majority": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.32,
+            "teacher_active_recall": 0.0,
+            "quiet_NOOP_specificity": 1.0,
+            "teacher_action_counts": {
+              "NOOP": 16,
+              "LEFT": 8,
+              "RIGHT": 15,
+              "THRUST": 11
+            },
+            "predicted_action_counts": {
+              "NOOP": 50,
+              "LEFT": 0,
+              "RIGHT": 0,
+              "THRUST": 0
+            }
+          }
+        },
+        {
+          "withheld_orientation": 1,
+          "training_decisions": 60,
+          "evaluation": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.5555555555555556,
+            "quiet_NOOP_specificity": 0.5,
+            "teacher_action_counts": {
+              "NOOP": 14,
+              "LEFT": 12,
+              "RIGHT": 9,
+              "THRUST": 15
+            },
+            "predicted_action_counts": {
+              "NOOP": 23,
+              "LEFT": 5,
+              "RIGHT": 13,
+              "THRUST": 9
+            }
+          },
+          "training_majority": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.0,
+            "quiet_NOOP_specificity": 1.0,
+            "teacher_action_counts": {
+              "NOOP": 14,
+              "LEFT": 12,
+              "RIGHT": 9,
+              "THRUST": 15
+            },
+            "predicted_action_counts": {
+              "NOOP": 50,
+              "LEFT": 0,
+              "RIGHT": 0,
+              "THRUST": 0
+            }
+          }
+        }
+      ],
+      "mean_exact_action_accuracy": 0.33,
+      "mean_quiet_NOOP_specificity": 0.6,
+      "mean_active_recall": 0.6013071895424837
+    },
+    "delta_only": {
+      "folds": [
+        {
+          "withheld_orientation": 0,
+          "training_decisions": 60,
+          "evaluation": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.7352941176470589,
+            "quiet_NOOP_specificity": 0.4,
+            "teacher_action_counts": {
+              "NOOP": 16,
+              "LEFT": 8,
+              "RIGHT": 15,
+              "THRUST": 11
+            },
+            "predicted_action_counts": {
+              "NOOP": 15,
+              "LEFT": 8,
+              "RIGHT": 13,
+              "THRUST": 14
+            }
+          },
+          "training_majority": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.32,
+            "teacher_active_recall": 0.0,
+            "quiet_NOOP_specificity": 1.0,
+            "teacher_action_counts": {
+              "NOOP": 16,
+              "LEFT": 8,
+              "RIGHT": 15,
+              "THRUST": 11
+            },
+            "predicted_action_counts": {
+              "NOOP": 50,
+              "LEFT": 0,
+              "RIGHT": 0,
+              "THRUST": 0
+            }
+          }
+        },
+        {
+          "withheld_orientation": 1,
+          "training_decisions": 60,
+          "evaluation": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.6944444444444444,
+            "quiet_NOOP_specificity": 0.3,
+            "teacher_action_counts": {
+              "NOOP": 14,
+              "LEFT": 12,
+              "RIGHT": 9,
+              "THRUST": 15
+            },
+            "predicted_action_counts": {
+              "NOOP": 17,
+              "LEFT": 8,
+              "RIGHT": 17,
+              "THRUST": 8
+            }
+          },
+          "training_majority": {
+            "decisions": 50,
+            "exact_action_accuracy": 0.28,
+            "teacher_active_recall": 0.0,
+            "quiet_NOOP_specificity": 1.0,
+            "teacher_action_counts": {
+              "NOOP": 14,
+              "LEFT": 12,
+              "RIGHT": 9,
+              "THRUST": 15
+            },
+            "predicted_action_counts": {
+              "NOOP": 50,
+              "LEFT": 0,
+              "RIGHT": 0,
+              "THRUST": 0
+            }
+          }
+        }
+      ],
+      "mean_exact_action_accuracy": 0.28,
+      "mean_quiet_NOOP_specificity": 0.35,
+      "mean_active_recall": 0.7148692810457516
+    }
+  },
+  "selected_from_development_only": "current_plus_delta",
+  "selected_rotated_score": {
+    "decisions": 100,
+    "exact_action_accuracy": 0.3,
+    "teacher_active_recall": 0.6857142857142857,
+    "quiet_NOOP_specificity": 0.4,
+    "teacher_action_counts": {
+      "NOOP": 30,
+      "LEFT": 22,
+      "RIGHT": 33,
+      "THRUST": 15
+    },
+    "predicted_action_counts": {
+      "NOOP": 34,
+      "LEFT": 16,
+      "RIGHT": 23,
+      "THRUST": 27
+    }
+  },
+  "original_rotated_score": {
+    "probe": {
+      "decisions": 100,
+      "exact_action_accuracy": 0.24,
+      "teacher_active_recall": 0.7285714285714285,
+      "quiet_NOOP_specificity": 0.25,
+      "teacher_action_counts": {
+        "NOOP": 30,
+        "LEFT": 22,
+        "RIGHT": 33,
+        "THRUST": 15
+      },
+      "predicted_action_counts": {
+        "NOOP": 26,
+        "LEFT": 18,
+        "RIGHT": 26,
+        "THRUST": 30
+      }
+    },
+    "development_majority_baseline": {
+      "decisions": 100,
+      "exact_action_accuracy": 0.3,
+      "teacher_active_recall": 0.0,
+      "quiet_NOOP_specificity": 1.0,
+      "teacher_action_counts": {
+        "NOOP": 30,
+        "LEFT": 22,
+        "RIGHT": 33,
+        "THRUST": 15
+      },
+      "predicted_action_counts": {
+        "NOOP": 100,
+        "LEFT": 0,
+        "RIGHT": 0,
+        "THRUST": 0
+      }
+    },
+    "always_NOOP": {
+      "decisions": 100,
+      "exact_action_accuracy": 0.3,
+      "teacher_active_recall": 0.0,
+      "quiet_NOOP_specificity": 1.0,
+      "teacher_action_counts": {
+        "NOOP": 30,
+        "LEFT": 22,
+        "RIGHT": 33,
+        "THRUST": 15
+      },
+      "predicted_action_counts": {
+        "NOOP": 100,
+        "LEFT": 0,
+        "RIGHT": 0,
+        "THRUST": 0
+      }
+    }
+  },
+  "T4_T5_spikes_across_sampled_windows": {
+    "T4": 0,
+    "T5": 0
+  },
+  "new_geometry_candidate_gate": false,
+  "claim_limit": "Offline decoder diagnosis on existing inspected scenes; no independent gameplay or fly learning."
+}
