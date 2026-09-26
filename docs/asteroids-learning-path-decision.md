@@ -181,3 +181,14 @@ retired from the learning path. Prioritize an auditable visual-to-neural
 interface and neural-state action learner with full-graph and matched-null
 controls. Any future synaptic recipe must be separately motivated and pass
 independent cue and action gates before a gameplay learning claim.
+
+The next bounded full-graph capacity test is
+`asteroids.multithreat_neural_action_capacity`. It uses the successful
+RGB-only controller as a development action teacher while recording the
+same-frame frozen neural state on short, multi-threat scenes. One fixed
+linear probe is fit on development orientations and checked on rotated
+scenes against majority-action, quiet-NOOP and active-recall controls. This
+tests whether the existing visual-to-neural interface can support a useful
+trainable action decoder before another expensive reward run. See
+`docs/asteroids-multithreat-neural-action-capacity.md` for the declared gate
+and limitations.
