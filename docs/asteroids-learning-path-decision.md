@@ -159,3 +159,8 @@ plasticity produces a cue-specific downstream effect beyond endogenous drift.
 The scene pair is selected from prior confirmation metadata before observing
 this result. Do not resume the failed collision-pulse gameplay recipe or
 claim a fly learned avoidance from a nonzero synaptic interaction alone.
+
+Rob authorized reversible, explicitly documented augmentation of the model
+and its interfaces in pursuit of the fly-learning thesis. The causal
+boundaries, next gates, matched nulls and stop decisions are specified in
+`docs/asteroids-thesis-preserving-augmentation.md`.
