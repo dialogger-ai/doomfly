@@ -47,3 +47,24 @@ RGB-label gate retroactively. Its demonstrations can be paired with full-graph
 state in a separate, explicitly labeled experiment after the transfer
 failure is understood. Gameplay reward training with this unchanged
 representation/readout is premature.
+
+## Saved-trace diagnostic result
+
+Rob's uploaded diagnostic completed on the original saved arrays, reproduced
+the earlier probe score, and reported the full folds in
+`docs/evidence/asteroids-multithreat-neural-transfer-diagnostic-v1.json`.
+
+| Representation | Withhold 0 | Withhold 1 | Rotated, if selected |
+| --- | ---: | ---: | ---: |
+| Current state | 28% | 34% | — |
+| Current plus one-decision change | 38% | 28% | 30% |
+| Change alone | 28% | 28% | — |
+| Development-majority NOOP | 32% | 28% | 30% |
+
+The selected current-plus-change model reached only 40% quiet NOOP on the
+rotated scenes. This does not pass the original capacity gate. Small gains
+in a single orientation fold are unstable and do not establish a reusable
+visual-to-action representation. The diagnostic neither reran the graph nor
+changed any connectome weights. Further inspection needs the two `.npz`
+neural trace archives from the same run; the compact JSON alone cannot show
+class geometry or disentangle representation loss from readout limitations.
