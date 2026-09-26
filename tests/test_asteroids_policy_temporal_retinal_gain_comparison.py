@@ -8,6 +8,9 @@ import pytest
 
 from asteroids.policy_temporal_receptor_timing_audit import STAGES
 from asteroids.policy_temporal_receptor_transfer_confirmation import fresh_conditions as prior_conditions
+from asteroids.policy_structured_recurrent_separability_assay import (
+    TARGET_RADII, RADIAL_SPEEDS,
+)
 from asteroids.policy_temporal_retinal_gain_comparison import (
     GAINS, GEOMETRIES, checkpoint_path, fresh_conditions, read_checkpoint,
 )
@@ -16,7 +19,9 @@ from asteroids.policy_temporal_retinal_gain_comparison import (
 def test_gain_rationale_and_independent_pairing():
     assert GAINS == {"baseline": 1.0, "below_threshold": 0.4}
     assert 15 * GAINS["baseline"] > 7 > 15 * GAINS["below_threshold"]
-    assert GEOMETRIES == ((165.0, 34.0), (167.5, 34.5))
+    assert GEOMETRIES == ((163.0, 33.5), (169.0, 34.5))
+    assert {radius for radius, _ in GEOMETRIES}.isdisjoint(TARGET_RADII)
+    assert {speed for _, speed in GEOMETRIES}.isdisjoint(RADIAL_SPEEDS)
     rows = fresh_conditions()
     old = prior_conditions()
     assert len(rows) == 32
