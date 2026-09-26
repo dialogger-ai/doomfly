@@ -1,5 +1,11 @@
 # DOOMFLY
 
+## Active branch tracks
+
+**main** is the Asteroids gameplay track, including the [watched full-connectome play loop](docs/asteroids-multithreat-fly-play-loop.md). Its actor uses modeled neural state and may receive reward updates, but improved avoidance and synaptic learning are unproven. **training** is where new visual, actor-learning and plasticity experiments continue. The older `codex/asteroids-integration` branch is a preserved snapshot. See [branch workflow](docs/branch-workflow.md). Choose the branch in GitHub Desktop, then Fetch origin and Pull origin.
+
+The ViZDoom material below is retained as project history; the active gameplay direction is Asteroids.
+
 A fly-connectome simulation connected to a live Doom-engine arena. Game frames stimulate modeled sensory neurons; activity propagates through the retained MaleCNS v1.0 wiring, and a fixed neuron-to-button interface turns, moves and fires. An experimental dopamine-gated memory rule changes a small set of existing connections during play.
 
 **Status: live experimental training, not demonstrated learned survival.** The current v6 candidate failed its visual, conditioning and survival validation gates. Changing weights and longer individual rounds do not establish learning. This repository includes the negative results, controls and modeling assumptions alongside the implementation.
