@@ -298,12 +298,12 @@ def main() -> None:
             for index, row in zip(chosen, rows):
                 from .policy_temporal_contrast_adapter_audit import signed_radial_from_sequence
                 neutral_sample = sample_luminance(linear_luminance(neutral), uv)
-                controls["source_input_scores_reproduced"] &= np.isclose(
+                controls["source_input_scores_reproduced"] &= bool(np.isclose(
                     signed_radial_from_sequence(row["encoded_input"][list(DECISION_TICK_INDICES)],
                                                 neutral_sample, uv),
                     comparison["condition_records"][index]["scores"][f"{name}/quantized_immediate"],
                     atol=1e-5, rtol=0,
-                )
+                ))
             stages = stage_score_metrics(rows, uv, labels, directions)
             for stage in STAGES:
                 for time_name in TIMES:
