@@ -948,6 +948,8 @@ def run_policy_episode(
     ) = None,
     guided_learning_rate: float = 0.05,
     guided_epochs: int = 6,
+    frame_adapter: Callable[[np.ndarray], np.ndarray] | None = None,
+    warmup_frame: np.ndarray | None = None,
 ) -> dict[str, Any]:
     if decision_ticks < 1:
         raise ValueError("Decision ticks must be positive")
@@ -961,13 +963,18 @@ def run_policy_episode(
     reset_encoder = getattr(encoder, "reset_episode", None)
     if reset_encoder is not None:
         reset_encoder()
+    reset_adapter = getattr(frame_adapter, "reset_episode", None)
+    if reset_adapter is not None:
+        reset_adapter()
     upstream_sources = _sources(pathway, UPSTREAM_GROUPS)
     downstream_sources = _sources(pathway, DOWNSTREAM_GROUPS)
     brain.reset()
     brain.weights_frozen = True
     upstream = GradedRelay(brain, upstream_sources, upstream_gain, deliverer=deliverer)
     zero_stage = GradedRelay(brain, downstream_sources, 0.0, deliverer=deliverer)
-    black = np.zeros_like(env.rgb())
+    black = np.zeros_like(env.rgb()) if warmup_frame is None else np.asarray(warmup_frame)
+    if black.shape != env.rgb().shape or black.dtype != np.uint8:
+        raise ValueError("Policy warmup must match uint8 game frames")
     warmup_steps = round(warmup_ms / NEURAL_DT_MS)
     if warmup_steps:
         _advance_cascade(brain, upstream, zero_stage, black, warmup_steps)
@@ -1017,7 +1024,10 @@ def run_policy_episode(
     trace_path = out / "trace.jsonl"
     with trace_path.open("x") as trace:
         for tick in range(horizon):
-            frame = linear_light_exposure(env.rgb(), exposure)
+            frame = (linear_light_exposure(env.rgb(), exposure)
+                     if frame_adapter is None else frame_adapter(env.rgb()))
+            if frame.shape != black.shape or frame.dtype != np.uint8:
+                raise ValueError("Live frame adapter must return matched uint8 RGB")
             completed = brain.cursor - origin
             steps = neural_steps_for_tick(tick, completed)
             _, elapsed, _ = _advance_cascade(
