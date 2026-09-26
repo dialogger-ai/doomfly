@@ -34,13 +34,12 @@ actions in an arm described as brain-mediated.
 - The separate RGB software baseline recognizes multiple motion threats and
   succeeds in some novel orientations, but contains no fly-brain simulation.
 
-Run the already published `policy_temporal_cue_conditioning` assay first. It
-holds the visual movie and plastic rule fixed, with paired, three-second
-delayed and withheld candidate pulses. If there is no cue-specific downstream
-interaction beyond the controls, retire this precise pulse/rule pairing from
-gameplay experiments. If there is one, replicate on independent cues and test
-whether the resulting memory changes *correct* frozen actions before another
-survival run. No dose/sign search on the four inspected gameplay seeds.
+The published `policy_temporal_cue_conditioning` assay has completed. It held
+the visual movie and plastic rule fixed, with paired, three-second delayed
+and withheld candidate pulses. The paired response was broad across both
+cues, so the precise pulse/rule pairing is retired from gameplay experiments.
+See `docs/asteroids-cue-conditioning-result.md`. Do not search dose or sign on
+the four inspected gameplay seeds or pick a new cue from this outcome.
 
 ## Next independent augmentation work
 
@@ -56,9 +55,9 @@ survival run. No dose/sign search on the four inspected gameplay seeds.
    gameplay reward updates from failures. Keep imitation and reinforcement
    checkpoints distinct; improvement due to demonstrations alone is not
    learning from failure. Actor observations remain neural state only.
-3. **Internal plasticity.** If the cue assay and independent replication
-   establish selective modeled memory, test anatomically mapped, compartment
-   specific KC→MBON updates alongside frozen and equal-dose shifted controls.
+3. **Internal plasticity.** Treat a new, anatomically mapped, compartment
+   specific KC→MBON hypothesis as separate from the retired recipe. Require
+   independent cue calibration before frozen and equal-dose shifted controls.
    Any new dopamine/current mapping or rule constant is an explicit model
    hypothesis fit outside the sealed gameplay evaluation, never a silent
    correction to a negative result.
