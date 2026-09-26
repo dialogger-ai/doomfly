@@ -8,7 +8,7 @@ from asteroids.policy_temporal_contrast_adapter_audit import adapter_decision_sa
 from asteroids.policy_temporal_contrast_window_validation import window_quantized_samples
 from asteroids.policy_temporal_projection_comparison import (
     build_comparison_conditions, candidate_gates, equal_count_uniform_uv,
-    quantized_samples,
+    prior_geometry_rows, quantized_samples,
 )
 
 
@@ -49,6 +49,16 @@ def test_fresh_pairs_cover_directions_without_seed_or_geometry_overlap():
     assert {item.direction for item in conditions} == set(range(8))
     assert {item.seed for item in conditions} == set(range(140001, 140033))
     assert {item.label for item in conditions} == {0, 1}
+
+
+def test_prior_geometry_normalizes_both_published_record_shapes():
+    old = {"condition": "safe_inward", "seed": 120001,
+           "target_radius": 150.0, "radial_speed": 29.0}
+    wrapped = {"condition": {"condition": "recovery_outward", "seed": 130001,
+                             "target_radius": 157.5, "radial_speed": 31.5}}
+    rows = prior_geometry_rows({"conditions": [old]}, {"condition_records": [wrapped]})
+    assert [row["seed"] for row in rows] == [120001, 130001]
+    assert [row["target_radius"] for row in rows] == [150.0, 157.5]
 
 
 def test_candidate_requires_minimum_direction_and_paired_gain():

@@ -118,6 +118,13 @@ def candidate_gates(metrics: dict[str, dict], operational: bool) -> dict[str, bo
     }
 
 
+def prior_geometry_rows(original: dict, parent: dict) -> list[dict]:
+    """Normalize original condition rows and validation record wrappers."""
+    rows = list(original["conditions"])
+    rows.extend(record["condition"] for record in parent["condition_records"])
+    return rows
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prior", type=Path, required=True,
@@ -151,13 +158,10 @@ def main() -> None:
     )
     projections = {"prepared": prepared, "uniform": uniform}
     conditions = build_comparison_conditions()
-    prior_conditions = original["conditions"] + parent["condition_records"]
-    source_seeds = {int(row.get("seed", row.get("condition", {}).get("seed")))
-                    for row in prior_conditions}
-    source_radii = {float(row.get("target_radius", row.get("condition", {}).get("target_radius")))
-                    for row in prior_conditions}
-    source_speeds = {float(row.get("radial_speed", row.get("condition", {}).get("radial_speed")))
-                     for row in prior_conditions}
+    prior_conditions = prior_geometry_rows(original, parent)
+    source_seeds = {int(row["seed"]) for row in prior_conditions}
+    source_radii = {float(row["target_radius"]) for row in prior_conditions}
+    source_speeds = {float(row["radial_speed"]) for row in prior_conditions}
     if (source_seeds.intersection(item.seed for item in conditions)
             or source_radii.intersection(RADII) or source_speeds.intersection(SPEEDS)):
         raise SystemExit("Projection comparison must use fresh seeds and geometry")
