@@ -11,7 +11,7 @@ to another computer.
 After restoring its GitHub Desktop stash, run from the repository root:
 
 ```bash
-test -z "$(git ls-files outputs)" && test -f outputs/asteroids/policy-temporal-saved-trace-capacity-v1/results.json && mkdir -p "$HOME/Documents/GitHub/doomfly-experiment-backup" && rsync -a outputs/ "$HOME/Documents/GitHub/doomfly-experiment-backup/outputs/" && EXCLUDE_FILE="$(git rev-parse --git-path info/exclude)" && { grep -qxF '/outputs/' "$EXCLUDE_FILE" || printf '\n/outputs/\n' >> "$EXCLUDE_FILE"; } && git check-ignore outputs/asteroids/policy-temporal-saved-trace-capacity-v1/results.json && test -f "$HOME/Documents/GitHub/doomfly-experiment-backup/outputs/asteroids/policy-temporal-saved-trace-capacity-v1/results.json"
+test -z "$(git ls-files outputs)" && test -f outputs/asteroids/policy-temporal-saved-trace-capacity-v1/results.json && mkdir -p "$HOME/Documents/GitHub/doomfly-experiment-backup" && rsync -a --progress outputs/ "$HOME/Documents/GitHub/doomfly-experiment-backup/outputs/" && EXCLUDE_FILE="$(git rev-parse --git-path info/exclude)" && { grep -qxF '/outputs/' "$EXCLUDE_FILE" || printf '\n/outputs/\n' >> "$EXCLUDE_FILE"; } && git check-ignore outputs/asteroids/policy-temporal-saved-trace-capacity-v1/results.json && test -f "$HOME/Documents/GitHub/doomfly-experiment-backup/outputs/asteroids/policy-temporal-saved-trace-capacity-v1/results.json"
 ```
 
 This backs up the entire outputs tree outside the repository and locally excludes
