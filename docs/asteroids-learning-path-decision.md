@@ -78,3 +78,27 @@ tests whether feedback reaches plastic edges and whether changed weights
 alter held-out actions or contacts. It cannot demonstrate avoidance learning
 with one training seed and two evaluation seeds; action and safety benefits
 would require stronger independent replication and a validated task readout.
+
+## Live synaptic pilot result — 2026-09-25 local time
+
+The one-seed live pilot completed. The plastic arm delivered 200 ms of actual
+collision-triggered PPL101 stimulation; 1,993 of 4,184 plastic edges changed.
+Its two frozen-weight evaluations had zero contacts, versus three contacts
+total and an earlier death in the fixed-weight arm. This is an encouraging
+exploratory observation, not a learning result: the timing-shifted arm died
+before its scheduled pulses, received zero stimulation, and still changed
+1,955 edges and avoided two of the fixed arm's three held-out contacts. The
+centered rule changes weights during endogenous KC/PPL101 activity even without
+imposed feedback. The shifted arm is therefore an invalid dose-matched control
+here. The second recorded plastic-arm pulse also started at terminal death and
+was never delivered; 200 ms, rather than the two scheduled pulses, reached the
+brain. None of the arms establishes the contribution of failure feedback.
+
+The immediate follow-up is a matched counterfactual replay of the plastic
+arm's exact training actions and encoded RGB frames, with the same rule active
+in both brains. One gets the observed damage pulse; the other has that pulse
+withheld. This isolates feedback from tonic weight drift and gameplay
+trajectory differences. The trained weights are then frozen for four new
+autonomous evaluation seeds. A positive difference in weights or actions is
+only a causal effect within this model; improved avoidance would still need
+substantial independently replicated, dose-controlled training and evaluation.
