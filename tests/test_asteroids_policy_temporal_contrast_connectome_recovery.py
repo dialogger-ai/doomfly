@@ -16,12 +16,12 @@ def test_validated_sequence_arrays_rejects_reordered_conditions(tmp_path):
     ) for name, label in (("safe_inward", 0), ("recovery_outward", 1)))
     path = tmp_path / "sequences.npz"
     np.savez_compressed(path,
-        structured_sequences=np.zeros((2, len(DECISION_TICK_INDICES), 2), dtype=np.float32),
+        structured_sequences=np.zeros((2, len(DECISION_TICK_INDICES), 4), dtype=np.float32),
         labels=np.array([0, 1]), directions=np.array([0, 0]),
         target_radii=np.array([150.0, 150.0]), radial_speeds=np.array([29.0, 29.0]),
         group_labels=np.array(["g0", "g1"]),
     )
-    encoder = {"output_features": 2, "population_groups": 2,
+    encoder = {"output_features": 4, "population_groups": 2,
                "group_labels_sha256": hashlib.sha256(b"g0\ng1").hexdigest()}
     sequences, labels, directions = validated_sequence_arrays(path, conditions, encoder)
     assert sequences.shape[0] == len(labels) == len(directions) == 2

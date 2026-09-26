@@ -58,7 +58,7 @@ def validated_sequence_arrays(archive: Path, conditions: tuple[MotionPairConditi
         sequence.ndim != 3
         or sequence.shape[0] != len(conditions)
         or sequence.shape[1] != len(DECISION_TICK_INDICES)
-        or sequence.shape[2] != len(groups)
+        or sequence.shape[2] != 2 * len(groups)
         or sequence.shape[2] != int(encoder["output_features"])
         or int(encoder["population_groups"]) != len(groups)
         or hashlib.sha256("\n".join(str(value) for value in groups).encode()).hexdigest() != encoder["group_labels_sha256"]
