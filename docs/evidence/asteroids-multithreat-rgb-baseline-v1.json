@@ -1,0 +1,570 @@
+{
+  "schema": 1,
+  "baseline": "asteroids-multithreat-rgb-engineered-baseline-v1",
+  "benchmark_evidence_sha256": "b3caec74104855f41ea93139100feecae7a21f992dde71034a7c3ccf958618d6",
+  "frozen_evaluation_controller_source_sha256": "f23c81c4c41c438acd63a0262726bca8ba4e98221a48b8652158d5fecd768155",
+  "development": {
+    "summary": {
+      "episodes": 11,
+      "contacts": 2,
+      "complete_horizon": 11,
+      "noop_fraction": 0.5696969696969697,
+      "active_action_fraction": 0.4303030303030303,
+      "mean_end_center_distance": 115.39016027667061,
+      "by_family": {
+        "blocked_gap": {
+          "episodes": 2,
+          "contacts": 2,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 149.0272058131471
+        },
+        "center_recovery": {
+          "episodes": 1,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 59.40424458085037
+        },
+        "continuous_reassessment": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 150.7919476242879
+        },
+        "risk_priority": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 157.07466138578872
+        },
+        "safe_noop": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "two_threats": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 148.0499444080394
+        }
+      }
+    },
+    "episodes": [
+      {
+        "scenario": "quiet-orientation-0",
+        "family": "safe_noop",
+        "split": "development",
+        "seed": 210001,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "ca7e9ddaefe9e6de1209a787459845ac916d482eede7777d4e352a97e3546b35",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "76b9f798b99f4e9966da1836cfe38adcbad10363cc0b1a8247ff2ca45c2ef70d"
+      },
+      {
+        "scenario": "crossfire-orientation-0",
+        "family": "two_threats",
+        "split": "development",
+        "seed": 210002,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "194e0f7ef5fd86c8ad302ed1237a8379d0bbfb5e9440e2529320ecd5c6a7cfce",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 148.8824063341164,
+        "action_counts": {
+          "NOOP": 72,
+          "LEFT": 33,
+          "RIGHT": 10,
+          "THRUST": 35,
+          "FIRE": 0
+        },
+        "trace_sha256": "5e69df9ead0f98c3abb537918d4972c438dac4471e6baa5bbb44df0a2a8e3a53"
+      },
+      {
+        "scenario": "near_decoy-orientation-0",
+        "family": "risk_priority",
+        "split": "development",
+        "seed": 210003,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "f201f0eed3e7d2cd97771167b43475b6ae62ee691a5523bb886499bd9914e776",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 151.5497168780516,
+        "action_counts": {
+          "NOOP": 57,
+          "LEFT": 21,
+          "RIGHT": 36,
+          "THRUST": 36,
+          "FIRE": 0
+        },
+        "trace_sha256": "9fdec38f1b686aca89153ab41e0334c4fdc21b3578c09f37d9851afde7554700"
+      },
+      {
+        "scenario": "blocked_escape-orientation-0",
+        "family": "blocked_gap",
+        "split": "development",
+        "seed": 210004,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "e86cf3d8705887f2e87b7560ee249de15e8e6cea58f4a8ad7875ea456f3c3d6e",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 1,
+        "end_health": 2,
+        "center_distance": 148.8393076432064,
+        "action_counts": {
+          "NOOP": 62,
+          "LEFT": 10,
+          "RIGHT": 54,
+          "THRUST": 24,
+          "FIRE": 0
+        },
+        "trace_sha256": "3dfa51c09a448333a60722c4b34d91c195f0f3ba22ece77b9a241e3fb54eb041"
+      },
+      {
+        "scenario": "staggered-orientation-0",
+        "family": "continuous_reassessment",
+        "split": "development",
+        "seed": 210005,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "bc860c202285f799df4a30e28a69f9742a43f6d6c7cd969666412cf8b256f1df",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 151.5437453736587,
+        "action_counts": {
+          "NOOP": 73,
+          "LEFT": 3,
+          "RIGHT": 44,
+          "THRUST": 30,
+          "FIRE": 0
+        },
+        "trace_sha256": "bec2a4ee32e16e8ef8ee559b847ee5adab22ce6e38967fd4bb7ff59e4e7b0415"
+      },
+      {
+        "scenario": "quiet-orientation-1",
+        "family": "safe_noop",
+        "split": "development",
+        "seed": 210006,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "358c9505d1c78cd09845308d18029fdf69f1c4667f8476183ed34d7fd0a00195",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "c8424bad4b34209c53795e72f1cf326df0f663a922fce8289ba001614ade0cdc"
+      },
+      {
+        "scenario": "crossfire-orientation-1",
+        "family": "two_threats",
+        "split": "development",
+        "seed": 210007,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "51ef012f1a1c1c34a6e3a2235be759d938339134cc6281a65dc81ed94dfd25e4",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 147.2174824819624,
+        "action_counts": {
+          "NOOP": 82,
+          "LEFT": 28,
+          "RIGHT": 6,
+          "THRUST": 34,
+          "FIRE": 0
+        },
+        "trace_sha256": "6e201704d43b0588025d86c39248f414aa6a2dc71cd933d05cb35102603feb66"
+      },
+      {
+        "scenario": "near_decoy-orientation-1",
+        "family": "risk_priority",
+        "split": "development",
+        "seed": 210008,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "f2acc597382beaa1ce8bfc1ae3e50b7a612f730c180011586e73d6d674247541",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 162.59960589352585,
+        "action_counts": {
+          "NOOP": 31,
+          "LEFT": 25,
+          "RIGHT": 44,
+          "THRUST": 50,
+          "FIRE": 0
+        },
+        "trace_sha256": "cf49aec5cba17023b487e69b779587337a4bb05945805f190649455281f85ae8"
+      },
+      {
+        "scenario": "blocked_escape-orientation-1",
+        "family": "blocked_gap",
+        "split": "development",
+        "seed": 210009,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "d19986aaa78346752a54c9730788fd449066b9399e572bc9ce7511b4630f2b02",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 1,
+        "end_health": 2,
+        "center_distance": 149.2151039830878,
+        "action_counts": {
+          "NOOP": 68,
+          "LEFT": 27,
+          "RIGHT": 27,
+          "THRUST": 28,
+          "FIRE": 0
+        },
+        "trace_sha256": "67d84c40dafcd3b7ce33d9b20e15737402a89f133b71c1b71140810db78407b4"
+      },
+      {
+        "scenario": "staggered-orientation-1",
+        "family": "continuous_reassessment",
+        "split": "development",
+        "seed": 210010,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "604e1247a83541735b7a59e2822f710c04e4eb6cdad271f6dd219c0fb3aaaee1",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 150.04014987491706,
+        "action_counts": {
+          "NOOP": 69,
+          "LEFT": 26,
+          "RIGHT": 20,
+          "THRUST": 35,
+          "FIRE": 0
+        },
+        "trace_sha256": "c72d49114865e1d7f572739ecb621cbbcb89332308b0fa998cc0b62571489497"
+      },
+      {
+        "scenario": "recovery-edge",
+        "family": "center_recovery",
+        "split": "development",
+        "seed": 210021,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "007d994915b1d481ab7c17bc3cc598416c25c2c9592bcec2084dd08fa34152a2",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 59.40424458085037,
+        "action_counts": {
+          "NOOP": 126,
+          "LEFT": 9,
+          "RIGHT": 0,
+          "THRUST": 15,
+          "FIRE": 0
+        },
+        "trace_sha256": "185b909fe7426d2297e607db64992ef9693082d59f1e97ca3ccad0c28a2a505d"
+      }
+    ],
+    "provenance_note": "Development run preceded a source-metadata addition and replacement of default config construction with the scenario config; both configs have the same observed width, height and physics in these scenarios."
+  },
+  "rotated_evaluation": {
+    "summary": {
+      "episodes": 10,
+      "contacts": 5,
+      "complete_horizon": 10,
+      "noop_fraction": 0.574,
+      "active_action_fraction": 0.426,
+      "mean_end_center_distance": 99.04995003677271,
+      "by_family": {
+        "blocked_gap": {
+          "episodes": 2,
+          "contacts": 3,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 88.91471409194432
+        },
+        "continuous_reassessment": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 151.31899364191378
+        },
+        "risk_priority": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 161.81479587916976
+        },
+        "safe_noop": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "two_threats": {
+          "episodes": 2,
+          "contacts": 2,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 93.20124657083576
+        }
+      }
+    },
+    "episodes": [
+      {
+        "scenario": "quiet-orientation-2",
+        "family": "safe_noop",
+        "split": "heldout",
+        "seed": 210011,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "27faae371eb1ec502c5023ac15b98b98196adf59543f837d1d28c95a1b130eaf",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "5c48af885b2be291dbe78d607a8017a3757afa0a5a5a1d04715c663076e5893d"
+      },
+      {
+        "scenario": "crossfire-orientation-2",
+        "family": "two_threats",
+        "split": "heldout",
+        "seed": 210012,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "933894ba2333ab176a1c8fd90a8474034ab7f1713c11672b6e34b23b89e81f26",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 152.70218998534642,
+        "action_counts": {
+          "NOOP": 94,
+          "LEFT": 3,
+          "RIGHT": 25,
+          "THRUST": 28,
+          "FIRE": 0
+        },
+        "trace_sha256": "7d3e7a673127d9409f23324f0913c4e3b021975bc966e3d03fc9f8b5b9e4f80e"
+      },
+      {
+        "scenario": "near_decoy-orientation-2",
+        "family": "risk_priority",
+        "split": "heldout",
+        "seed": 210013,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "a3ece4f90e5943b61cea39d85f5c9f8d9253071bbb03e24cbb0f8e698279e2e0",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 172.99600862328222,
+        "action_counts": {
+          "NOOP": 25,
+          "LEFT": 28,
+          "RIGHT": 46,
+          "THRUST": 51,
+          "FIRE": 0
+        },
+        "trace_sha256": "e7878bfe895aa4164cca729c67e856252bc1b411af8d187510ce4cbb767f0b02"
+      },
+      {
+        "scenario": "blocked_escape-orientation-2",
+        "family": "blocked_gap",
+        "split": "heldout",
+        "seed": 210014,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "85537fd6359413579b544fe21928f62c360bf40c76d96cef84eff3f220be1059",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 2,
+        "end_health": 1,
+        "center_distance": 34.25706613610723,
+        "action_counts": {
+          "NOOP": 96,
+          "LEFT": 18,
+          "RIGHT": 34,
+          "THRUST": 2,
+          "FIRE": 0
+        },
+        "trace_sha256": "45732edf589f597cbb091d23980728913ba59adf893ef2222c35ef8fe355cf4f"
+      },
+      {
+        "scenario": "staggered-orientation-2",
+        "family": "continuous_reassessment",
+        "split": "heldout",
+        "seed": 210015,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "ae8acb69d6f5b06069accfac77653c0e88751331d27d9e1b8290f489d7bb48ef",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 151.031743459437,
+        "action_counts": {
+          "NOOP": 66,
+          "LEFT": 29,
+          "RIGHT": 26,
+          "THRUST": 29,
+          "FIRE": 0
+        },
+        "trace_sha256": "c82a7d85d76ddc9992cc1c81f8482051463269e67e2a9a3a640029d9db192c3e"
+      },
+      {
+        "scenario": "quiet-orientation-3",
+        "family": "safe_noop",
+        "split": "heldout",
+        "seed": 210016,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "bcb748b64e291ac8c8fa2e77e7444cc5cb5db88a9d672ecbbfdeb6c663e0b736",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "b77c1880ee6d137ec6d8d8518bedabb732a129a335f51b3d5ab717e9beaa8c51"
+      },
+      {
+        "scenario": "crossfire-orientation-3",
+        "family": "two_threats",
+        "split": "heldout",
+        "seed": 210017,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "e386ebd96cf7592faff77d582c7b558b72c23d3db2680b1bbd0a2998e9c3cdb4",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 2,
+        "end_health": 1,
+        "center_distance": 33.7003031563251,
+        "action_counts": {
+          "NOOP": 87,
+          "LEFT": 30,
+          "RIGHT": 31,
+          "THRUST": 2,
+          "FIRE": 0
+        },
+        "trace_sha256": "a535905d9cc6c1578cfd55752e7a349ec50702f1870c082b938db83df17b8fb7"
+      },
+      {
+        "scenario": "near_decoy-orientation-3",
+        "family": "risk_priority",
+        "split": "heldout",
+        "seed": 210018,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "3fdc5ffe9cd0e25fc8e772a7246d1f46382a85bce25b0c85f6aa13e7adf48426",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 150.63358313505728,
+        "action_counts": {
+          "NOOP": 52,
+          "LEFT": 21,
+          "RIGHT": 36,
+          "THRUST": 41,
+          "FIRE": 0
+        },
+        "trace_sha256": "62222303770d2862d9926cbd6e516b3d01a2d62d5fecb078e3278e19c40c6545"
+      },
+      {
+        "scenario": "blocked_escape-orientation-3",
+        "family": "blocked_gap",
+        "split": "heldout",
+        "seed": 210019,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "04facd8e015e53174fb36fc9749fe14f13c1ae296602bb91bee5fbd3eee71345",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 1,
+        "end_health": 2,
+        "center_distance": 143.5723620477814,
+        "action_counts": {
+          "NOOP": 65,
+          "LEFT": 15,
+          "RIGHT": 57,
+          "THRUST": 13,
+          "FIRE": 0
+        },
+        "trace_sha256": "35f3886bfdcb3e8618df2271dff05054631e7935f551aa8e3ef93209ebcd493a"
+      },
+      {
+        "scenario": "staggered-orientation-3",
+        "family": "continuous_reassessment",
+        "split": "heldout",
+        "seed": 210020,
+        "mode": "visual_controller",
+        "initial_frame_sha256": "f930742aec12e15d651e1f6bd6f81320f06eacd591d9f9c314646cc1af16a66e",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 151.60624382439053,
+        "action_counts": {
+          "NOOP": 76,
+          "LEFT": 0,
+          "RIGHT": 41,
+          "THRUST": 33,
+          "FIRE": 0
+        },
+        "trace_sha256": "df3ee1b02e790305647ea1d26bff12d04663f82f3be824e776216aa0f3259558"
+      }
+    ],
+    "protocol": {
+      "schema": 1,
+      "baseline": "asteroids-multithreat-rgb-engineered-baseline-v1",
+      "benchmark": "asteroids-multithreat-gameplay-benchmark-v1",
+      "controller_source_sha256": "f23c81c4c41c438acd63a0262726bca8ba4e98221a48b8652158d5fecd768155",
+      "benchmark_evidence_sha256": "b3caec74104855f41ea93139100feecae7a21f992dde71034a7c3ccf958618d6",
+      "split": "heldout",
+      "scenarios": [
+        "quiet-orientation-2",
+        "crossfire-orientation-2",
+        "near_decoy-orientation-2",
+        "blocked_escape-orientation-2",
+        "staggered-orientation-2",
+        "quiet-orientation-3",
+        "crossfire-orientation-3",
+        "near_decoy-orientation-3",
+        "blocked_escape-orientation-3",
+        "staggered-orientation-3"
+      ],
+      "input": "live game RGB only; game-specific color segmentation and frame-to-frame tracking",
+      "rule": "test all projected rock clearances, then fixed turn/thrust conversion; center recovery on safe frames",
+      "learning": false,
+      "connectome": false,
+      "claim_limit": "Explicit engineered software baseline, not fly-brain control or learning"
+    }
+  },
+  "visual_only": true,
+  "connectome_learning_tested": false,
+  "claim_limit": "Exact-color software baseline, 10 rotated known-family evaluation scenes; new geometry is needed for an independent performance claim."
+}
