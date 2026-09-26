@@ -1,0 +1,936 @@
+{
+  "schema": 1,
+  "benchmark": "asteroids-multithreat-gameplay-benchmark-v1",
+  "complete": true,
+  "scenario_count": 21,
+  "development_scenarios": [
+    "quiet-orientation-0",
+    "crossfire-orientation-0",
+    "near_decoy-orientation-0",
+    "blocked_escape-orientation-0",
+    "staggered-orientation-0",
+    "quiet-orientation-1",
+    "crossfire-orientation-1",
+    "near_decoy-orientation-1",
+    "blocked_escape-orientation-1",
+    "staggered-orientation-1",
+    "recovery-edge"
+  ],
+  "heldout_scenarios": [
+    "quiet-orientation-2",
+    "crossfire-orientation-2",
+    "near_decoy-orientation-2",
+    "blocked_escape-orientation-2",
+    "staggered-orientation-2",
+    "quiet-orientation-3",
+    "crossfire-orientation-3",
+    "near_decoy-orientation-3",
+    "blocked_escape-orientation-3",
+    "staggered-orientation-3"
+  ],
+  "scenarios": [
+    {
+      "name": "quiet-orientation-0",
+      "family": "safe_noop",
+      "split": "development",
+      "seed": 210001,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 0.0,
+      "rocks": [
+        {
+          "x": 155.0,
+          "y": 145.0,
+          "vx": -50.0,
+          "vy": -25.0,
+          "radius": 18.0
+        },
+        {
+          "x": 485.0,
+          "y": 335.0,
+          "vx": 50.0,
+          "vy": 25.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "crossfire-orientation-0",
+      "family": "two_threats",
+      "split": "development",
+      "seed": 210002,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 0.0,
+      "rocks": [
+        {
+          "x": 165.0,
+          "y": 240.0,
+          "vx": 85.0,
+          "vy": 0.0,
+          "radius": 18.0
+        },
+        {
+          "x": 475.0,
+          "y": 240.0,
+          "vx": -85.0,
+          "vy": 0.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "near_decoy-orientation-0",
+      "family": "risk_priority",
+      "split": "development",
+      "seed": 210003,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 0.0,
+      "rocks": [
+        {
+          "x": 240.0,
+          "y": 180.0,
+          "vx": -65.0,
+          "vy": -25.0,
+          "radius": 18.0
+        },
+        {
+          "x": 480.0,
+          "y": 245.0,
+          "vx": -85.0,
+          "vy": 0.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "blocked_escape-orientation-0",
+      "family": "blocked_gap",
+      "split": "development",
+      "seed": 210004,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 0.0,
+      "rocks": [
+        {
+          "x": 170.0,
+          "y": 240.0,
+          "vx": 85.0,
+          "vy": 0.0,
+          "radius": 18.0
+        },
+        {
+          "x": 320.0,
+          "y": 125.0,
+          "vx": 0.0,
+          "vy": 72.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "staggered-orientation-0",
+      "family": "continuous_reassessment",
+      "split": "development",
+      "seed": 210005,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 0.0,
+      "rocks": [
+        {
+          "x": 175.0,
+          "y": 230.0,
+          "vx": 80.0,
+          "vy": 0.0,
+          "radius": 18.0
+        },
+        {
+          "x": 495.0,
+          "y": 168.0,
+          "vx": -92.0,
+          "vy": 28.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "quiet-orientation-1",
+      "family": "safe_noop",
+      "split": "development",
+      "seed": 210006,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 90.0,
+      "rocks": [
+        {
+          "x": 415.0,
+          "y": 75.0,
+          "vx": 24.999999999999996,
+          "vy": -50.0,
+          "radius": 18.0
+        },
+        {
+          "x": 225.0,
+          "y": 405.0,
+          "vx": -24.999999999999996,
+          "vy": 50.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "crossfire-orientation-1",
+      "family": "two_threats",
+      "split": "development",
+      "seed": 210007,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 90.0,
+      "rocks": [
+        {
+          "x": 320.0,
+          "y": 85.0,
+          "vx": 5.204748896376251e-15,
+          "vy": 85.0,
+          "radius": 18.0
+        },
+        {
+          "x": 320.0,
+          "y": 395.0,
+          "vx": -5.204748896376251e-15,
+          "vy": -85.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "near_decoy-orientation-1",
+      "family": "risk_priority",
+      "split": "development",
+      "seed": 210008,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 90.0,
+      "rocks": [
+        {
+          "x": 380.0,
+          "y": 160.0,
+          "vx": 24.999999999999996,
+          "vy": -65.0,
+          "radius": 18.0
+        },
+        {
+          "x": 315.0,
+          "y": 400.0,
+          "vx": -5.204748896376251e-15,
+          "vy": -85.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "blocked_escape-orientation-1",
+      "family": "blocked_gap",
+      "split": "development",
+      "seed": 210009,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 90.0,
+      "rocks": [
+        {
+          "x": 320.0,
+          "y": 90.0,
+          "vx": 5.204748896376251e-15,
+          "vy": 85.0,
+          "radius": 18.0
+        },
+        {
+          "x": 435.0,
+          "y": 240.0,
+          "vx": -72.0,
+          "vy": 4.408728476930472e-15,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "staggered-orientation-1",
+      "family": "continuous_reassessment",
+      "split": "development",
+      "seed": 210010,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 90.0,
+      "rocks": [
+        {
+          "x": 330.0,
+          "y": 95.0,
+          "vx": 4.898587196589413e-15,
+          "vy": 80.0,
+          "radius": 18.0
+        },
+        {
+          "x": 392.0,
+          "y": 415.0,
+          "vx": -28.000000000000007,
+          "vy": -92.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "quiet-orientation-2",
+      "family": "safe_noop",
+      "split": "heldout",
+      "seed": 210011,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 180.0,
+      "rocks": [
+        {
+          "x": 485.0,
+          "y": 335.0,
+          "vx": 50.0,
+          "vy": 24.999999999999993,
+          "radius": 18.0
+        },
+        {
+          "x": 155.0,
+          "y": 145.00000000000003,
+          "vx": -50.0,
+          "vy": -24.999999999999993,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "crossfire-orientation-2",
+      "family": "two_threats",
+      "split": "heldout",
+      "seed": 210012,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 180.0,
+      "rocks": [
+        {
+          "x": 475.0,
+          "y": 239.99999999999997,
+          "vx": -85.0,
+          "vy": 1.0409497792752502e-14,
+          "radius": 18.0
+        },
+        {
+          "x": 165.0,
+          "y": 240.00000000000003,
+          "vx": 85.0,
+          "vy": -1.0409497792752502e-14,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "near_decoy-orientation-2",
+      "family": "risk_priority",
+      "split": "heldout",
+      "seed": 210013,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 180.0,
+      "rocks": [
+        {
+          "x": 400.0,
+          "y": 300.0,
+          "vx": 65.0,
+          "vy": 24.999999999999993,
+          "radius": 18.0
+        },
+        {
+          "x": 160.0,
+          "y": 235.00000000000003,
+          "vx": 85.0,
+          "vy": -1.0409497792752502e-14,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "blocked_escape-orientation-2",
+      "family": "blocked_gap",
+      "split": "heldout",
+      "seed": 210014,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 180.0,
+      "rocks": [
+        {
+          "x": 470.0,
+          "y": 239.99999999999997,
+          "vx": -85.0,
+          "vy": 1.0409497792752502e-14,
+          "radius": 18.0
+        },
+        {
+          "x": 320.0,
+          "y": 355.0,
+          "vx": -8.817456953860943e-15,
+          "vy": -72.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "staggered-orientation-2",
+      "family": "continuous_reassessment",
+      "split": "heldout",
+      "seed": 210015,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 180.0,
+      "rocks": [
+        {
+          "x": 465.0,
+          "y": 249.99999999999997,
+          "vx": -80.0,
+          "vy": 9.797174393178826e-15,
+          "radius": 18.0
+        },
+        {
+          "x": 145.0,
+          "y": 312.0,
+          "vx": 92.0,
+          "vy": -28.00000000000001,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "quiet-orientation-3",
+      "family": "safe_noop",
+      "split": "heldout",
+      "seed": 210016,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 270.0,
+      "rocks": [
+        {
+          "x": 225.00000000000006,
+          "y": 405.0,
+          "vx": -24.99999999999999,
+          "vy": 50.00000000000001,
+          "radius": 18.0
+        },
+        {
+          "x": 414.99999999999994,
+          "y": 74.99999999999999,
+          "vx": 24.99999999999999,
+          "vy": -50.00000000000001,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "crossfire-orientation-3",
+      "family": "two_threats",
+      "split": "heldout",
+      "seed": 210017,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 270.0,
+      "rocks": [
+        {
+          "x": 320.00000000000006,
+          "y": 395.0,
+          "vx": -1.5614246689128753e-14,
+          "vy": -85.0,
+          "radius": 18.0
+        },
+        {
+          "x": 319.99999999999994,
+          "y": 85.0,
+          "vx": 1.5614246689128753e-14,
+          "vy": 85.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "near_decoy-orientation-3",
+      "family": "risk_priority",
+      "split": "heldout",
+      "seed": 210018,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 270.0,
+      "rocks": [
+        {
+          "x": 260.0,
+          "y": 320.0,
+          "vx": -24.99999999999999,
+          "vy": 65.0,
+          "radius": 18.0
+        },
+        {
+          "x": 324.99999999999994,
+          "y": 80.0,
+          "vx": 1.5614246689128753e-14,
+          "vy": 85.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "blocked_escape-orientation-3",
+      "family": "blocked_gap",
+      "split": "heldout",
+      "seed": 210019,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 270.0,
+      "rocks": [
+        {
+          "x": 320.0,
+          "y": 390.0,
+          "vx": -1.5614246689128753e-14,
+          "vy": -85.0,
+          "radius": 18.0
+        },
+        {
+          "x": 205.0,
+          "y": 240.00000000000003,
+          "vx": 72.0,
+          "vy": -1.3226185430791413e-14,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "staggered-orientation-3",
+      "family": "continuous_reassessment",
+      "split": "heldout",
+      "seed": 210020,
+      "ship_x": 320.0,
+      "ship_y": 240.0,
+      "ship_vx": 0.0,
+      "ship_vy": 0.0,
+      "heading": 270.0,
+      "rocks": [
+        {
+          "x": 310.0,
+          "y": 385.0,
+          "vx": -1.4695761589768237e-14,
+          "vy": -80.0,
+          "radius": 18.0
+        },
+        {
+          "x": 247.99999999999994,
+          "y": 65.00000000000001,
+          "vx": 28.000000000000018,
+          "vy": 92.0,
+          "radius": 18.0
+        }
+      ]
+    },
+    {
+      "name": "recovery-edge",
+      "family": "center_recovery",
+      "split": "development",
+      "seed": 210021,
+      "ship_x": 510.0,
+      "ship_y": 340.0,
+      "ship_vx": 20.0,
+      "ship_vy": 0.0,
+      "heading": 0.0,
+      "rocks": []
+    }
+  ],
+  "modes": {
+    "noop": {
+      "episodes": 21,
+      "contacts": 28,
+      "complete_horizon": 21,
+      "noop_fraction": 1.0,
+      "active_action_fraction": 0.0,
+      "mean_end_center_distance": 14.442800691187962,
+      "by_family": {
+        "blocked_gap": {
+          "episodes": 4,
+          "contacts": 8,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "center_recovery": {
+          "episodes": 1,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 303.2988145149472
+        },
+        "continuous_reassessment": {
+          "episodes": 4,
+          "contacts": 8,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "risk_priority": {
+          "episodes": 4,
+          "contacts": 4,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "safe_noop": {
+          "episodes": 4,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "two_threats": {
+          "episodes": 4,
+          "contacts": 8,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        }
+      }
+    },
+    "single_threat_oracle": {
+      "episodes": 21,
+      "contacts": 4,
+      "complete_horizon": 21,
+      "noop_fraction": 0.5434920634920635,
+      "active_action_fraction": 0.45650793650793653,
+      "mean_end_center_distance": 126.01889587253737,
+      "by_family": {
+        "blocked_gap": {
+          "episodes": 4,
+          "contacts": 4,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 157.25978114631113
+        },
+        "center_recovery": {
+          "episodes": 1,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 79.30174078078139
+        },
+        "continuous_reassessment": {
+          "episodes": 4,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 163.8366326209902
+        },
+        "risk_priority": {
+          "episodes": 4,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 155.32237504648347
+        },
+        "safe_noop": {
+          "episodes": 4,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "two_threats": {
+          "episodes": 4,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 165.35497932184109
+        }
+      }
+    }
+  },
+  "paired": [
+    {
+      "scenario": "quiet-orientation-0",
+      "family": "safe_noop",
+      "split": "development",
+      "noop_contacts": 0,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "ca7e9ddaefe9e6de1209a787459845ac916d482eede7777d4e352a97e3546b35",
+      "noop_trace_sha256": "76b9f798b99f4e9966da1836cfe38adcbad10363cc0b1a8247ff2ca45c2ef70d",
+      "oracle_trace_sha256": "76b9f798b99f4e9966da1836cfe38adcbad10363cc0b1a8247ff2ca45c2ef70d"
+    },
+    {
+      "scenario": "crossfire-orientation-0",
+      "family": "two_threats",
+      "split": "development",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "194e0f7ef5fd86c8ad302ed1237a8379d0bbfb5e9440e2529320ecd5c6a7cfce",
+      "noop_trace_sha256": "f0cef54b6734aed3739f65c4b87b53872d9de8c9552847b0331406f3814a888c",
+      "oracle_trace_sha256": "41a1f41e13721c49c50b6ce8989e9bf75ffe0470884b1eb256ea0fa1229bc601"
+    },
+    {
+      "scenario": "near_decoy-orientation-0",
+      "family": "risk_priority",
+      "split": "development",
+      "noop_contacts": 1,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "f201f0eed3e7d2cd97771167b43475b6ae62ee691a5523bb886499bd9914e776",
+      "noop_trace_sha256": "f61006be49e748e69fac63fe2573cb12575155b35b7838d434363274c8b6658b",
+      "oracle_trace_sha256": "a57f28dc8783db3ec8e12c290c7b0312ffcdfc3c11376a1932b2d4a76fc1d1ed"
+    },
+    {
+      "scenario": "blocked_escape-orientation-0",
+      "family": "blocked_gap",
+      "split": "development",
+      "noop_contacts": 2,
+      "oracle_contacts": 1,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "e86cf3d8705887f2e87b7560ee249de15e8e6cea58f4a8ad7875ea456f3c3d6e",
+      "noop_trace_sha256": "91e0d9cb1e4a857453a6487b3599f4d8c7886778cb1ae3e8fb4fe0febd338fb8",
+      "oracle_trace_sha256": "64141b2c7257e67112271ef4264250e5e9c4087e9db0d6d2464a15ca4d9c2b25"
+    },
+    {
+      "scenario": "staggered-orientation-0",
+      "family": "continuous_reassessment",
+      "split": "development",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "bc860c202285f799df4a30e28a69f9742a43f6d6c7cd969666412cf8b256f1df",
+      "noop_trace_sha256": "494947404ecf8039865a01dc65901a20a6d7e39fb92e57bef6b21a0bb96e4bed",
+      "oracle_trace_sha256": "57ab5464b6ca0b0f3dfb7ab4a6e95fec2ac424f634ac9dced8dc08d438c70ef0"
+    },
+    {
+      "scenario": "quiet-orientation-1",
+      "family": "safe_noop",
+      "split": "development",
+      "noop_contacts": 0,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "358c9505d1c78cd09845308d18029fdf69f1c4667f8476183ed34d7fd0a00195",
+      "noop_trace_sha256": "c8424bad4b34209c53795e72f1cf326df0f663a922fce8289ba001614ade0cdc",
+      "oracle_trace_sha256": "c8424bad4b34209c53795e72f1cf326df0f663a922fce8289ba001614ade0cdc"
+    },
+    {
+      "scenario": "crossfire-orientation-1",
+      "family": "two_threats",
+      "split": "development",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "51ef012f1a1c1c34a6e3a2235be759d938339134cc6281a65dc81ed94dfd25e4",
+      "noop_trace_sha256": "6a097e3ab2f08ab885d7a36c006b8cb2c9f567a1b4f42b7b58706926684a078b",
+      "oracle_trace_sha256": "d2bb9224ef3bf5ee8e01edb923f5883a16dcf27c37f1c119054df1f915bbc5b6"
+    },
+    {
+      "scenario": "near_decoy-orientation-1",
+      "family": "risk_priority",
+      "split": "development",
+      "noop_contacts": 1,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "f2acc597382beaa1ce8bfc1ae3e50b7a612f730c180011586e73d6d674247541",
+      "noop_trace_sha256": "47daadf4a6a89286a3324051a9585df01a2ec12f326e8dfb0a57d50ab54c5dbc",
+      "oracle_trace_sha256": "bc66d34956e580c76d427b7d55fde5c5ec388da7fbcde3866fca5bc6365e4a3d"
+    },
+    {
+      "scenario": "blocked_escape-orientation-1",
+      "family": "blocked_gap",
+      "split": "development",
+      "noop_contacts": 2,
+      "oracle_contacts": 1,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "d19986aaa78346752a54c9730788fd449066b9399e572bc9ce7511b4630f2b02",
+      "noop_trace_sha256": "1897d2cc5f07ffb08cf946f74759141570f20470a8c317a9f29692890d6209c4",
+      "oracle_trace_sha256": "8a2ca3bc744265d2d0cabe749514885e01a216864f2a725c2e5943a048854e93"
+    },
+    {
+      "scenario": "staggered-orientation-1",
+      "family": "continuous_reassessment",
+      "split": "development",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "604e1247a83541735b7a59e2822f710c04e4eb6cdad271f6dd219c0fb3aaaee1",
+      "noop_trace_sha256": "e7002bda24ec1c714ddbd859f41c11f2746f88ee1d3ea55e331d2c8fe5b74d02",
+      "oracle_trace_sha256": "7b7ef4593b211a5c1689723eacb27fff35b3d0161bc10c77224faaa00d152af6"
+    },
+    {
+      "scenario": "quiet-orientation-2",
+      "family": "safe_noop",
+      "split": "heldout",
+      "noop_contacts": 0,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "27faae371eb1ec502c5023ac15b98b98196adf59543f837d1d28c95a1b130eaf",
+      "noop_trace_sha256": "5c48af885b2be291dbe78d607a8017a3757afa0a5a5a1d04715c663076e5893d",
+      "oracle_trace_sha256": "5c48af885b2be291dbe78d607a8017a3757afa0a5a5a1d04715c663076e5893d"
+    },
+    {
+      "scenario": "crossfire-orientation-2",
+      "family": "two_threats",
+      "split": "heldout",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "933894ba2333ab176a1c8fd90a8474034ab7f1713c11672b6e34b23b89e81f26",
+      "noop_trace_sha256": "c397b13247b4701c1800660e430b7378cb4033aa1007e8293fe2315815a84d2b",
+      "oracle_trace_sha256": "c3833af17c298713c4192ebebf3b272352826d8c2b81a3409c8832e6ebf530c9"
+    },
+    {
+      "scenario": "near_decoy-orientation-2",
+      "family": "risk_priority",
+      "split": "heldout",
+      "noop_contacts": 1,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "a3ece4f90e5943b61cea39d85f5c9f8d9253071bbb03e24cbb0f8e698279e2e0",
+      "noop_trace_sha256": "c3c028fbfced7b96d20dcbed0b303e51ea1ac827c16d5b47f4439c4f1eb9d112",
+      "oracle_trace_sha256": "49f5a04b7796a33b84971e86ec127dddc7a5d275c581e6c48ec51b7b6bea2e84"
+    },
+    {
+      "scenario": "blocked_escape-orientation-2",
+      "family": "blocked_gap",
+      "split": "heldout",
+      "noop_contacts": 2,
+      "oracle_contacts": 1,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "85537fd6359413579b544fe21928f62c360bf40c76d96cef84eff3f220be1059",
+      "noop_trace_sha256": "da56b9e20468ea7e8d04571759cc44ceacf1791175d0c0a50ff993191e327e44",
+      "oracle_trace_sha256": "675b93667d123eebda261cbda59a3d2632d79241f58dd000bc9a9c7becb57187"
+    },
+    {
+      "scenario": "staggered-orientation-2",
+      "family": "continuous_reassessment",
+      "split": "heldout",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "ae8acb69d6f5b06069accfac77653c0e88751331d27d9e1b8290f489d7bb48ef",
+      "noop_trace_sha256": "c10443b03bd66e09a386d7f181beb519b4afa3a514d575e90194072a73fb41b7",
+      "oracle_trace_sha256": "452c697b7174c4d78f7a99c96f7376c544308cec8cfc0242c6dd6328c5771f70"
+    },
+    {
+      "scenario": "quiet-orientation-3",
+      "family": "safe_noop",
+      "split": "heldout",
+      "noop_contacts": 0,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "bcb748b64e291ac8c8fa2e77e7444cc5cb5db88a9d672ecbbfdeb6c663e0b736",
+      "noop_trace_sha256": "b77c1880ee6d137ec6d8d8518bedabb732a129a335f51b3d5ab717e9beaa8c51",
+      "oracle_trace_sha256": "b77c1880ee6d137ec6d8d8518bedabb732a129a335f51b3d5ab717e9beaa8c51"
+    },
+    {
+      "scenario": "crossfire-orientation-3",
+      "family": "two_threats",
+      "split": "heldout",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "e386ebd96cf7592faff77d582c7b558b72c23d3db2680b1bbd0a2998e9c3cdb4",
+      "noop_trace_sha256": "cf11519a0b01cf197a8ca9bd3368fec9fee602f3cfc9030900b21e1142b24024",
+      "oracle_trace_sha256": "c97060d0a59631a7e7edf2c06b83d083af2fd779a5fabbe1ac604d43a2ba67eb"
+    },
+    {
+      "scenario": "near_decoy-orientation-3",
+      "family": "risk_priority",
+      "split": "heldout",
+      "noop_contacts": 1,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "3fdc5ffe9cd0e25fc8e772a7246d1f46382a85bce25b0c85f6aa13e7adf48426",
+      "noop_trace_sha256": "58e4bad589c66e11484c647be60fdd43801028189041e4d5b11d1f706e561ab6",
+      "oracle_trace_sha256": "8efc1409fc4da03bef321cef05794b7fff974e4a720ff065671a07fde89d4422"
+    },
+    {
+      "scenario": "blocked_escape-orientation-3",
+      "family": "blocked_gap",
+      "split": "heldout",
+      "noop_contacts": 2,
+      "oracle_contacts": 1,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "04facd8e015e53174fb36fc9749fe14f13c1ae296602bb91bee5fbd3eee71345",
+      "noop_trace_sha256": "c8744f4765b44f77233fbcd7cf3e1f2cb3d87f803bdb3d09e5801ad6c45cea37",
+      "oracle_trace_sha256": "38171c7d255f54624701f29f1b7daed534e1b6969003d8d0aa590c58e01d801a"
+    },
+    {
+      "scenario": "staggered-orientation-3",
+      "family": "continuous_reassessment",
+      "split": "heldout",
+      "noop_contacts": 2,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "f930742aec12e15d651e1f6bd6f81320f06eacd591d9f9c314646cc1af16a66e",
+      "noop_trace_sha256": "08a9b80f3a347e6776d212b7863df5f64ee5cb47cdfaa354a792ad68f6cb07d5",
+      "oracle_trace_sha256": "d6cdf4614dc68da4caa34c8caa92188dd1e731fd19f97d648b546fd141a21898"
+    },
+    {
+      "scenario": "recovery-edge",
+      "family": "center_recovery",
+      "split": "development",
+      "noop_contacts": 0,
+      "oracle_contacts": 0,
+      "noop_seconds": 5.0,
+      "oracle_seconds": 5.0,
+      "initial_frame_sha256": "007d994915b1d481ab7c17bc3cc598416c25c2c9592bcec2084dd08fa34152a2",
+      "noop_trace_sha256": "ed39d12abc1d5068288d755de544407bb095792498541f986c37b4ec9a142495",
+      "oracle_trace_sha256": "07c639ed67796954240e655a41888c3bd9709122cd54ff06ac4a001d038ca657"
+    }
+  ],
+  "visual_policy_evaluated": false,
+  "connectome_learning_tested": false,
+  "claim_limit": "Seeded game-only NOOP and privileged geometry reference. Rotated heldout scenes are not independent novel geometries; no RGB-only or fly controller passed this benchmark."
+}
