@@ -135,3 +135,15 @@ Separately, prioritize a clearly labeled live-visual multi-threat avoidance
 baseline and benchmark for the SpaceWERX product goal. Its engineered
 components and any reward training must remain explicit; success there would
 not validate fly synaptic learning.
+
+## Separate product benchmark and RGB software control
+
+The game-only multi-threat benchmark and exact-color RGB controller are
+recorded in `docs/asteroids-multithreat-benchmark.md` and
+`docs/asteroids-multithreat-rgb-baseline.md`. The latter uses live pixels but
+does not simulate the fly brain or learn. On ten rotated evaluation scenes it
+took 5 contacts versus 14 for NOOP and 2 for the privileged geometry
+reference; it kept quiet scenes on NOOP but failed blocked-gap cases and one
+crossfire orientation. Preserve the evaluation outcome without tuning on it.
+This provides a concrete software target while the biological learning
+interpretation is reassessed; no fly avoidance claim follows from it.
