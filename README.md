@@ -2,6 +2,8 @@
 
 ## Active branch tracks
 
+**This branch is the gameplay baseline.** Use it to watch and fix the fly-driven Asteroids loop; its first full Mac smoke test is pending. Keep new training experiments on `training`.
+
 **main** is the Asteroids gameplay track, including the [watched full-connectome play loop](docs/asteroids-multithreat-fly-play-loop.md). Its actor uses modeled neural state and may receive reward updates, but improved avoidance and synaptic learning are unproven. **training** is where new visual, actor-learning and plasticity experiments continue. The older `codex/asteroids-integration` branch is a preserved snapshot. See [branch workflow](docs/branch-workflow.md). Choose the branch in GitHub Desktop, then Fetch origin and Pull origin.
 
 The ViZDoom material below is retained as project history; the active gameplay direction is Asteroids.
