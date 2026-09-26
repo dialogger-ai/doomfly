@@ -23,7 +23,7 @@ import math
 import os
 from pathlib import Path
 import time
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -189,7 +189,10 @@ def run_state_feature_condition(
     warmup_ms: float,
     deliverer: Any,
     warmup_frame: np.ndarray | None = None,
+    tick_observer: Callable[[int, PixelBrain, np.ndarray], None] | None = None,
 ) -> StateFeatureRun:
+    if tick_observer is not None and not callable(tick_observer):
+        raise ValueError("Tick observer must be callable")
     if not frames:
         raise ValueError("At least one RGB frame is required")
     shape = frames[0].shape
@@ -266,6 +269,8 @@ def run_state_feature_condition(
         if brain.cursor - origin != expected:
             raise ValueError("Brain cursor did not match the game clock")
         state = _state_vector(brain, observed)
+        if tick_observer is not None:
+            tick_observer(tick, brain, spikes)
         rows.append(state)
         state_hasher.update(state.tobytes())
         total_spikes += int(spikes[observed].sum(dtype=np.int64))
