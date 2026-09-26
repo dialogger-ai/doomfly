@@ -102,3 +102,36 @@ trajectory differences. The trained weights are then frozen for four new
 autonomous evaluation seeds. A positive difference in weights or actions is
 only a causal effect within this model; improved avoidance would still need
 substantial independently replicated, dose-controlled training and evaluation.
+
+## Matched feedback counterfactual result — 2026-09-25 local time
+
+`doomfly-feedback-counterfactual-results.json` completed with all eight
+controls true, including exact source-weight reproduction and identical
+scripted training actions, encoded frame hashes, and damage events. The
+feedback replay delivered 200 ms of PPL101 stimulation; the withheld replay
+delivered none. Both had the same 3.53-second terminal training trajectory.
+
+Feedback changed the candidate KC→MBON11 efficacies beyond the endogenous
+rule's drift: 1,993 changed edges and mean efficacy 1.1616 with feedback,
+versus 1,881 and 1.1573 without it. The resulting frozen controllers chose
+different actions in 94–144 ticks per common held-out trajectory. That is a
+causal modeled weight and action effect of the imposed pulse under matched
+training input.
+
+On four new evaluation seeds, feedback caused 8 contacts versus 4 without
+the pulse; survival was shorter with feedback in all four pairs (7.27 versus
+8.00, 5.43 versus 5.50, 5.33 versus 8.00, and 4.67 versus 8.00 seconds).
+This small sample is not a general estimate of harm, but it refutes promotion
+of the current +4 PPL101 damage-pulse protocol as a demonstrated avoidance
+learner. The no-pulse arm also changed 1,881 edges, so the present centered
+rule is not exclusively damage gated. Preserve all checkpoints and results;
+do not select an opposite pulse sign, larger dose, or preferred evaluation
+seed from these four outcomes.
+
+Pause this exact synaptic training recipe. The next scientific work should
+justify the plasticity and reinforcement interpretation independently and
+predeclare a genuinely informative multi-seed learning test before resuming.
+Separately, prioritize a clearly labeled live-visual multi-threat avoidance
+baseline and benchmark for the SpaceWERX product goal. Its engineered
+components and any reward training must remain explicit; success there would
+not validate fly synaptic learning.
