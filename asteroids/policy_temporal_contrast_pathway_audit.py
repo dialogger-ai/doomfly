@@ -23,6 +23,7 @@ from .policy_optic_flow_encoding_audit import (
     signed_score_metrics,
     temporal_ridge_metrics,
 )
+from .progress import ProgressBar
 from .policy_safe_envelope_curriculum import SafeEnvelopeTeacherConfig
 from .policy_temporal_contrast_connectome_assay import (
     ASSAY_VERSION as CONNECTOME_VERSION,
@@ -111,45 +112,47 @@ def main() -> None:
     neutral_sample = sample_luminance(neutral, uv)
     input_sequences = []
     radial_scores = []
-    for index, condition in enumerate(conditions):
-        frames, record = motion_pair_frames(config, teacher, condition)
-        if record["maximum_risk"] >= teacher.risk_trigger:
-            raise SystemExit("Controlled condition exceeded the threat threshold")
-        encoded = causal_temporal_contrast_frames(
-            frames, source_exposure=exposure, pool_radius_pixels=radius
-        )
-        sampled = np.stack([
-            sample_luminance(linear_luminance(encoded[tick]), uv)
-            for tick in DECISION_TICK_INDICES
-        ]).astype(np.float32)
-        input_sequences.append(sampled)
-        signed = sampled - neutral_sample
-        on = np.maximum(signed, 0).sum(axis=0)
-        off = np.maximum(-signed, 0).sum(axis=0)
-        score, _ = on_off_radial_score(on, off, uv)
-        radial_scores.append(score)
-        if (index + 1) % 12 == 0:
-            print(json.dumps({"sampled_input_conditions": index + 1,
-                              "conditions": len(conditions)}), flush=True)
+    with ProgressBar("Sample encoded input", len(conditions)) as progress:
+        for condition in conditions:
+            frames, record = motion_pair_frames(config, teacher, condition)
+            if record["maximum_risk"] >= teacher.risk_trigger:
+                raise SystemExit("Controlled condition exceeded the threat threshold")
+            encoded = causal_temporal_contrast_frames(
+                frames, source_exposure=exposure, pool_radius_pixels=radius
+            )
+            sampled = np.stack([
+                sample_luminance(linear_luminance(encoded[tick]), uv)
+                for tick in DECISION_TICK_INDICES
+            ]).astype(np.float32)
+            input_sequences.append(sampled)
+            signed = sampled - neutral_sample
+            on = np.maximum(signed, 0).sum(axis=0)
+            off = np.maximum(-signed, 0).sum(axis=0)
+            score, _ = on_off_radial_score(on, off, uv)
+            radial_scores.append(score)
+            progress.advance()
 
     input_array = np.stack(input_sequences)
-    input_metrics = temporal_ridge_metrics(input_array, labels, directions)
-    radial_metrics = signed_score_metrics(np.asarray(radial_scores), labels)
     stage_metrics = {}
-    for stage in STAGES:
-        indices = stage_indices(group_labels, stage)
-        if not len(indices):
-            stage_metrics[stage] = {"groups": 0, "probe": None}
-            continue
-        probe = temporal_ridge_metrics(sequences[:, :, indices], labels, directions)
-        stage_metrics[stage] = {
-            "groups": len(indices) // 2,
-            "probe": probe,
-            "passes_diagnostic_thresholds": passes_probe(probe),
-        }
-        print(json.dumps({"scored_stage": stage, "groups": len(indices) // 2,
-                          "balanced_accuracy": probe["balanced_accuracy"]}), flush=True)
-    full = temporal_ridge_metrics(sequences, labels, directions)
+    with ProgressBar("Score input and neural stages", len(STAGES) + 2) as progress:
+        input_metrics = temporal_ridge_metrics(input_array, labels, directions)
+        radial_metrics = signed_score_metrics(np.asarray(radial_scores), labels)
+        progress.advance()
+        for stage in STAGES:
+            indices = stage_indices(group_labels, stage)
+            if not len(indices):
+                stage_metrics[stage] = {"groups": 0, "probe": None}
+                progress.advance()
+                continue
+            probe = temporal_ridge_metrics(sequences[:, :, indices], labels, directions)
+            stage_metrics[stage] = {
+                "groups": len(indices) // 2,
+                "probe": probe,
+                "passes_diagnostic_thresholds": passes_probe(probe),
+            }
+            progress.advance()
+        full = temporal_ridge_metrics(sequences, labels, directions)
+        progress.advance()
     expected = prior["model_metrics"]["structured_temporal_ridge"]
     if full["prediction_sha256"] != expected["prediction_sha256"]:
         raise SystemExit("Whole-state probe does not reproduce the prior result")

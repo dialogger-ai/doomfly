@@ -14,6 +14,20 @@
 - Preserve third-party notices. Do not bundle external research workbooks, papers,
   commercial game assets, dependency checkouts, or unrelated projects in archives.
 
+## Rob's local experiment workflow
+
+- Use GitHub Desktop for Fetch origin and Pull origin. Terminal commands are for
+  running experiments, not for asking Rob to perform Git operations.
+- Give one-line, copy/paste-ready run commands without a shell prompt. Add an
+  `&& cp ... "$HOME/Downloads/<specific-results-name>.json"` suffix so a successful
+  run leaves a file he can attach directly.
+- Every long-running or otherwise silent interactive experiment must report
+  visible progress from the start: current phase, completed/total, elapsed time,
+  and an ETA once possible. Use `asteroids.progress.ProgressBar` or an equivalent
+  indicator; ensure blocking scoring phases remain visibly alive. Preserve logs
+  and structured output for later audit.
+- Include these preferences explicitly in future project handoffs.
+
 ## DOOMFLY launch documentation requirement
 
 - User instruction (2026-09-05): before giving a launch green light, update and
