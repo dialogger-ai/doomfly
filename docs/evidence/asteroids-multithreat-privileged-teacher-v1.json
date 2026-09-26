@@ -1,0 +1,932 @@
+{
+  "schema": 1,
+  "name": "asteroids-multithreat-privileged-teacher-v1",
+  "teacher_source_sha256": "8a965e3cae2601bd9d28dcc384f481521b33555b7bde5b2f7a544e8e29e0aca4",
+  "development": {
+    "summary": {
+      "episodes": 11,
+      "contacts": 0,
+      "complete_horizon": 11,
+      "noop_fraction": 0.6781818181818182,
+      "active_action_fraction": 0.32181818181818184,
+      "mean_end_center_distance": 60.97843788467128,
+      "by_family": {
+        "blocked_gap": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 84.60094186965827
+        },
+        "center_recovery": {
+          "episodes": 1,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 26.886360276415807
+        },
+        "continuous_reassessment": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 81.61499510256124
+        },
+        "risk_priority": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 78.6871833297877
+        },
+        "safe_noop": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "two_threats": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 77.03510792547692
+        }
+      }
+    },
+    "scenes": [
+      {
+        "scenario": "quiet-orientation-0",
+        "family": "safe_noop",
+        "split": "development",
+        "seed": 210001,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "ca7e9ddaefe9e6de1209a787459845ac916d482eede7777d4e352a97e3546b35",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "58cffa34d967b3c2770f33db894e3881df7fa08dbcfb54cb920b6b1167c472fb"
+      },
+      {
+        "scenario": "crossfire-orientation-0",
+        "family": "two_threats",
+        "split": "development",
+        "seed": 210002,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "194e0f7ef5fd86c8ad302ed1237a8379d0bbfb5e9440e2529320ecd5c6a7cfce",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 77.03510792547691,
+        "action_counts": {
+          "NOOP": 99,
+          "LEFT": 6,
+          "RIGHT": 27,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "79a5d87e91e821355099bf31ab45c66c6405100ff5945b0ed8b2de31973ca35c"
+      },
+      {
+        "scenario": "near_decoy-orientation-0",
+        "family": "risk_priority",
+        "split": "development",
+        "seed": 210003,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "f201f0eed3e7d2cd97771167b43475b6ae62ee691a5523bb886499bd9914e776",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 78.6871833297877,
+        "action_counts": {
+          "NOOP": 81,
+          "LEFT": 15,
+          "RIGHT": 30,
+          "THRUST": 24,
+          "FIRE": 0
+        },
+        "trace_sha256": "69bb54b24808ffc0a58fea0b10bb081492e4145c051040f94fb921a82b25c9f7"
+      },
+      {
+        "scenario": "blocked_escape-orientation-0",
+        "family": "blocked_gap",
+        "split": "development",
+        "seed": 210004,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "e86cf3d8705887f2e87b7560ee249de15e8e6cea58f4a8ad7875ea456f3c3d6e",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 84.60094186965827,
+        "action_counts": {
+          "NOOP": 78,
+          "LEFT": 3,
+          "RIGHT": 42,
+          "THRUST": 27,
+          "FIRE": 0
+        },
+        "trace_sha256": "834d082badb46d4a770920b55146d72ccd82a7b9777933d291026819f41892c0"
+      },
+      {
+        "scenario": "staggered-orientation-0",
+        "family": "continuous_reassessment",
+        "split": "development",
+        "seed": 210005,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "bc860c202285f799df4a30e28a69f9742a43f6d6c7cd969666412cf8b256f1df",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 81.61499510256124,
+        "action_counts": {
+          "NOOP": 93,
+          "LEFT": 0,
+          "RIGHT": 39,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "6bcd1896bb6956340106b13cb0f55e61bbab0e00d6269d8661bcbc2d41b4b51c"
+      },
+      {
+        "scenario": "quiet-orientation-1",
+        "family": "safe_noop",
+        "split": "development",
+        "seed": 210006,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "358c9505d1c78cd09845308d18029fdf69f1c4667f8476183ed34d7fd0a00195",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "a410af5b23cf2166704dcec8fb3d8d1ff6343504029ee692766cf70f05b9ad62"
+      },
+      {
+        "scenario": "crossfire-orientation-1",
+        "family": "two_threats",
+        "split": "development",
+        "seed": 210007,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "51ef012f1a1c1c34a6e3a2235be759d938339134cc6281a65dc81ed94dfd25e4",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 77.03510792547694,
+        "action_counts": {
+          "NOOP": 99,
+          "LEFT": 6,
+          "RIGHT": 27,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "2a8d2e9b03237fda318ba878836bf8c7cb4ef748063f3af656622e28cbc22add"
+      },
+      {
+        "scenario": "near_decoy-orientation-1",
+        "family": "risk_priority",
+        "split": "development",
+        "seed": 210008,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "f2acc597382beaa1ce8bfc1ae3e50b7a612f730c180011586e73d6d674247541",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 78.68718332978771,
+        "action_counts": {
+          "NOOP": 81,
+          "LEFT": 15,
+          "RIGHT": 30,
+          "THRUST": 24,
+          "FIRE": 0
+        },
+        "trace_sha256": "12e79974cd0901f943cfacd3aa794ec821ce6088d08061edbf18dab77dfea908"
+      },
+      {
+        "scenario": "blocked_escape-orientation-1",
+        "family": "blocked_gap",
+        "split": "development",
+        "seed": 210009,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "d19986aaa78346752a54c9730788fd449066b9399e572bc9ce7511b4630f2b02",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 84.60094186965827,
+        "action_counts": {
+          "NOOP": 78,
+          "LEFT": 3,
+          "RIGHT": 42,
+          "THRUST": 27,
+          "FIRE": 0
+        },
+        "trace_sha256": "fc3c9192f34bdae200672b94800eafdc79ea84190611cb03ac7a6bfedd2f8743"
+      },
+      {
+        "scenario": "staggered-orientation-1",
+        "family": "continuous_reassessment",
+        "split": "development",
+        "seed": 210010,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "604e1247a83541735b7a59e2822f710c04e4eb6cdad271f6dd219c0fb3aaaee1",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 81.61499510256124,
+        "action_counts": {
+          "NOOP": 93,
+          "LEFT": 0,
+          "RIGHT": 39,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "d0731b5dd0082327381f30ba5b454ae8a5bc7f557b33020d16aad37d5c949b27"
+      },
+      {
+        "scenario": "recovery-edge",
+        "family": "center_recovery",
+        "split": "development",
+        "seed": 210021,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "007d994915b1d481ab7c17bc3cc598416c25c2c9592bcec2084dd08fa34152a2",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 26.886360276415807,
+        "action_counts": {
+          "NOOP": 117,
+          "LEFT": 18,
+          "RIGHT": 0,
+          "THRUST": 15,
+          "FIRE": 0
+        },
+        "trace_sha256": "9f4b54ead9c18d7a2488a92f136981228d3b38c676776081eae336b10da8259d"
+      }
+    ],
+    "artifact_sha256": {
+      "results_sha256": "d4a197e44f4bfc2d27a2c9ac8fdadf634c27ee28082cad00f956d56339078ec8",
+      "protocol_sha256": "e2fda2dbc2270ce4b4208afb939503fde615495db00b505f284d06e4cfbb68be"
+    }
+  },
+  "rotated": {
+    "summary": {
+      "episodes": 10,
+      "contacts": 0,
+      "complete_horizon": 10,
+      "noop_fraction": 0.668,
+      "active_action_fraction": 0.332,
+      "mean_end_center_distance": 64.38764564549683,
+      "by_family": {
+        "blocked_gap": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 84.60094186965827
+        },
+        "continuous_reassessment": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 81.61499510256124
+        },
+        "risk_priority": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 78.6871833297877
+        },
+        "safe_noop": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 0.0
+        },
+        "two_threats": {
+          "episodes": 2,
+          "contacts": 0,
+          "mean_game_seconds": 5.0,
+          "mean_end_center_distance": 77.03510792547692
+        }
+      }
+    },
+    "scenes": [
+      {
+        "scenario": "quiet-orientation-2",
+        "family": "safe_noop",
+        "split": "heldout",
+        "seed": 210011,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "27faae371eb1ec502c5023ac15b98b98196adf59543f837d1d28c95a1b130eaf",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "0b709f40aec971c3b593f5f1f92fea6d2667a033d4088a34811ac30168b0b192"
+      },
+      {
+        "scenario": "crossfire-orientation-2",
+        "family": "two_threats",
+        "split": "heldout",
+        "seed": 210012,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "933894ba2333ab176a1c8fd90a8474034ab7f1713c11672b6e34b23b89e81f26",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 77.03510792547694,
+        "action_counts": {
+          "NOOP": 99,
+          "LEFT": 27,
+          "RIGHT": 6,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "ddc1c26e37680c5b89679b814d2fd3aabbe1dc596f1b02d7e7a962c447d86c8e"
+      },
+      {
+        "scenario": "near_decoy-orientation-2",
+        "family": "risk_priority",
+        "split": "heldout",
+        "seed": 210013,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "a3ece4f90e5943b61cea39d85f5c9f8d9253071bbb03e24cbb0f8e698279e2e0",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 78.6871833297877,
+        "action_counts": {
+          "NOOP": 81,
+          "LEFT": 15,
+          "RIGHT": 30,
+          "THRUST": 24,
+          "FIRE": 0
+        },
+        "trace_sha256": "1e0b2e252a034f217f307012d75d3ed07bbb0da8b92b55652560d25120c5fd38"
+      },
+      {
+        "scenario": "blocked_escape-orientation-2",
+        "family": "blocked_gap",
+        "split": "heldout",
+        "seed": 210014,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "85537fd6359413579b544fe21928f62c360bf40c76d96cef84eff3f220be1059",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 84.60094186965827,
+        "action_counts": {
+          "NOOP": 78,
+          "LEFT": 3,
+          "RIGHT": 42,
+          "THRUST": 27,
+          "FIRE": 0
+        },
+        "trace_sha256": "4edbfd3c5f13d0a1c332d782a88fed43cdc8dcdd9ec8cff61481a43ca0223f4e"
+      },
+      {
+        "scenario": "staggered-orientation-2",
+        "family": "continuous_reassessment",
+        "split": "heldout",
+        "seed": 210015,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "ae8acb69d6f5b06069accfac77653c0e88751331d27d9e1b8290f489d7bb48ef",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 81.61499510256124,
+        "action_counts": {
+          "NOOP": 93,
+          "LEFT": 0,
+          "RIGHT": 39,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "d8ecfd2560394d0774147a09aa509268f876f7a748cf1562e8f0f24cdaeeff03"
+      },
+      {
+        "scenario": "quiet-orientation-3",
+        "family": "safe_noop",
+        "split": "heldout",
+        "seed": 210016,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "bcb748b64e291ac8c8fa2e77e7444cc5cb5db88a9d672ecbbfdeb6c663e0b736",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 0.0,
+        "action_counts": {
+          "NOOP": 150,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0,
+          "FIRE": 0
+        },
+        "trace_sha256": "43b55178c0d06326adac684bfdd50b9affbd5519c618a406c91f7fd42574afc2"
+      },
+      {
+        "scenario": "crossfire-orientation-3",
+        "family": "two_threats",
+        "split": "heldout",
+        "seed": 210017,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "e386ebd96cf7592faff77d582c7b558b72c23d3db2680b1bbd0a2998e9c3cdb4",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 77.03510792547691,
+        "action_counts": {
+          "NOOP": 99,
+          "LEFT": 27,
+          "RIGHT": 6,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "f6ad610c8cebfb0a7e0bd9e558a5f7873e603096e35c173117f1350cc50404d0"
+      },
+      {
+        "scenario": "near_decoy-orientation-3",
+        "family": "risk_priority",
+        "split": "heldout",
+        "seed": 210018,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "3fdc5ffe9cd0e25fc8e772a7246d1f46382a85bce25b0c85f6aa13e7adf48426",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 78.6871833297877,
+        "action_counts": {
+          "NOOP": 81,
+          "LEFT": 15,
+          "RIGHT": 30,
+          "THRUST": 24,
+          "FIRE": 0
+        },
+        "trace_sha256": "8241b456d29cff1bf5e8826fc1dd47741b93c53cc3f2ae97de4a20358f469981"
+      },
+      {
+        "scenario": "blocked_escape-orientation-3",
+        "family": "blocked_gap",
+        "split": "heldout",
+        "seed": 210019,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "04facd8e015e53174fb36fc9749fe14f13c1ae296602bb91bee5fbd3eee71345",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 84.60094186965827,
+        "action_counts": {
+          "NOOP": 78,
+          "LEFT": 3,
+          "RIGHT": 42,
+          "THRUST": 27,
+          "FIRE": 0
+        },
+        "trace_sha256": "78cd10025975515da9742a8ab9ca1bfc149a355a461101ca64c7ec575964ecbc"
+      },
+      {
+        "scenario": "staggered-orientation-3",
+        "family": "continuous_reassessment",
+        "split": "heldout",
+        "seed": 210020,
+        "mode": "privileged_multithreat_teacher",
+        "initial_frame_sha256": "f930742aec12e15d651e1f6bd6f81320f06eacd591d9f9c314646cc1af16a66e",
+        "game_ticks": 150,
+        "game_seconds": 5.0,
+        "contacts": 0,
+        "end_health": 3,
+        "center_distance": 81.61499510256124,
+        "action_counts": {
+          "NOOP": 93,
+          "LEFT": 0,
+          "RIGHT": 39,
+          "THRUST": 18,
+          "FIRE": 0
+        },
+        "trace_sha256": "c22e766199b79e7c6f8f877dfcf0d4fc8c48d1977d99183e8b0e311907aab146"
+      }
+    ],
+    "artifact_sha256": {
+      "results_sha256": "55baa2ce7b424b963b2b8a86056b45dad0102fee1adaf8b639519d0e027f6f23",
+      "protocol_sha256": "4d4e1792954220a5d1517c4572d0330ee851a2e32c15f5b3581dba1a33dcb546"
+    }
+  },
+  "novel_geometry": {
+    "generator_seed": 20260925,
+    "scenarios": [
+      {
+        "name": "novel-threat-00",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220001,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 0.0,
+        "ship_vy": 0.0,
+        "heading": 164.0079027454752,
+        "rocks": [
+          {
+            "x": 439.3970259272778,
+            "y": 165.6957050645634,
+            "vx": -72.37875757105674,
+            "vy": 42.74985808790916,
+            "radius": 18.593559711144874
+          },
+          {
+            "x": 186.61992249936625,
+            "y": 278.8084157269759,
+            "vx": 68.62355346355608,
+            "vy": -50.85994485559465,
+            "radius": 14.092916738894905
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-01",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220002,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 0.0,
+        "ship_vy": 0.0,
+        "heading": 331.6785771612317,
+        "rocks": [
+          {
+            "x": 456.26489846403365,
+            "y": 183.48218319068093,
+            "vx": -72.64503304870173,
+            "vy": 11.75777420386778,
+            "radius": 14.594694120879401
+          },
+          {
+            "x": 162.2262300854859,
+            "y": 318.28770011449075,
+            "vx": 95.19754625533302,
+            "vy": -16.03421126766395,
+            "radius": 19.340386731983354
+          },
+          {
+            "x": 359.81931104993635,
+            "y": 57.29799904004972,
+            "vx": -6.387313841449389,
+            "vy": 80.44083884399981,
+            "radius": 18.23051053419102
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-02",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220003,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 0.0,
+        "ship_vy": 0.0,
+        "heading": 163.37520938389227,
+        "rocks": [
+          {
+            "x": 403.0673223242623,
+            "y": 164.91452666848153,
+            "vx": 50.57840363137742,
+            "vy": -68.75247092335732,
+            "radius": 17.527132243441983
+          },
+          {
+            "x": 161.81849274791074,
+            "y": 149.29999310052477,
+            "vx": 76.32327465468948,
+            "vy": 17.32348949795955,
+            "radius": 21.042033251296818
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-03",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220004,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 0.0,
+        "ship_vy": 0.0,
+        "heading": 106.5530573131153,
+        "rocks": [
+          {
+            "x": 450.1820092625551,
+            "y": 241.06500984132833,
+            "vx": -61.60583782172343,
+            "vy": -22.21882969382183,
+            "radius": 16.787295695797596
+          },
+          {
+            "x": 210.9870949675056,
+            "y": 390.52895756711496,
+            "vx": 61.78898170696596,
+            "vy": -50.164958231631275,
+            "radius": 17.696841553825045
+          },
+          {
+            "x": 314.58580686531025,
+            "y": 105.8720617854604,
+            "vx": -28.15875088133996,
+            "vy": 75.469891846987,
+            "radius": 19.753731503306014
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-04",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220005,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 0.0,
+        "ship_vy": 0.0,
+        "heading": 273.97738066275645,
+        "rocks": [
+          {
+            "x": 451.97035753558595,
+            "y": 213.4229861170784,
+            "vx": -91.73151608181173,
+            "vy": 41.857574788627716,
+            "radius": 21.95984808851223
+          },
+          {
+            "x": 215.55146316041618,
+            "y": 132.60174143998273,
+            "vx": 52.69040699482584,
+            "vy": 92.77327090167648,
+            "radius": 15.021901053619878
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-05",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220006,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 0.0,
+        "ship_vy": 0.0,
+        "heading": 5.696042740384697,
+        "rocks": [
+          {
+            "x": 419.50724254975404,
+            "y": 134.63326521054967,
+            "vx": -89.84949577567565,
+            "vy": 50.50591652841326,
+            "radius": 14.792839036820952
+          },
+          {
+            "x": 325.79610746554414,
+            "y": 373.31988297307805,
+            "vx": 2.8545629391474936,
+            "vy": -75.24390726238974,
+            "radius": 14.580798712391848
+          },
+          {
+            "x": 272.7021918750791,
+            "y": 120.85841703270724,
+            "vx": 14.131172966967787,
+            "vy": 70.07444043466236,
+            "radius": 20.109101272643677
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-06",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220007,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 20.0,
+        "ship_vy": 15.0,
+        "heading": 168.84700830213774,
+        "rocks": [
+          {
+            "x": 407.38999966488416,
+            "y": 292.00940814943624,
+            "vx": 95.32887656345348,
+            "vy": 40.822568907989634,
+            "radius": 21.813235181248327
+          },
+          {
+            "x": 160.23090146776426,
+            "y": 251.23122893183566,
+            "vx": 92.72358141756057,
+            "vy": 21.69342063309628,
+            "radius": 21.595627310193766
+          }
+        ]
+      },
+      {
+        "name": "novel-threat-07",
+        "family": "novel_multi_threat",
+        "split": "novel_geometry",
+        "seed": 220008,
+        "ship_x": 320.0,
+        "ship_y": 240.0,
+        "ship_vx": 20.0,
+        "ship_vy": -15.0,
+        "heading": 187.87058402161452,
+        "rocks": [
+          {
+            "x": 439.488426117924,
+            "y": 353.8397678549539,
+            "vx": -51.79865270291894,
+            "vy": -47.31420867729973,
+            "radius": 14.376138082013506
+          },
+          {
+            "x": 200.51711170417866,
+            "y": 283.98877092034445,
+            "vx": 89.76657963690604,
+            "vy": 3.306736913308285,
+            "radius": 15.701838487407148
+          },
+          {
+            "x": 304.33760030650205,
+            "y": 35.971400166511614,
+            "vx": 30.297627512356474,
+            "vy": 104.33339996498265,
+            "radius": 14.580593742712884
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "noop": {
+        "episodes": 8,
+        "contacts": 7,
+        "complete_horizon": 8,
+        "noop_fraction": 1.0,
+        "active_action_fraction": 0.0,
+        "mean_end_center_distance": 30.106018241799998,
+        "by_family": {
+          "novel_multi_threat": {
+            "episodes": 8,
+            "contacts": 7,
+            "mean_game_seconds": 5.0,
+            "mean_end_center_distance": 30.106018241799998
+          }
+        }
+      },
+      "single_threat_oracle": {
+        "episodes": 8,
+        "contacts": 1,
+        "complete_horizon": 8,
+        "noop_fraction": 0.4125,
+        "active_action_fraction": 0.5875,
+        "mean_end_center_distance": 151.54718229096616,
+        "by_family": {
+          "novel_multi_threat": {
+            "episodes": 8,
+            "contacts": 1,
+            "mean_game_seconds": 5.0,
+            "mean_end_center_distance": 151.54718229096616
+          }
+        }
+      },
+      "RGB_only": {
+        "episodes": 8,
+        "contacts": 3,
+        "complete_horizon": 8,
+        "noop_fraction": 0.49666666666666665,
+        "active_action_fraction": 0.5033333333333333,
+        "mean_end_center_distance": 143.9787943251488,
+        "by_family": {
+          "novel_multi_threat": {
+            "episodes": 8,
+            "contacts": 3,
+            "mean_game_seconds": 5.0,
+            "mean_end_center_distance": 143.9787943251488
+          }
+        }
+      },
+      "privileged_multi_threat": {
+        "episodes": 8,
+        "contacts": 0,
+        "complete_horizon": 8,
+        "noop_fraction": 0.67,
+        "active_action_fraction": 0.33,
+        "mean_end_center_distance": 65.71683086564171,
+        "by_family": {
+          "novel_multi_threat": {
+            "episodes": 8,
+            "contacts": 0,
+            "mean_game_seconds": 5.0,
+            "mean_end_center_distance": 65.71683086564171
+          }
+        }
+      }
+    },
+    "paired": [
+      {
+        "scene": "novel-threat-00",
+        "noop_contacts": 1,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 0,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-01",
+        "noop_contacts": 1,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 0,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-02",
+        "noop_contacts": 0,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 0,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-03",
+        "noop_contacts": 0,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 1,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-04",
+        "noop_contacts": 1,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 0,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-05",
+        "noop_contacts": 2,
+        "single_threat_oracle_contacts": 1,
+        "RGB_only_contacts": 1,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-06",
+        "noop_contacts": 1,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 0,
+        "privileged_multi_threat_contacts": 0
+      },
+      {
+        "scene": "novel-threat-07",
+        "noop_contacts": 1,
+        "single_threat_oracle_contacts": 0,
+        "RGB_only_contacts": 1,
+        "privileged_multi_threat_contacts": 0
+      }
+    ],
+    "artifact_sha256": {
+      "results_sha256": "97799e0c7b8550ceae97e32b178209249c460b904867f31965b4bd64620e1c20",
+      "protocol_sha256": "d4c40fae66798db7abd6f2fb1b850ee0e290502ca75a14e52fa260d3cd1ba53d"
+    }
+  },
+  "scope": {
+    "teacher_observation": "Exact simulator ship/asteroid state",
+    "connectome_used": false,
+    "learning_enabled": false,
+    "benchmark_horizon_seconds": 5,
+    "note": "Original and rotated layouts were known before this teacher check; source frozen before the eight novel geometries were scored. No fly learning claim."
+  }
+}
