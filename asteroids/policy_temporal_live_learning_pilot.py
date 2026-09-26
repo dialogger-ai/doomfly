@@ -4,7 +4,9 @@ Live RGB is converted to the previously declared causal contrast input on
 each game tick. The uniform R1-R6 screen mapping and full graph are frozen.
 Only the explicit neural-state actor-critic learns from post-action rewards.
 This is an exploratory gameplay loop, not fly synaptic plasticity or evidence
-that the model learned collision avoidance.
+that the model learned collision avoidance. It is retained as a reproducible
+demonstration protocol; the learning-path decision recommends the plastic
+pathway gate before any new gameplay-learning claim.
 """
 
 from __future__ import annotations
