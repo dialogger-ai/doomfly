@@ -52,3 +52,29 @@ weights, before making a learning claim.
 
 No result in this ladder currently validates fly physiology, synaptic learning,
 or autonomous multi-threat collision avoidance.
+
+## Pathway-gate result — 2026-09-26
+
+Rob's uploaded `doomfly-plastic-pathway-gate-results.json` completed with all
+controls true. KC spike sequences differed from the neutral reference in all
+eight scenes. Multiplying existing KC→MBON11 efficacies by 1.2 changed MBON11
+and motor spike sequences in all eight. MBON11 total spikes rose in every
+scene, from 40–55 to 74–90, while DNpe017 spikes often fell. The change is
+therefore consistent with a broad efficacy effect; this gate does not establish
+that the pathway encodes safe/recovery decisions or improves game actions.
+T4/T5 generated no spikes in these traces. The fixed 20% intervention was not
+produced by actual reinforcement, and `synaptic_learning_ready` remains false.
+
+The next bounded operational pilot is
+`asteroids.policy_temporal_synaptic_learning_pilot`. It runs the existing
+KC→MBON11 rule with live RGB contrast and the fixed, black-centered
+DNp20/DNpe017 decoder. Observed Asteroids collision damage triggers the
+existing 200 ms +4 PPL101 pulse on the next neural step. The matched frozen
+arm receives its own damage pulses without weight changes. The shifted arm
+replays the plastic arm's pulse times half a training horizon later; the result
+flags any dose mismatch caused by early termination. Two independent seeds
+evaluate each arm with weights frozen and stimulation off. This short pilot
+tests whether feedback reaches plastic edges and whether changed weights
+alter held-out actions or contacts. It cannot demonstrate avoidance learning
+with one training seed and two evaluation seeds; action and safety benefits
+would require stronger independent replication and a validated task readout.
