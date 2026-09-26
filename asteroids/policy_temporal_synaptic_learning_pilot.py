@@ -73,7 +73,9 @@ def run_episode(brain, *, seed: int, seconds: int, config: AsteroidsConfig,
                 decoder: AsteroidsNeuralDecoder, pathway: dict, relay: dict,
                 candidate: dict, reference: np.ndarray, neutral: np.ndarray,
                 adapter: OnlineContrast, deliverer, learning: bool,
-                frozen: bool, schedule: list[tuple[int, int]] | None) -> tuple[dict, list[tuple[int, int]]]:
+                frozen: bool, schedule: list[tuple[int, int]] | None,
+                action_replay: list[str] | None = None,
+                expected_frames: list[str] | None = None) -> tuple[dict, list[tuple[int, int]]]:
     env = AsteroidsEnv(seed=seed, config=config)
     brain.reset(keep_memory=True)
     brain.weights_frozen = frozen
@@ -101,6 +103,10 @@ def run_episode(brain, *, seed: int, seconds: int, config: AsteroidsConfig,
     trace = []
     for tick in range(horizon):
         frame = adapter(env.rgb())
+        frame_hash = array_sha256(frame)
+        if expected_frames is not None and (
+                tick >= len(expected_frames) or frame_hash != expected_frames[tick]):
+            raise ValueError(f"Training frame replay differs at tick {tick + 1}")
         steps = neural_steps_for_tick(tick, brain.cursor - origin)
         remaining = steps
         counts = np.zeros(brain.n, dtype=np.int64)
@@ -125,7 +131,8 @@ def run_episode(brain, *, seed: int, seconds: int, config: AsteroidsConfig,
         if brain.cursor - origin != round((tick + 1) * NEURAL_STEPS_PER_SECOND / GAME_HZ):
             raise ValueError("Brain and game clocks diverged")
         decision = decoder.decode(counts, steps / NEURAL_STEPS_PER_SECOND)
-        action = Action(decision["action"])
+        action = (Action[ action_replay[tick] ] if action_replay is not None
+                  else Action(decision["action"]))
         result = env.step(action)
         actions[action.name] += 1
         damage = int(result.telemetry["damage_this_step"])
@@ -138,9 +145,11 @@ def run_episode(brain, *, seed: int, seconds: int, config: AsteroidsConfig,
                       "KC_spikes": int(counts[brain.circuit["kc"]].sum()),
                       "PPL101_spikes": int(counts[brain.circuit["dan"]].sum()),
                       "MBON11_spikes": int(counts[brain.circuit["mb"]].sum()),
-                      "frame_sha256": array_sha256(frame)})
+                      "frame_sha256": frame_hash})
         if result.terminated:
             break
+    if action_replay is not None and len(trace) != len(action_replay):
+        raise ValueError("Training replay did not reproduce terminal tick")
     memory = brain.memory()
     return ({"seed": seed, "game_ticks": len(trace), "game_seconds": len(trace) / GAME_HZ,
              "contacts": int(env.telemetry()["contacts"]),
