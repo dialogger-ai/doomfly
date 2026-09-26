@@ -247,6 +247,13 @@ def main() -> None:
             train["exposure_dose_matched"] = (True if mode != "shifted" else
                                               train["pulse_ms"] == rows["plastic"]["training"]["pulse_ms"])
             rows[mode] = {"training": train, "evaluation": []}
+            artifact = args.out / f"{mode}-trained-memory.npz"
+            np.savez(artifact, weights=brain.weight[brain.circuit["edges"]],
+                     memory_u=brain.memory_u, memory_w=brain.memory_w,
+                     edge_ids=brain.circuit["edges"],
+                     graph_sha256=protocol["graph_sha256"])
+            train["trained_memory_artifact"] = str(artifact)
+            train["trained_memory_sha256"] = file_sha256(artifact)
             _write_json(args.out / f"{mode}-training.json", train)
             progress.advance()
             trained = brain.weight[brain.circuit["edges"]].copy()
