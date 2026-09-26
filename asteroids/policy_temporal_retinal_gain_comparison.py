@@ -43,7 +43,7 @@ from .visual_assay import GRAPH, GRAPH_MANIFEST, file_sha256, pathway_groups
 
 COMPARISON_VERSION = "asteroids-policy-temporal-retinal-gain-comparison-v1"
 SEED_START = 160001
-GEOMETRIES = ((165.0, 34.0), (167.5, 34.5))
+GEOMETRIES = ((163.0, 33.5), (169.0, 34.5))
 # MemoryBrain uses rest=-52 mV and a -45 mV spike threshold for R1-R6.
 # The engineered neutral image encodes 15 mV; 0.4 places it at 6 mV.
 GAINS = {"baseline": 1.0, "below_threshold": 0.4}
@@ -128,10 +128,13 @@ def main() -> None:
            *(record["condition"] for record in window["condition_records"]),
            *(record["condition"] for record in projection["condition_records"]),
            *audit_protocol["conditions"], *parent_protocol["conditions"]]
-    if any({getattr(c, field) for c in conditions} &
-           {type(getattr(conditions[0], field))(row[field]) for row in old}
-           for field in ("seed", "target_radius", "radial_speed")):
-        raise SystemExit("Independent seeds, radii and speeds are required")
+    overlaps = {
+        field: sorted({getattr(c, field) for c in conditions} &
+                      {type(getattr(conditions[0], field))(row[field]) for row in old})
+        for field in ("seed", "target_radius", "radial_speed")
+    }
+    if any(overlaps.values()):
+        raise SystemExit(f"Independent geometry overlap: {overlaps}")
     protocol = {
         "schema": 1, "comparison": COMPARISON_VERSION, "prior": str(args.prior),
         "prior_results_sha256": file_sha256(args.prior / "results.json"),
