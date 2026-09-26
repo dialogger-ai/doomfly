@@ -1,6 +1,6 @@
 # DOOMFLY project constraints
 
-- This repository contains the MaleCNS v1.0 / ViZDoom experiment only.
+- This repository contains MaleCNS v1.0 research, the ViZDoom history, and the Asteroids integration.
 - Retain every released connection between the retained neuronal entries. Do not
   crop circuits, prune weak/self edges, or replace the network with a game policy.
 - Keep live RGB input, modeled neural propagation, reinforcement, plasticity and
@@ -13,6 +13,14 @@
 - Store credentials and machine-specific origins only in ignored configuration.
 - Preserve third-party notices. Do not bundle external research workbooks, papers,
   commercial game assets, dependency checkouts, or unrelated projects in archives.
+
+## Active branch policy
+
+- `main` is the watchable Asteroids gameplay baseline and its integration fixes.
+- `training` is for new visual, policy-reward and synaptic experiments, analyses and results. Promote a tested gameplay improvement to `main` deliberately; do not merge all research work by default.
+- `codex/asteroids-integration` is a preserved pre-split snapshot, not a branch for new work.
+- Main retains earlier experiment history and modules needed by the gameplay loop. Branch separation applies to future changes; do not rewrite or erase negative results.
+- Include active branch, commit, and GitHub Desktop Fetch/Pull branch selection in handoffs and run instructions.
 
 ## Rob's local experiment workflow
 
