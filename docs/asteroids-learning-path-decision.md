@@ -147,3 +147,15 @@ reference; it kept quiet scenes on NOOP but failed blocked-gap cases and one
 crossfire orientation. Preserve the evaluation outcome without tuning on it.
 This provides a concrete software target while the biological learning
 interpretation is reassessed; no fly avoidance claim follows from it.
+
+## Next fly-learning prerequisite
+
+The next bounded assay is `asteroids.policy_temporal_cue_conditioning`,
+described in `docs/asteroids-cue-conditioning.md`. It holds the full sensory
+movie and existing rule fixed while comparing an equal-dose PPL101 pulse
+during a confirmed visual cue, three seconds after it, or withheld. Frozen
+readouts of the trained and control cues will expose whether the candidate
+plasticity produces a cue-specific downstream effect beyond endogenous drift.
+The scene pair is selected from prior confirmation metadata before observing
+this result. Do not resume the failed collision-pulse gameplay recipe or
+claim a fly learned avoidance from a nonzero synaptic interaction alone.
