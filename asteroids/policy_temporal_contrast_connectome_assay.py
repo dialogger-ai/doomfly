@@ -446,7 +446,10 @@ def main() -> None:
             temporal, label_array, direction_array
         )
     }
-    policy_config = PolicyConfig(**source["policy"])
+    risk_protocol = json.loads(
+        (Path(str(structured_protocol["risk_matched_source"])) / "protocol.json").read_text()
+    )
+    policy_config = PolicyConfig(**risk_protocol["policy"])
     for hidden in RESERVOIR_SIZES:
         metrics[f"reservoir_{hidden}"] = cross_validated_reservoir(
             sequence_array,
