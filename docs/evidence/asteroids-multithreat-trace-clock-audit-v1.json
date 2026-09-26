@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "audit": "asteroids-multithreat-trace-clock-audit-v1",
+  "complete": true,
+  "archive_sha256": "248a24c21350858c930230f6f0a6b35787d29b1286742b05cf3a443ac0747b65",
+  "files_sha256": {
+    "results.json": "232ba2546e99cb20734caf31f5c1c6e78801906f7a3a27c7211e0a570d3c2197",
+    "development-neural-traces.npz": "c5c0157c3ac4cf3adab16db267fef6e8c5b0c1f4d89a28e43ad4e5f8151ec25f",
+    "heldout-neural-traces.npz": "2bca095b542d1f2b6f37ed6567c0095ffd4401a9c7c34ec5b4fb3ea114da7905",
+    "development-probe.npz": "91da697acf629b2a8ae7c86755c72516eaca31dfbf775585bef5e9ff48b0b55b"
+  },
+  "graph_sha256": "fcd8c9cd5dbf7de751da339cf644c32e2d05f32304aa3f0d8a6512446290d061",
+  "structure": {
+    "development": {
+      "decisions": 110,
+      "duplicate_frame_hashes": 0,
+      "between_group_variance_fraction": {
+        "elapsed_decision": 0.40314681911497646,
+        "action": 0.03212763164214287,
+        "scene": 0.05610554575610379
+      },
+      "closest_other_scene_same_elapsed_decision_fraction": 0.8545454545454545,
+      "closest_other_scene_action_agreement": 0.2818181818181818
+    },
+    "heldout": {
+      "decisions": 100,
+      "duplicate_frame_hashes": 0,
+      "between_group_variance_fraction": {
+        "elapsed_decision": 0.40806219110547925,
+        "action": 0.026460786143116487,
+        "scene": 0.05583945999188886
+      },
+      "closest_other_scene_same_elapsed_decision_fraction": 0.86,
+      "closest_other_scene_action_agreement": 0.31
+    }
+  },
+  "shuffled_label_control": {
+    "seed": 20260926,
+    "shuffles": 99,
+    "training_accuracy_min": 1.0,
+    "training_accuracy_mean": 1.0,
+    "training_accuracy_max": 1.0
+  },
+  "orientation_folds": {
+    "withheld_orientation_0": {
+      "neural_ridge": {
+        "exact_action_accuracy": 0.28,
+        "quiet_NOOP_specificity": 0.4
+      },
+      "time_subtracted_ridge": {
+        "exact_action_accuracy": 0.18,
+        "quiet_NOOP_specificity": 0.3
+      },
+      "time_only_majority": {
+        "exact_action_accuracy": 0.4,
+        "quiet_NOOP_specificity": 0.4
+      }
+    },
+    "withheld_orientation_1": {
+      "neural_ridge": {
+        "exact_action_accuracy": 0.34,
+        "quiet_NOOP_specificity": 0.6
+      },
+      "time_subtracted_ridge": {
+        "exact_action_accuracy": 0.28,
+        "quiet_NOOP_specificity": 0.5
+      },
+      "time_only_majority": {
+        "exact_action_accuracy": 0.4,
+        "quiet_NOOP_specificity": 0.5
+      }
+    }
+  },
+  "rotated_diagnostic": {
+    "neural_ridge": {
+      "exact_action_accuracy": 0.24,
+      "quiet_NOOP_specificity": 0.25
+    },
+    "time_subtracted_ridge": {
+      "exact_action_accuracy": 0.23,
+      "quiet_NOOP_specificity": 0.35
+    },
+    "time_only_majority": {
+      "exact_action_accuracy": 0.32,
+      "quiet_NOOP_specificity": 0.5
+    }
+  },
+  "original_rotated_accuracy": 0.24,
+  "new_geometry_gate": false,
+  "claim_limit": "Post-hoc analysis of existing inspected neural features; no brain rerun, autonomous play or fly learning."
+}
