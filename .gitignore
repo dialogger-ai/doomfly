@@ -43,6 +43,9 @@ tools/acc/
 *.jsonl.*
 outputs/**/*.gz
 outputs/**/checkpoints/
+# Local experiment runs persist across training/gameplay branch switches.
+# Curated results are committed separately in docs/evidence/.
+/outputs/
 _vizdoom.ini
 
 # Separately commissioned social banners
