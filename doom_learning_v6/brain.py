@@ -32,7 +32,7 @@ def build():
 
 
 class MemoryBrain(NativeBrain):
-    def __init__(self,path=GRAPH,*,eta=.001,circuit=None,modulation_mask=None,tonic=None,dan_baseline_hz=None,kc_rest=-60.,adaptation_jump=8.,adaptation_tau=200.):
+    def __init__(self,path=GRAPH,*,eta=.001,circuit=None,modulation_mask=None,tonic=None,dan_baseline_hz=None,kc_rest=-60.,adaptation_jump=8.,adaptation_tau=200.,retinal_current_gain=1.):
         super().__init__(path)
         self.build=build();self.library=C.CDLL(str(LIBRARY));self.advance=self.library.memory_advance
         self.advance.argtypes=[C.c_int]+[C.c_void_p]*11+[C.c_int,C.c_float]+[C.c_void_p]*5+[
@@ -45,6 +45,8 @@ class MemoryBrain(NativeBrain):
         if not math.isfinite(adaptation_jump) or adaptation_jump<0 or not math.isfinite(adaptation_tau) or adaptation_tau<=20:raise ValueError('Invalid adaptation parameters')
         self.adaptation=np.zeros(self.n,dtype=np.float32)
         self.adaptation_jump=float(adaptation_jump);self.adaptation_tau=float(adaptation_tau)
+        if not math.isfinite(retinal_current_gain) or retinal_current_gain<=0:raise ValueError('Positive finite retinal current gain required')
+        self.retinal_current_gain=float(retinal_current_gain)
         if modulation_mask is None:
             import pyarrow.feather as feather
             neurons=feather.read_table(ROOT/'connectome_data/malecns_v1/normalized/neurons.feather').to_pandas().set_index('source_id').loc[self.ids]
@@ -89,7 +91,7 @@ class MemoryBrain(NativeBrain):
         if not math.isfinite(duration_ms) or steps<1 or not math.isfinite(lamina_bias):raise ValueError('Invalid interval/current')
         self.luminance+=(1-math.exp(-steps*self.dt/10))*(np.clip(light,0,1)-self.luminance)
         self.drive.fill(0);self.drive[self.lamina]=lamina_bias
-        self.drive[self.retina]=30*self.luminance/(.02+self.luminance)
+        self.drive[self.retina]=self.retinal_current_gain*30*self.luminance/(.02+self.luminance)
         self.drive+=self.tonic
         if stimulation is not None:
             pulses=stimulation if isinstance(stimulation,list) else [stimulation]
@@ -164,6 +166,7 @@ class MemoryBrain(NativeBrain):
         # Equal cell IDs and CSR endpoints alone do not imply equal input
         # geometry, original efficacies or compartment assignment.
         return {'initial_weight':self.initial_weight_sha256,'modulation_mask':digest(self.modulation_mask),
+                **({'retinal_current_gain':self.retinal_current_gain} if self.retinal_current_gain!=1. else {}),
                 'rule':self.rule_parameters,'rule_sha256':hashlib.sha256(Path(__file__).with_name('rule.py').read_bytes()).hexdigest(),
                 'tonic':digest(self.tonic),'dan_baseline_hz':digest(self.dan_baseline_hz),
                 'rest':digest(self.rest),'adaptation_jump':self.adaptation_jump,'adaptation_tau':self.adaptation_tau,
