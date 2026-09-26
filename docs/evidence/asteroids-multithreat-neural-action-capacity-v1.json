@@ -1,0 +1,244 @@
+{
+  "schema": 1,
+  "assay": "asteroids-multithreat-neural-action-capacity-v1",
+  "uploaded_results_sha256": "232ba2546e99cb20734caf31f5c1c6e78801906f7a3a27c7211e0a570d3c2197",
+  "complete": true,
+  "operational": true,
+  "controls": {
+    "frozen_graph_weights": true,
+    "R8_mapping_unchanged": true,
+    "projection_unchanged": true,
+    "distinct_scene_splits": true,
+    "RGB_only_teacher": true,
+    "no_learning_in_full_graph": true
+  },
+  "score": {
+    "development": {
+      "probe": {
+        "decisions": 110,
+        "exact_action_accuracy": 1.0,
+        "teacher_active_recall": 1.0,
+        "quiet_NOOP_specificity": 1.0,
+        "teacher_action_counts": {
+          "NOOP": 36,
+          "LEFT": 22,
+          "RIGHT": 24,
+          "THRUST": 28
+        },
+        "predicted_action_counts": {
+          "NOOP": 36,
+          "LEFT": 22,
+          "RIGHT": 24,
+          "THRUST": 28
+        }
+      },
+      "development_majority_baseline": {
+        "decisions": 110,
+        "exact_action_accuracy": 0.32727272727272727,
+        "teacher_active_recall": 0.0,
+        "quiet_NOOP_specificity": 1.0,
+        "teacher_action_counts": {
+          "NOOP": 36,
+          "LEFT": 22,
+          "RIGHT": 24,
+          "THRUST": 28
+        },
+        "predicted_action_counts": {
+          "NOOP": 110,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0
+        }
+      },
+      "always_NOOP": {
+        "decisions": 110,
+        "exact_action_accuracy": 0.32727272727272727,
+        "teacher_active_recall": 0.0,
+        "quiet_NOOP_specificity": 1.0,
+        "teacher_action_counts": {
+          "NOOP": 36,
+          "LEFT": 22,
+          "RIGHT": 24,
+          "THRUST": 28
+        },
+        "predicted_action_counts": {
+          "NOOP": 110,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0
+        }
+      }
+    },
+    "heldout": {
+      "probe": {
+        "decisions": 100,
+        "exact_action_accuracy": 0.24,
+        "teacher_active_recall": 0.7285714285714285,
+        "quiet_NOOP_specificity": 0.25,
+        "teacher_action_counts": {
+          "NOOP": 30,
+          "LEFT": 22,
+          "RIGHT": 33,
+          "THRUST": 15
+        },
+        "predicted_action_counts": {
+          "NOOP": 26,
+          "LEFT": 18,
+          "RIGHT": 26,
+          "THRUST": 30
+        }
+      },
+      "development_majority_baseline": {
+        "decisions": 100,
+        "exact_action_accuracy": 0.3,
+        "teacher_active_recall": 0.0,
+        "quiet_NOOP_specificity": 1.0,
+        "teacher_action_counts": {
+          "NOOP": 30,
+          "LEFT": 22,
+          "RIGHT": 33,
+          "THRUST": 15
+        },
+        "predicted_action_counts": {
+          "NOOP": 100,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0
+        }
+      },
+      "always_NOOP": {
+        "decisions": 100,
+        "exact_action_accuracy": 0.3,
+        "teacher_active_recall": 0.0,
+        "quiet_NOOP_specificity": 1.0,
+        "teacher_action_counts": {
+          "NOOP": 30,
+          "LEFT": 22,
+          "RIGHT": 33,
+          "THRUST": 15
+        },
+        "predicted_action_counts": {
+          "NOOP": 100,
+          "LEFT": 0,
+          "RIGHT": 0,
+          "THRUST": 0
+        }
+      }
+    }
+  },
+  "new_geometry_candidate_gate": false,
+  "sampled_group_spikes": {
+    "T4": 0,
+    "T5": 0,
+    "KC": 65923,
+    "MBON11": 433
+  },
+  "scene_contacts": [
+    {
+      "scenario": "quiet-orientation-0",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "crossfire-orientation-0",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "near_decoy-orientation-0",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "blocked_escape-orientation-0",
+      "split": "development",
+      "contacts": 1
+    },
+    {
+      "scenario": "staggered-orientation-0",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "quiet-orientation-1",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "crossfire-orientation-1",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "near_decoy-orientation-1",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "blocked_escape-orientation-1",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "staggered-orientation-1",
+      "split": "development",
+      "contacts": 0
+    },
+    {
+      "scenario": "quiet-orientation-2",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "crossfire-orientation-2",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "near_decoy-orientation-2",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "blocked_escape-orientation-2",
+      "split": "heldout",
+      "contacts": 2
+    },
+    {
+      "scenario": "staggered-orientation-2",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "quiet-orientation-3",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "crossfire-orientation-3",
+      "split": "heldout",
+      "contacts": 1
+    },
+    {
+      "scenario": "near_decoy-orientation-3",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "blocked_escape-orientation-3",
+      "split": "heldout",
+      "contacts": 1
+    },
+    {
+      "scenario": "staggered-orientation-3",
+      "split": "heldout",
+      "contacts": 0
+    },
+    {
+      "scenario": "recovery-edge",
+      "split": "development",
+      "contacts": 0
+    }
+  ],
+  "claim_limit": "Teacher imitation capacity only: rotated familiar geometries, no reward learning, no autonomous neural actions or synaptic changes."
+}
