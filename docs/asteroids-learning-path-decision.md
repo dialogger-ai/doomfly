@@ -164,3 +164,20 @@ Rob authorized reversible, explicitly documented augmentation of the model
 and its interfaces in pursuit of the fly-learning thesis. The causal
 boundaries, next gates, matched nulls and stop decisions are specified in
 `docs/asteroids-thesis-preserving-augmentation.md`.
+
+## Cue-conditioning outcome — 2026-09-25 local time
+
+The uploaded matched cue assay completed with all controls true. Paired,
+delayed and withheld arms changed 1,986, 1,944 and 1,947 existing plastic
+edges, respectively. The paired pulse increased frozen MBON11 spikes by 114
+on the trained cue and 115 on the control cue relative to withheld. Delayed
+and withheld arms had distinct stored weights but identical reported frozen
+neural spike sequences on both cues. The dominant paired effect is broad,
+not a selective cue association. See
+`docs/asteroids-cue-conditioning-result.md` for exact evidence and limits.
+
+The existing +4 PPL101 / centered-v6 collision-pulse gameplay recipe is
+retired from the learning path. Prioritize an auditable visual-to-neural
+interface and neural-state action learner with full-graph and matched-null
+controls. Any future synaptic recipe must be separately motivated and pass
+independent cue and action gates before a gameplay learning claim.
