@@ -74,7 +74,8 @@ def equal_count_uniform_uv(count: int, width: int, height: int) -> tuple[np.ndar
     selected = np.rint(np.linspace(0, len(grid) - 1, count)).astype(np.int64)
     coordinates = grid[selected]
     return coordinates, {
-        **scope, "samples": count, "source_grid_samples": len(grid),
+        **scope, "samples": count, "sample_count_ratio": 1.0,
+        "source_grid_samples": len(grid),
         "omission_rule": "evenly spaced row-major source indices",
         "selected_indices_sha256": array_sha256(selected),
         "uv_sha256": array_sha256(coordinates),
